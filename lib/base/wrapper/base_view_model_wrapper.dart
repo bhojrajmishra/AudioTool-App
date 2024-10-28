@@ -6,6 +6,5 @@ abstract class BaseViewModelWrapper extends BaseViewModel {
   final snackbarService = locator<SnackbarService>();
   final snackBar = locator.get<SnackbarService>();
   final navigation = locator<NavigationService>();
-   final dialogService = locator<DialogService>();
-
+  final dialogService = locator<DialogService>();
 }

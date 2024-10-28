@@ -45,9 +45,7 @@ class HomeView extends StackedView<HomeViewModel> {
             height: 100,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
-              child: PrimaryButton(
-                onPressedCallBack: viewModel.showDialog,
-              ),
+              child: PrimaryButton(onPressedCallBack: viewModel.navigationto),
             ),
           ),
         ));

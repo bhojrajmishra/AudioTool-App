@@ -4,12 +4,14 @@ import 'package:audiobook_record/ui/views/startup/startup_view.dart';
 import 'package:stacked/stacked_annotations.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:audiobook_record/ui/views/home/home_view.dart';
+import 'package:audiobook_record/ui/views/audio/audio_view.dart';
 // @stacked-import
 
 @StackedApp(
   routes: [
     MaterialRoute(page: StartupView),
     MaterialRoute(page: HomeView),
+    MaterialRoute(page: AudioView),
 // @stacked-route
   ],
   dependencies: [
