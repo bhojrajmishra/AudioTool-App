@@ -7,8 +7,8 @@ import 'package:stacked/stacked.dart';
 import 'audio_viewmodel.dart';
 
 class AudioView extends StackedView<AudioViewModel> {
-  const AudioView({Key? key}) : super(key: key);
-
+  const AudioView({Key? key, required this.titel}) : super(key: key);
+  final String titel;
   @override
   Widget builder(
     BuildContext context,
@@ -19,25 +19,43 @@ class AudioView extends StackedView<AudioViewModel> {
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Scaffold(
           appBar: AppBar(
-            title: const Text('Audio Player'),
+            title: Text(titel),
             actions: [
+              IconButton(
+                icon: const Icon(Icons.bookmark_add),
+                onPressed: () {},
+              ),
               IconButton(
                 icon: const Icon(Icons.more_horiz_sharp),
                 onPressed: () {},
               ),
-              IconButton(
-                icon: const Icon(Icons.bookmark_add),
-                onPressed: () {},
-              )
             ],
           ),
-          body: const SingleChildScrollView(
+          body: SingleChildScrollView(
             child: Column(
               children: [
-                RoundedImage(imageUrl: AppImage.audioBook),
+                const RoundedImage(imageUrl: AppImage.audioBook),
                 verticalSpaceMedium,
-                Text("AudioBook Title 1"),
-                Text("AudioBook Title 2"),
+                const Text("AudioBook Title 1"),
+                const Text("AudioBook Title 2"),
+                verticalSpaceMassive,
+                // paly pause buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.skip_previous)),
+                    IconButton(
+                        onPressed: () {},
+                        icon: const Icon(
+                          Icons.mic,
+                          color: Colors.red,
+                        )),
+                    IconButton(
+                        onPressed: () {}, icon: const Icon(Icons.skip_next)),
+                  ],
+                )
               ],
             ),
           ),

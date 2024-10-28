@@ -1,4 +1,5 @@
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
+import 'package:audiobook_record/ui/views/home/home_view.form.dart';
 import 'package:audiobook_record/widget/primary_button.dart';
 import 'package:audiobook_record/widget/primary_text_field.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,7 @@ import 'home_viewmodel.dart';
   FormTextField(name: 'title1'),
   FormTextField(name: 'title2'),
 ])
-class HomeView extends StackedView<HomeViewModel> {
+class HomeView extends StackedView<HomeViewModel> with $HomeView {
   const HomeView({Key? key}) : super(key: key);
 
   @override
@@ -45,7 +46,25 @@ class HomeView extends StackedView<HomeViewModel> {
             height: 100,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
-              child: PrimaryButton(onPressedCallBack: viewModel.navigationto),
+              child: PrimaryButton(onPressedCallBack: () {
+                showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text("Enter Book tilte"),
+
+                        /// Button
+                        actions: [
+                          PrimaryButton(
+                            onPressedCallBack: viewModel.navigationto,
+                          )
+                        ],
+                        content: PrimaryTextField(
+                          controller: title1Controller,
+                        ),
+                      );
+                    });
+              }),
             ),
           ),
         ));

@@ -57,8 +57,9 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i4.AudioView: (data) {
+      final args = data.getArgs<AudioViewArguments>(nullOk: false);
       return _i5.MaterialPageRoute<dynamic>(
-        builder: (context) => const _i4.AudioView(),
+        builder: (context) => _i4.AudioView(key: args.key, titel: args.titel),
         settings: data,
       );
     },
@@ -69,6 +70,33 @@ class StackedRouter extends _i1.RouterBase {
 
   @override
   Map<Type, _i1.StackedRouteFactory> get pagesMap => _pagesMap;
+}
+
+class AudioViewArguments {
+  const AudioViewArguments({
+    this.key,
+    required this.titel,
+  });
+
+  final _i5.Key? key;
+
+  final String titel;
+
+  @override
+  String toString() {
+    return '{"key": "$key", "titel": "$titel"}';
+  }
+
+  @override
+  bool operator ==(covariant AudioViewArguments other) {
+    if (identical(this, other)) return true;
+    return other.key == key && other.titel == titel;
+  }
+
+  @override
+  int get hashCode {
+    return key.hashCode ^ titel.hashCode;
+  }
 }
 
 extension NavigatorStateExtension on _i6.NavigationService {
@@ -100,14 +128,17 @@ extension NavigatorStateExtension on _i6.NavigationService {
         transition: transition);
   }
 
-  Future<dynamic> navigateToAudioView([
+  Future<dynamic> navigateToAudioView({
+    _i5.Key? key,
+    required String titel,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
     Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
         transition,
-  ]) async {
+  }) async {
     return navigateTo<dynamic>(Routes.audioView,
+        arguments: AudioViewArguments(key: key, titel: titel),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
@@ -142,14 +173,17 @@ extension NavigatorStateExtension on _i6.NavigationService {
         transition: transition);
   }
 
-  Future<dynamic> replaceWithAudioView([
+  Future<dynamic> replaceWithAudioView({
+    _i5.Key? key,
+    required String titel,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
     Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
         transition,
-  ]) async {
+  }) async {
     return replaceWith<dynamic>(Routes.audioView,
+        arguments: AudioViewArguments(key: key, titel: titel),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
