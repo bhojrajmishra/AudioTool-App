@@ -59,7 +59,7 @@ class StackedRouter extends _i1.RouterBase {
     _i4.AudioView: (data) {
       final args = data.getArgs<AudioViewArguments>(nullOk: false);
       return _i5.MaterialPageRoute<dynamic>(
-        builder: (context) => _i4.AudioView(key: args.key, titel: args.titel),
+        builder: (context) => _i4.AudioView(key: args.key, title: args.title),
         settings: data,
       );
     },
@@ -75,27 +75,27 @@ class StackedRouter extends _i1.RouterBase {
 class AudioViewArguments {
   const AudioViewArguments({
     this.key,
-    required this.titel,
+    required this.title,
   });
 
   final _i5.Key? key;
 
-  final String titel;
+  final String title;
 
   @override
   String toString() {
-    return '{"key": "$key", "titel": "$titel"}';
+    return '{"key": "$key", "title": "$title"}';
   }
 
   @override
   bool operator ==(covariant AudioViewArguments other) {
     if (identical(this, other)) return true;
-    return other.key == key && other.titel == titel;
+    return other.key == key && other.title == title;
   }
 
   @override
   int get hashCode {
-    return key.hashCode ^ titel.hashCode;
+    return key.hashCode ^ title.hashCode;
   }
 }
 
@@ -130,7 +130,7 @@ extension NavigatorStateExtension on _i6.NavigationService {
 
   Future<dynamic> navigateToAudioView({
     _i5.Key? key,
-    required String titel,
+    required String title,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -138,7 +138,7 @@ extension NavigatorStateExtension on _i6.NavigationService {
         transition,
   }) async {
     return navigateTo<dynamic>(Routes.audioView,
-        arguments: AudioViewArguments(key: key, titel: titel),
+        arguments: AudioViewArguments(key: key, title: title),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
@@ -175,7 +175,7 @@ extension NavigatorStateExtension on _i6.NavigationService {
 
   Future<dynamic> replaceWithAudioView({
     _i5.Key? key,
-    required String titel,
+    required String title,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
@@ -183,7 +183,7 @@ extension NavigatorStateExtension on _i6.NavigationService {
         transition,
   }) async {
     return replaceWith<dynamic>(Routes.audioView,
-        arguments: AudioViewArguments(key: key, titel: titel),
+        arguments: AudioViewArguments(key: key, title: title),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,

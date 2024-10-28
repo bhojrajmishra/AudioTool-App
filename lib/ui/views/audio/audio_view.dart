@@ -7,8 +7,9 @@ import 'package:stacked/stacked.dart';
 import 'audio_viewmodel.dart';
 
 class AudioView extends StackedView<AudioViewModel> {
-  const AudioView({Key? key, required this.titel}) : super(key: key);
-  final String titel;
+  const AudioView({Key? key, required this.title}) : super(key: key);
+  final String title;
+
   @override
   Widget builder(
     BuildContext context,
@@ -18,8 +19,9 @@ class AudioView extends StackedView<AudioViewModel> {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Scaffold(
+          /// AppBar
           appBar: AppBar(
-            title: Text(titel),
+            title: Text(title),
             actions: [
               IconButton(
                 icon: const Icon(Icons.bookmark_add),
@@ -39,19 +41,25 @@ class AudioView extends StackedView<AudioViewModel> {
                 const Text("AudioBook Title 1"),
                 const Text("AudioBook Title 2"),
                 verticalSpaceMassive,
+                //
                 // paly pause buttons
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    // previous
                     IconButton(
                         onPressed: () {},
                         icon: const Icon(Icons.skip_previous)),
+                    // Play or pause
                     IconButton(
-                        onPressed: () {},
-                        icon: const Icon(
-                          Icons.mic,
-                          color: Colors.red,
-                        )),
+                        onPressed: () {
+                          viewModel.playPause();
+                        },
+                        icon: Icon(
+                            viewModel.isRecording ? Icons.stop : Icons.mic,
+                            color: Colors.red)),
+
+                    /// Next
                     IconButton(
                         onPressed: () {}, icon: const Icon(Icons.skip_next)),
                   ],

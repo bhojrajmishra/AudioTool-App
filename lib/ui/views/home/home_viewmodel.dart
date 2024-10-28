@@ -4,6 +4,6 @@ import 'package:audiobook_record/ui/views/home/home_view.form.dart';
 
 class HomeViewModel extends BaseViewModelWrapper with $HomeView {
   void navigationto() {
-    navigation.replaceWithAudioView(titel: title1Controller.text);
+    navigation.replaceWithAudioView(title: title1Controller.text);
   }
 }
