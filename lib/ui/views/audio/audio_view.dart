@@ -1,5 +1,6 @@
 import 'package:audiobook_record/ui/common/app_image.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
+import 'package:audiobook_record/widget/primary_button.dart';
 import 'package:audiobook_record/widget/rounded_image.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
@@ -40,6 +41,16 @@ class AudioView extends StackedView<AudioViewModel> {
                 verticalSpaceMedium,
                 const Text("AudioBook Title 1"),
                 const Text("AudioBook Title 2"),
+                verticalSpaceMedium,
+                if (viewModel.recordingPath != null)
+                  ElevatedButton(
+                      onPressed:viewModel.playRecord,
+                      child: viewModel.isPlaying
+                          ? const Icon(Icons.pause)
+                          : const Icon(Icons.play_arrow)),
+                if (viewModel.recordingPath == null)
+                  const Text("No recording found :("),
+
                 verticalSpaceMassive,
                 //
                 // paly pause buttons
