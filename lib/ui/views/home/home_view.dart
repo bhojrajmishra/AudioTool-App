@@ -41,11 +41,13 @@ class HomeView extends StackedView<HomeViewModel> {
           ),
 
           /// Button
-          bottomNavigationBar: const SizedBox(
+          bottomNavigationBar: SizedBox(
             height: 100,
             child: Padding(
-              padding: EdgeInsets.all(10.0),
-              child: PrimaryButton(),
+              padding: const EdgeInsets.all(10.0),
+              child: PrimaryButton(
+                onPressedCallBack: viewModel.showDialog,
+              ),
             ),
           ),
         ));

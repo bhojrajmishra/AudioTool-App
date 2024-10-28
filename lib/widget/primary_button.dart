@@ -3,10 +3,10 @@ import 'package:audiobook_record/ui/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({
-    super.key,
-  });
+  const PrimaryButton({super.key, this.onPressedCallBack});
 
+  /// To set the on pressed function of the button
+  final VoidCallback? onPressedCallBack;
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
@@ -18,10 +18,10 @@ class PrimaryButton extends StatelessWidget {
               Size(Helpers.getScreenWidth(context) * 0.3, 100)),
           backgroundColor: WidgetStateProperty.all(kcPrimaryColor),
         ),
-        onPressed: () {},
+        onPressed: onPressedCallBack,
         child: const Text(
           "Save",
-          style: TextStyle(color: Colors.white, fontSize: 30),
+          style: TextStyle(color: Colors.white, fontSize: 25),
         ));
   }
 }
