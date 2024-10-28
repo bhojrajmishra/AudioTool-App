@@ -1,10 +1,16 @@
+import 'package:audiobook_record/ui/common/ui_helpers.dart';
+import 'package:audiobook_record/widget/primary_button.dart';
+import 'package:audiobook_record/widget/primary_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
-import 'package:audiobook_record/ui/common/app_colors.dart';
-import 'package:audiobook_record/ui/common/ui_helpers.dart';
+import 'package:stacked/stacked_annotations.dart';
 
 import 'home_viewmodel.dart';
 
+@FormView(fields: [
+  FormTextField(name: 'title1'),
+  FormTextField(name: 'title2'),
+])
 class HomeView extends StackedView<HomeViewModel> {
   const HomeView({Key? key}) : super(key: key);
 
@@ -15,66 +21,34 @@ class HomeView extends StackedView<HomeViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25.0),
-          child: Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                verticalSpaceLarge,
-                Column(
-                  children: [
-                    const Text(
-                      'Hello, STACKED!',
-                      style: TextStyle(
-                        fontSize: 35,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    verticalSpaceMedium,
-                    MaterialButton(
-                      color: Colors.black,
-                      onPressed: viewModel.incrementCounter,
-                      child: Text(
-                        viewModel.counterLabel,
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    MaterialButton(
-                      color: kcDarkGreyColor,
-                      onPressed: viewModel.showDialog,
-                      child: const Text(
-                        'Show Dialog',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                    MaterialButton(
-                      color: kcDarkGreyColor,
-                      onPressed: viewModel.showBottomSheet,
-                      child: const Text(
-                        'Show Bottom Sheet',
-                        style: TextStyle(
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                )
-              ],
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        body: Scaffold(
+          appBar: AppBar(
+            title: const Text("AudioBook"),
+          ),
+          body: const Padding(
+            padding: EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              /// TextField
+              child: Column(
+                children: [
+                  PrimaryTextField(),
+                  verticalSpaceMedium,
+                  PrimaryTextField(),
+                ],
+              ),
             ),
           ),
-        ),
-      ),
-    );
+
+          /// Button
+          bottomNavigationBar: const SizedBox(
+            height: 100,
+            child: Padding(
+              padding: EdgeInsets.all(10.0),
+              child: PrimaryButton(),
+            ),
+          ),
+        ));
   }
 
   @override
