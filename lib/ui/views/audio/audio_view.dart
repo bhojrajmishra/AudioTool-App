@@ -1,6 +1,7 @@
 import 'package:audiobook_record/ui/common/app_image.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
-import 'package:audiobook_record/widget/primary_button.dart';
+import 'package:audiobook_record/ui/views/audio/widgets/record_button_row.dart';
+import 'package:audiobook_record/ui/views/audio/widgets/seekbar.dart';
 import 'package:audiobook_record/widget/rounded_image.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
@@ -44,36 +45,23 @@ class AudioView extends StackedView<AudioViewModel> {
                 verticalSpaceMedium,
                 if (viewModel.recordingPath != null)
                   ElevatedButton(
-                      onPressed:viewModel.playRecord,
+                      onPressed: viewModel.playRecord,
                       child: viewModel.isPlaying
                           ? const Icon(Icons.pause)
                           : const Icon(Icons.play_arrow)),
                 if (viewModel.recordingPath == null)
                   const Text("No recording found :("),
 
-                verticalSpaceMassive,
+                /// slider seek bar
+                SeekBar(
+                  viewModel: viewModel,
+                ),
+
+                verticalSpaceMedium,
                 //
                 // paly pause buttons
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    // previous
-                    IconButton(
-                        onPressed: () {},
-                        icon: const Icon(Icons.skip_previous)),
-                    // Play or pause
-                    IconButton(
-                        onPressed: () {
-                          viewModel.playPause();
-                        },
-                        icon: Icon(
-                            viewModel.isRecording ? Icons.stop : Icons.mic,
-                            color: Colors.red)),
-
-                    /// Next
-                    IconButton(
-                        onPressed: () {}, icon: const Icon(Icons.skip_next)),
-                  ],
+                RecordButtonRow(
+                  viewModel: viewModel,
                 )
               ],
             ),
