@@ -2,7 +2,7 @@ import 'package:audiobook_record/app/app.locator.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
-abstract class BaseViewModelWrapper extends BaseViewModel {
+abstract class BaseViewModelWrapper extends BaseViewModel with Initialisable {
   final snackbarService = locator<SnackbarService>();
   final snackBar = locator.get<SnackbarService>();
   final navigation = locator<NavigationService>();

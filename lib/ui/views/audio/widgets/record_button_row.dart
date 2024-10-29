@@ -11,7 +11,11 @@ class RecordButtonRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // previous
-        IconButton(onPressed: () {}, icon: const Icon(Icons.skip_previous)),
+        IconButton(
+            onPressed: () {
+              viewModel.stop();
+            },
+            icon: const Icon(Icons.skip_previous)),
         // Play or pause
         IconButton(
             onPressed: () {
@@ -21,7 +25,11 @@ class RecordButtonRow extends StatelessWidget {
                 color: Colors.red)),
 
         /// Next
-        IconButton(onPressed: () {}, icon: const Icon(Icons.skip_next)),
+        IconButton(
+            onPressed: () {
+              viewModel.start();
+            },
+            icon: const Icon(Icons.skip_next)),
       ],
     );
   }

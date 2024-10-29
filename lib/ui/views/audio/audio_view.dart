@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audiobook_record/ui/common/app_image.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/audio/widgets/record_button_row.dart';
@@ -39,17 +41,15 @@ class AudioView extends StackedView<AudioViewModel> {
             child: Column(
               children: [
                 const RoundedImage(imageUrl: AppImage.audioBook),
-                verticalSpaceMedium,
                 const Text("AudioBook Title 1"),
                 const Text("AudioBook Title 2"),
-                verticalSpaceMedium,
-                if (viewModel.recordingPath != null)
+                if (viewModel.audioPath != null)
                   ElevatedButton(
                       onPressed: viewModel.playRecord,
                       child: viewModel.isPlaying
                           ? const Icon(Icons.pause)
                           : const Icon(Icons.play_arrow)),
-                if (viewModel.recordingPath == null)
+                if (viewModel.audioPath == null)
                   const Text("No recording found :("),
 
                 /// slider seek bar
@@ -62,7 +62,51 @@ class AudioView extends StackedView<AudioViewModel> {
                 // paly pause buttons
                 RecordButtonRow(
                   viewModel: viewModel,
-                )
+                ),
+
+                /// List of retrieved recordings with play and delete options
+                /// List of retrieved recordings with play and delete options
+                SizedBox(
+                  height: 300,
+                  child: FutureBuilder<List<FileSystemEntity>>(
+                    future: viewModel.retrieveRecordings(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return const Center(
+                            child: Text('Error loading recordings'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(child: Text('No recordings found'));
+                      }
+
+                      final recordings = snapshot.data!;
+                      return ListView.builder(
+                        itemCount: recordings.length,
+                        itemBuilder: (context, index) {
+                          final file = recordings[index];
+                          final fileName = file.path.split('/').last;
+
+                          return ListTile(
+                            leading: IconButton(
+                              onPressed: () =>
+                                  viewModel.playRecording(file.path),
+                              icon: const Icon(Icons.play_arrow),
+                            ),
+                            title: Text(fileName),
+                            trailing: IconButton(
+                              onPressed: () => viewModel.deleteRecording(file),
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.red,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
               ],
             ),
           ),
