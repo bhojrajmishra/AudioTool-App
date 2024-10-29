@@ -89,7 +89,7 @@ class ChapterListView extends StackedView<ChapterListViewModel> with $HomeView {
                 );
               });
         },
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ),
     );
   }

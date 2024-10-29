@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
@@ -27,7 +26,6 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
     notifyListeners();
   }
 
- 
   /// To record and stop record
   void playPause() async {
     /// to stop recording
@@ -67,10 +65,6 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
       }
     }
   }
-
- 
-
- 
 
   @override
   void dispose() {
