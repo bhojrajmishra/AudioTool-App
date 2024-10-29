@@ -43,14 +43,17 @@ class AudioView extends StackedView<AudioViewModel> {
                 const RoundedImage(imageUrl: AppImage.audioBook),
                 const Text("AudioBook Title 1"),
                 const Text("AudioBook Title 2"),
-                if (viewModel.audioPath != null)
-                  ElevatedButton(
-                      onPressed: viewModel.playRecord,
-                      child: viewModel.isPlaying
-                          ? const Icon(Icons.pause)
-                          : const Icon(Icons.play_arrow)),
-                if (viewModel.audioPath == null)
-                  const Text("No recording found :("),
+                // if (viewModel.audioPath != null)
+                // ElevatedButton(
+                //     onPressed: () {
+                //       viewModel.tooglePlayPause(viewModel.isPlaying);
+                //       viewModel.playCurrentRecord;
+                //     },
+                //     child: viewModel.isPlaying
+                //         ? const Icon(Icons.one_k)
+                //         : const Icon(Icons.play_arrow)),
+                // if (viewModel.audioPath == null)
+                //   const Text("No recording found :("),
 
                 /// slider seek bar
                 SeekBar(
@@ -65,15 +68,12 @@ class AudioView extends StackedView<AudioViewModel> {
                 ),
 
                 /// List of retrieved recordings with play and delete options
-                /// List of retrieved recordings with play and delete options
                 SizedBox(
                   height: 300,
                   child: FutureBuilder<List<FileSystemEntity>>(
                     future: viewModel.retrieveRecordings(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
+                      if (snapshot.hasError) {
                         return const Center(
                             child: Text('Error loading recordings'));
                       } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -91,7 +91,9 @@ class AudioView extends StackedView<AudioViewModel> {
                             leading: IconButton(
                               onPressed: () =>
                                   viewModel.playRecording(file.path),
-                              icon: const Icon(Icons.play_arrow),
+                              icon: viewModel.isPlaying
+                                  ? const Icon(Icons.pause)
+                                  : const Icon(Icons.play_arrow),
                             ),
                             title: Text(fileName),
                             trailing: IconButton(

@@ -11,14 +11,11 @@ class RecordButtonRow extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // previous
-        IconButton(
-            onPressed: () {
-              viewModel.stop();
-            },
-            icon: const Icon(Icons.skip_previous)),
+        IconButton(onPressed: () {}, icon: const Icon(Icons.skip_previous)),
         // Play or pause
         IconButton(
             onPressed: () {
+              viewModel.tooglePlayPause(viewModel.isRecording);
               viewModel.playPause();
             },
             icon: Icon(viewModel.isRecording ? Icons.stop : Icons.mic,
@@ -27,7 +24,7 @@ class RecordButtonRow extends StatelessWidget {
         /// Next
         IconButton(
             onPressed: () {
-              viewModel.start();
+              // viewModel.start();
             },
             icon: const Icon(Icons.skip_next)),
       ],

@@ -7,8 +7,5 @@ class HomeViewModel extends BaseViewModelWrapper with $HomeView {
     navigation.replaceWithAudioView(title: title1Controller.text);
   }
   
-  @override
-  void initialise() {
-    // TODO: implement initialise
-  }
+
 }
