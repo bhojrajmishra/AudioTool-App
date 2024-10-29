@@ -46,7 +46,13 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
             height: 100,
             child: Padding(
               padding: const EdgeInsets.all(10.0),
-              child: PrimaryButton(onPressedCallBack: () {
+              child: PrimaryButton(
+                title: "Next",
+                onPressedCallBack: () {
+                  viewModel.navigationto();
+                },
+
+                /*     onPressedCallBack: () {
                 showDialog(
                     context: context,
                     builder: (context) {
@@ -56,6 +62,7 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
                         /// Button
                         actions: [
                           PrimaryButton(
+                            title: "Save",
                             onPressedCallBack: viewModel.navigationto,
                           )
                         ],
@@ -64,7 +71,8 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
                         ),
                       );
                     });
-              }),
+              } */
+              ),
             ),
           ),
         ));

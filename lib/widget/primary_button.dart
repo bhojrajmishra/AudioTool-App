@@ -3,7 +3,8 @@ import 'package:audiobook_record/ui/common/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({super.key, this.onPressedCallBack});
+  const PrimaryButton({super.key, this.onPressedCallBack, required this.title});
+  final String title;
 
   /// To set the on pressed function of the button
   final VoidCallback? onPressedCallBack;
@@ -19,8 +20,8 @@ class PrimaryButton extends StatelessWidget {
           backgroundColor: WidgetStateProperty.all(kcPrimaryColor),
         ),
         onPressed: onPressedCallBack,
-        child: const Text(
-          "Save",
+        child: Text(
+          title,
           style: TextStyle(color: Colors.white, fontSize: 25),
         ));
   }

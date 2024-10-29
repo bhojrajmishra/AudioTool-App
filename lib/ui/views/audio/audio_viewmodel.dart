@@ -27,31 +27,7 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
     notifyListeners();
   }
 
-  /// play back recording
-  Future<void> playRecording(String filePath) async {
-    if (isPlaying == true) {
-      isPlaying = false;
-      audioPlayer.pause();
-      notifyListeners();
-    } else {
-      try {
-        await audioPlayer.setFilePath(filePath);
-
-        audioPlayer.play();
-        isPlaying = true;
-        totalDuration = audioPlayer.duration?.inSeconds.toDouble() ?? 0;
-        audioPlayer.positionStream.listen((position) {
-          currentPosition = position.inSeconds.toDouble();
-          notifyListeners();
-        });
-
-        notifyListeners();
-      } catch (e) {
-        debugPrint('Error playing recording: $e');
-      }
-    }
-  }
-
+ 
   /// To record and stop record
   void playPause() async {
     /// to stop recording
@@ -92,18 +68,9 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
     }
   }
 
-  /// Delete a recording file
-  Future<void> deleteRecording(FileSystemEntity file) async {
-    await file.delete();
-    notifyListeners();
-  }
+ 
 
-  ///
-  /// Retrieve recordings from the directory
-  Future<List<FileSystemEntity>> retrieveRecordings() async {
-    Directory? dir = await getApplicationDocumentsDirectory();
-    return dir.listSync().where((file) => file.path.endsWith('.caf')).toList();
-  }
+ 
 
   @override
   void dispose() {
