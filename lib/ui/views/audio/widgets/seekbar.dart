@@ -1,12 +1,8 @@
-
-
 import 'package:audiobook_record/ui/views/audio/audio_viewmodel.dart';
 import 'package:flutter/material.dart';
+
 class SeekBar extends StatelessWidget {
-  const SeekBar({
-    super.key,
-    required this.viewModel
-  });
+  const SeekBar({super.key, required this.viewModel});
   final AudioViewModel viewModel;
 
   @override

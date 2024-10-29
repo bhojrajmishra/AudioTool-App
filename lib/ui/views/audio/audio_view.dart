@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:audiobook_record/ui/common/app_image.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/audio/widgets/record_button_row.dart';
@@ -92,7 +91,7 @@ class AudioView extends StackedView<AudioViewModel> {
                               onPressed: () =>
                                   viewModel.playRecording(file.path),
                               icon: viewModel.isPlaying
-                                  ? const Icon(Icons.pause)
+                                  ? const Icon(Icons.stop)
                                   : const Icon(Icons.play_arrow),
                             ),
                             title: Text(fileName),
