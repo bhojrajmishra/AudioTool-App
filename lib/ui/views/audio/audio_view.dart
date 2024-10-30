@@ -1,7 +1,6 @@
 import 'package:audiobook_record/ui/common/app_image.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/audio/widgets/record_button_row.dart';
-import 'package:audiobook_record/ui/views/audio/widgets/seekbar.dart';
 import 'package:audiobook_record/widget/rounded_image.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
@@ -54,9 +53,6 @@ class AudioView extends StackedView<AudioViewModel> {
                 //   const Text("No recording found :("),
 
                 /// slider seek bar
-                SeekBar(
-                  viewModel: viewModel,
-                ),
 
                 verticalSpaceMedium,
                 //
