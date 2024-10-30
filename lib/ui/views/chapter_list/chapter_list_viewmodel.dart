@@ -6,6 +6,7 @@ import 'package:audiobook_record/ui/views/home/home_view.form.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 
 class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
   double currentPosition = 0;
@@ -15,21 +16,29 @@ class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
   bool isRecording = false, isPlaying = false;
   String? audioPath;
 
+  /// Instance for audio recorder
+  final AudioRecorder audioRecorder = AudioRecorder();
+
+  /// AudioPlayer to playback audio
+  final AudioPlayer audioPlayer = AudioPlayer();
+
   void navigationto() {
     navigation.replaceWithAudioView(title: title1Controller.text);
+    if (title1Controller.text.isNotEmpty) {
+    } else {
+      debugPrint("Empty title");
+    }
   }
 
   void popNavigation() {
     navigation.replaceWithHomeView();
   }
 
-  /// AudioPlayer to playback audio
-  final AudioPlayer audioPlayer = AudioPlayer();
-
   ///
   /// Retrieve recordings from the directory
   Future<List<FileSystemEntity>> retrieveRecordings() async {
     Directory? dir = await getApplicationDocumentsDirectory();
+    notifyListeners();
     return dir.listSync().where((file) => file.path.endsWith('.caf')).toList();
   }
 
@@ -38,6 +47,8 @@ class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
     await file.delete();
     notifyListeners();
   }
+
+  /// S
 
   /// play back recording
   Future<void> playRecording(String filePath) async {

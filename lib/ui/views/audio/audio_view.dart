@@ -40,28 +40,12 @@ class AudioView extends StackedView<AudioViewModel> {
                 const RoundedImage(imageUrl: AppImage.audioBook),
                 const Text("AudioBook Title 1"),
                 const Text("AudioBook Title 2"),
-                // if (viewModel.audioPath != null)
-                // ElevatedButton(
-                //     onPressed: () {
-                //       viewModel.tooglePlayPause(viewModel.isPlaying);
-                //       viewModel.playCurrentRecord;
-                //     },
-                //     child: viewModel.isPlaying
-                //         ? const Icon(Icons.one_k)
-                //         : const Icon(Icons.play_arrow)),
-                // if (viewModel.audioPath == null)
-                //   const Text("No recording found :("),
-
-                /// slider seek bar
-
                 verticalSpaceMedium,
                 //
                 // paly pause buttons
                 RecordButtonRow(
                   viewModel: viewModel,
                 ),
-
-                /// List of retrieved recordings with play and delete options
               ],
             ),
           ),

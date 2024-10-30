@@ -1,4 +1,3 @@
-
 import 'package:audiobook_record/ui/views/chapter_list/widget/seekbar.dart';
 import 'package:audiobook_record/ui/views/chapter_list/widget/floating_button.dart';
 import 'package:audiobook_record/ui/views/chapter_list/widget/recording_list.dart';
@@ -39,9 +38,20 @@ class ChapterListView extends StackedView<ChapterListViewModel> with $HomeView {
                 viewModel: viewModel,
               ),
             ),
-            Text(""),
-            SeekBar(
-              viewModel: viewModel,
+            const Text("Recording"),
+            Row(
+              children: [
+                IconButton(
+                    onPressed: () {},
+                    icon: viewModel.isPlaying
+                        ? const Icon(Icons.pause)
+                        : const Icon(Icons.play_arrow)),
+                Expanded(
+                  child: SeekBar(
+                    viewModel: viewModel,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

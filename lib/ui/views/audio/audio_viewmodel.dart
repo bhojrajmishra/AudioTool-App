@@ -12,7 +12,7 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
   double totalDuration = 0;
 
   int time = 0;
-  bool isRecording = false, isPlaying = false;
+  bool isRecording = false, isPlaying = false, isRecordingPaused = false;
   String? audioPath;
 
   /// Instance for audio recorder
@@ -23,6 +23,17 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
 
   void tooglePlayPause(button) {
     button = !button;
+    notifyListeners();
+  }
+
+  void pauseRecording() async {
+    if (isRecordingPaused) {
+      await audioRecorder.resume();
+    } else {
+      await audioRecorder.pause();
+    }
+
+    isRecordingPaused = !isRecordingPaused;
     notifyListeners();
   }
 
