@@ -9,7 +9,8 @@ import 'package:stacked/stacked.dart';
 import 'chapter_list_viewmodel.dart';
 
 class ChapterListView extends StackedView<ChapterListViewModel> with $HomeView {
-  const ChapterListView({Key? key}) : super(key: key);
+  const ChapterListView({Key? key, this.booktitle}) : super(key: key);
+  final String? booktitle;
 
   @override
   Widget builder(
@@ -19,10 +20,11 @@ class ChapterListView extends StackedView<ChapterListViewModel> with $HomeView {
   ) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Chapter List"),
+        title:
+            booktitle!.isEmpty ? const Text("Book Title") : Text("$booktitle"),
         leading: IconButton(
             onPressed: () {
-              Navigator.pop(context);
+              viewModel.popNavigation();
             },
             icon: const Icon(Icons.arrow_back_ios)),
       ),

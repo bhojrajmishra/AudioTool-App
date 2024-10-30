@@ -12,7 +12,7 @@ import 'package:stacked/stacked.dart';
 const bool _autoTextFieldValidation = true;
 
 const String Title1ValueKey = 'title1';
-const String Title2ValueKey = 'title2';
+const String BookTitleValueKey = 'book_title';
 
 final Map<String, TextEditingController> _HomeViewTextEditingControllers = {};
 
@@ -20,17 +20,17 @@ final Map<String, FocusNode> _HomeViewFocusNodes = {};
 
 final Map<String, String? Function(String?)?> _HomeViewTextValidations = {
   Title1ValueKey: null,
-  Title2ValueKey: null,
+  BookTitleValueKey: null,
 };
 
 mixin $HomeView {
   TextEditingController get title1Controller =>
       _getFormTextEditingController(Title1ValueKey);
-  TextEditingController get title2Controller =>
-      _getFormTextEditingController(Title2ValueKey);
+  TextEditingController get bookTitleController =>
+      _getFormTextEditingController(BookTitleValueKey);
 
   FocusNode get title1FocusNode => _getFormFocusNode(Title1ValueKey);
-  FocusNode get title2FocusNode => _getFormFocusNode(Title2ValueKey);
+  FocusNode get bookTitleFocusNode => _getFormFocusNode(BookTitleValueKey);
 
   TextEditingController _getFormTextEditingController(
     String key, {
@@ -57,7 +57,7 @@ mixin $HomeView {
   /// with the latest textController values
   void syncFormWithViewModel(FormStateHelper model) {
     title1Controller.addListener(() => _updateFormData(model));
-    title2Controller.addListener(() => _updateFormData(model));
+    bookTitleController.addListener(() => _updateFormData(model));
 
     _updateFormData(model, forceValidate: _autoTextFieldValidation);
   }
@@ -70,7 +70,7 @@ mixin $HomeView {
   )
   void listenToFormUpdated(FormViewModel model) {
     title1Controller.addListener(() => _updateFormData(model));
-    title2Controller.addListener(() => _updateFormData(model));
+    bookTitleController.addListener(() => _updateFormData(model));
 
     _updateFormData(model, forceValidate: _autoTextFieldValidation);
   }
@@ -81,7 +81,7 @@ mixin $HomeView {
       model.formValueMap
         ..addAll({
           Title1ValueKey: title1Controller.text,
-          Title2ValueKey: title2Controller.text,
+          BookTitleValueKey: bookTitleController.text,
         }),
     );
 
@@ -124,7 +124,7 @@ extension ValueProperties on FormStateHelper {
   }
 
   String? get title1Value => this.formValueMap[Title1ValueKey] as String?;
-  String? get title2Value => this.formValueMap[Title2ValueKey] as String?;
+  String? get bookTitleValue => this.formValueMap[BookTitleValueKey] as String?;
 
   set title1Value(String? value) {
     this.setData(
@@ -136,51 +136,51 @@ extension ValueProperties on FormStateHelper {
     }
   }
 
-  set title2Value(String? value) {
+  set bookTitleValue(String? value) {
     this.setData(
-      this.formValueMap..addAll({Title2ValueKey: value}),
+      this.formValueMap..addAll({BookTitleValueKey: value}),
     );
 
-    if (_HomeViewTextEditingControllers.containsKey(Title2ValueKey)) {
-      _HomeViewTextEditingControllers[Title2ValueKey]?.text = value ?? '';
+    if (_HomeViewTextEditingControllers.containsKey(BookTitleValueKey)) {
+      _HomeViewTextEditingControllers[BookTitleValueKey]?.text = value ?? '';
     }
   }
 
   bool get hasTitle1 =>
       this.formValueMap.containsKey(Title1ValueKey) &&
       (title1Value?.isNotEmpty ?? false);
-  bool get hasTitle2 =>
-      this.formValueMap.containsKey(Title2ValueKey) &&
-      (title2Value?.isNotEmpty ?? false);
+  bool get hasBookTitle =>
+      this.formValueMap.containsKey(BookTitleValueKey) &&
+      (bookTitleValue?.isNotEmpty ?? false);
 
   bool get hasTitle1ValidationMessage =>
       this.fieldsValidationMessages[Title1ValueKey]?.isNotEmpty ?? false;
-  bool get hasTitle2ValidationMessage =>
-      this.fieldsValidationMessages[Title2ValueKey]?.isNotEmpty ?? false;
+  bool get hasBookTitleValidationMessage =>
+      this.fieldsValidationMessages[BookTitleValueKey]?.isNotEmpty ?? false;
 
   String? get title1ValidationMessage =>
       this.fieldsValidationMessages[Title1ValueKey];
-  String? get title2ValidationMessage =>
-      this.fieldsValidationMessages[Title2ValueKey];
+  String? get bookTitleValidationMessage =>
+      this.fieldsValidationMessages[BookTitleValueKey];
 }
 
 extension Methods on FormStateHelper {
   setTitle1ValidationMessage(String? validationMessage) =>
       this.fieldsValidationMessages[Title1ValueKey] = validationMessage;
-  setTitle2ValidationMessage(String? validationMessage) =>
-      this.fieldsValidationMessages[Title2ValueKey] = validationMessage;
+  setBookTitleValidationMessage(String? validationMessage) =>
+      this.fieldsValidationMessages[BookTitleValueKey] = validationMessage;
 
   /// Clears text input fields on the Form
   void clearForm() {
     title1Value = '';
-    title2Value = '';
+    bookTitleValue = '';
   }
 
   /// Validates text input fields on the Form
   void validateForm() {
     this.setValidationMessages({
       Title1ValueKey: getValidationMessage(Title1ValueKey),
-      Title2ValueKey: getValidationMessage(Title2ValueKey),
+      BookTitleValueKey: getValidationMessage(BookTitleValueKey),
     });
   }
 }
@@ -201,5 +201,5 @@ String? getValidationMessage(String key) {
 void updateValidationData(FormStateHelper model) =>
     model.setValidationMessages({
       Title1ValueKey: getValidationMessage(Title1ValueKey),
-      Title2ValueKey: getValidationMessage(Title2ValueKey),
+      BookTitleValueKey: getValidationMessage(BookTitleValueKey),
     });

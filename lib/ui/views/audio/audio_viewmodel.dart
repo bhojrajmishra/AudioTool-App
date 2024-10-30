@@ -58,7 +58,8 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
 
           // Start recording to the specified path
           await audioRecorder.start(const RecordConfig(),
-              path: audioPath ?? '');
+              path: audioPath ??
+                  '$DateTime.fromMicrosecondsSinceEpoch(microsecondsSinceEpoch)');
         }
       } catch (e) {
         debugPrint(e.toString());

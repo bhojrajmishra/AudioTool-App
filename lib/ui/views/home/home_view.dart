@@ -9,8 +9,10 @@ import 'package:stacked/stacked_annotations.dart';
 import 'home_viewmodel.dart';
 
 @FormView(fields: [
-  FormTextField(name: 'title1'),
-  FormTextField(name: 'title2'),
+  FormTextField(
+    name: 'title1',
+  ),
+  FormTextField(name: 'book_title'),
 ])
 class HomeView extends StackedView<HomeViewModel> with $HomeView {
   const HomeView({Key? key}) : super(key: key);
@@ -27,15 +29,19 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
           appBar: AppBar(
             title: const Text("AudioBook"),
           ),
-          body: const Padding(
+          body: Padding(
             padding: EdgeInsets.all(20.0),
             child: SingleChildScrollView(
               /// TextField
               child: Column(
                 children: [
-                  PrimaryTextField(),
+                  const PrimaryTextField(
+                    hintText: "Book Title",
+                  ),
                   verticalSpaceMedium,
-                  PrimaryTextField(),
+                  PrimaryTextField(
+                    controller: bookTitleController,
+                  ),
                 ],
               ),
             ),
@@ -51,27 +57,6 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
                 onPressedCallBack: () {
                   viewModel.navigationto();
                 },
-
-                /*     onPressedCallBack: () {
-                showDialog(
-                    context: context,
-                    builder: (context) {
-                      return AlertDialog(
-                        title: const Text("Enter Book tilte"),
-
-                        /// Button
-                        actions: [
-                          PrimaryButton(
-                            title: "Save",
-                            onPressedCallBack: viewModel.navigationto,
-                          )
-                        ],
-                        content: PrimaryTextField(
-                          controller: title1Controller,
-                        ),
-                      );
-                    });
-              } */
               ),
             ),
           ),

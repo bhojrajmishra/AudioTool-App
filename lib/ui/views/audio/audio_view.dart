@@ -66,7 +66,6 @@ class AudioView extends StackedView<AudioViewModel> {
                 ),
 
                 /// List of retrieved recordings with play and delete options
-               
               ],
             ),
           ),
