@@ -30,7 +30,7 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
             title: const Text("AudioBook"),
           ),
           body: Padding(
-            padding: EdgeInsets.all(20.0),
+            padding: const EdgeInsets.all(20.0),
             child: SingleChildScrollView(
               /// TextField
               child: Column(
