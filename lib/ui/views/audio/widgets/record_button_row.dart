@@ -18,8 +18,11 @@ class RecordButtonRow extends StatelessWidget {
               viewModel.tooglePlayPause(viewModel.isRecording);
               viewModel.playPause();
             },
-            icon: Icon(viewModel.isRecording ? Icons.stop : Icons.mic,
-                color: Colors.red)),
+            icon: Icon(
+              viewModel.isRecording ? Icons.stop : Icons.mic,
+              color: Colors.red,
+              size: 50,
+            )),
 
         /// Next
         IconButton(

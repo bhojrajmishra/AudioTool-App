@@ -37,12 +37,34 @@ class AudioView extends StackedView<AudioViewModel> {
           body: SingleChildScrollView(
             child: Column(
               children: [
-                const RoundedImage(imageUrl: AppImage.audioBook),
-                const Text("AudioBook Title 1"),
-                const Text("AudioBook Title 2"),
+                verticalSpaceMedium,
+                SizedBox(
+                  height: 200,
+                  child: viewModel.isRecording
+                      ? (viewModel.isRecordingPaused
+                          ? const RoundedImage(imageUrl: AppImage.mic)
+                          : const RoundedImage(imageUrl: AppImage.micAnimation))
+                      : const RoundedImage(imageUrl: AppImage.mic),
+                ),
+                viewModel.isRecording
+                    ? viewModel.isRecordingPaused
+                        ? const Text(
+                            "Paused",
+                            style: TextStyle(color: Colors.blue, fontSize: 30),
+                          )
+                        : const Text(
+                            "Recording...",
+                            style: TextStyle(color: Colors.red, fontSize: 30),
+                          )
+                    : const Text(
+                        "Start Recording",
+                        style: TextStyle(color: Colors.black, fontSize: 30),
+                      ),
+
                 verticalSpaceMedium,
                 //
                 // paly pause buttons
+                verticalSpaceMassive,
                 RecordButtonRow(
                   viewModel: viewModel,
                 ),
