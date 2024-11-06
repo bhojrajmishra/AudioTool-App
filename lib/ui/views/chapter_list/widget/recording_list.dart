@@ -35,7 +35,7 @@ class RecordingList extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Container(
-                    height: isActive ? 160 : 80,
+                    height: isActive ? 160 : 100,
                     decoration: BoxDecoration(boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.1),
@@ -45,25 +45,61 @@ class RecordingList extends StatelessWidget {
                       ),
                     ]),
                     // duration: const Duration(milliseconds: 200),
-                    child: ListTile(
-                      title: Text(fileName),
+                    child: Column(
+                      children: [
+                        ListTile(
+                            // file  name
+                            title: Text(fileName),
+                            subtitle: const Text("Recording"),
 
-                      /// Leading play button
-                      /*  leading: IconButton(
-                        onPressed: () => viewModel.playRecording(file.path),
-                        icon: viewModel.isPlaying
-                            ? const Icon(Icons.stop)
-                            : const Icon(Icons.play_arrow),
-                      ), */
+                            /// Delete Button
+                            trailing: isActive
+                                ? IconButton(
+                                    onPressed: () =>
+                                        viewModel.deleteRecording(file),
+                                    icon: const Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                  )
+                                : IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(Icons.more_horiz))),
 
-                      /// Delete button
-                      /* trailing: IconButton(
-                        onPressed: () => viewModel.deleteRecording(file),
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.red,
-                        ),
-                      ), */
+                        /// active row
+                        isActive
+                            ? Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Row(
+                                  children: [
+                                    /// Play pause button
+                                    IconButton(
+                                      onPressed: () =>
+                                          viewModel.playRecording(file.path),
+                                      icon: viewModel.isPlaying
+                                          ? const Icon(Icons.stop)
+                                          : const Icon(Icons.play_arrow),
+                                    ),
+                                    // seek Bar
+                                    Expanded(
+                                      child: Slider(
+                                        value: viewModel.currentPosition,
+                                        max: viewModel.totalDuration,
+                                        onChanged: (value) {
+                                          viewModel.audioPlayer.seek(
+                                              Duration(seconds: value.toInt()));
+                                        },
+                                      ),
+                                    ),
+                                    if (viewModel.activeIndex == index)
+                                      Text(
+                                          "00:${viewModel.totalDuration.toString()}"),
+               
+                                  ],
+                                ),
+                              )
+                            : const Text('')
+                      ],
                     ),
                   ),
                 ),

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:audiobook_record/app/app.router.dart';
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
@@ -30,7 +29,7 @@ class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
     } else {
       activeIndex = index; // Set the active item index
     }
-    notifyListeners(); // Notify to rebuild the UI
+    notifyListeners(); 
   }
 
   void navigationto() {
