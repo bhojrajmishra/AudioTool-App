@@ -40,12 +40,14 @@ class AudioView extends StackedView<AudioViewModel> {
                 verticalSpaceMedium,
                 SizedBox(
                   height: 200,
+                  // Animation
                   child: viewModel.isRecording
                       ? (viewModel.isRecordingPaused
                           ? const RoundedImage(imageUrl: AppImage.mic)
                           : const RoundedImage(imageUrl: AppImage.micAnimation))
                       : const RoundedImage(imageUrl: AppImage.mic),
                 ),
+                // Text
                 viewModel.isRecording
                     ? viewModel.isRecordingPaused
                         ? const Text(

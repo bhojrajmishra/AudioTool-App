@@ -38,7 +38,7 @@ class ChapterListView extends StackedView<ChapterListViewModel> with $HomeView {
                 viewModel: viewModel,
               ),
             ),
-            const Text("Recording"),
+
             Row(
               children: [
                 IconButton(

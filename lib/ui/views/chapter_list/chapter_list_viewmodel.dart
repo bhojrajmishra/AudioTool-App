@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:audiobook_record/app/app.router.dart';
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
@@ -15,12 +16,22 @@ class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
   int time = 0;
   bool isRecording = false, isPlaying = false;
   String? audioPath;
+  int? activeIndex;
 
   /// Instance for audio recorder
   final AudioRecorder audioRecorder = AudioRecorder();
 
   /// AudioPlayer to playback audio
   final AudioPlayer audioPlayer = AudioPlayer();
+  // on tap for list
+  void onTapRecord(int index) {
+    if (activeIndex == index) {
+      activeIndex = null; // Deselect if already selected
+    } else {
+      activeIndex = index; // Set the active item index
+    }
+    notifyListeners(); // Notify to rebuild the UI
+  }
 
   void navigationto() {
     navigation.replaceWithAudioView(title: title1Controller.text);
@@ -47,8 +58,6 @@ class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
     await file.delete();
     notifyListeners();
   }
-
-  /// S
 
   /// play back recording
   Future<void> playRecording(String filePath) async {
