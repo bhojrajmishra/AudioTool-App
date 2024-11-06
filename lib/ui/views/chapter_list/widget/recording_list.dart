@@ -88,8 +88,7 @@ class RecordingList extends StatelessWidget {
                                         ? IconButton(
                                             onPressed: () {
                                               viewModel.pauseResume();
-                                              viewModel.toggleButton(
-                                                 );
+                                              viewModel.toggleButton();
                                             },
                                             icon: viewModel.isPaused
                                                 ? const Icon(Icons.play_arrow)
@@ -107,9 +106,8 @@ class RecordingList extends StatelessWidget {
                                         },
                                       ),
                                     ),
-                                    if (viewModel.activeIndex == index)
-                                      Text(
-                                          "00:${viewModel.totalDuration.toString()}"),
+                                    Text(
+                                        "00:${viewModel.currentPosition.toStringAsFixed(0)}"),
                                   ],
                                 ),
                               )

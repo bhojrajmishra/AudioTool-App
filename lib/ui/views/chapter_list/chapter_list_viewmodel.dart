@@ -70,11 +70,14 @@ class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
     if (activeIndex == index) {
       activeIndex = null;
       isPlaying = false;
-      audioPlayer.pause(); // Deselect if already selected
+      currentPosition = 0;
+      audioPlayer.pause();
+      notifyListeners(); // Deselect if already selected
     } else {
       activeIndex = index; // Set the active item index
       isPlaying = false;
       audioPlayer.pause();
+      currentPosition = 0;
 
       notifyListeners();
     }
