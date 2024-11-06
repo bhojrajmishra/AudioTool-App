@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:audiobook_record/base/utils/helpers.dart';
+import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/chapter_list/chapter_list_viewmodel.dart';
 import 'package:flutter/material.dart';
 
@@ -9,7 +11,7 @@ class RecordingList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 300,
+      height: Helpers.getScreenHeight(context) * 0.8, // 100,
       child: FutureBuilder<List<FileSystemEntity>>(
         future: viewModel.retrieveRecordings(),
         builder: (context, snapshot) {
@@ -74,12 +76,26 @@ class RecordingList extends StatelessWidget {
                                   children: [
                                     /// Play pause button
                                     IconButton(
-                                      onPressed: () =>
-                                          viewModel.playRecording(file.path),
+                                      onPressed: () {
+                                        viewModel.playBackRecording(file.path);
+                                      },
                                       icon: viewModel.isPlaying
                                           ? const Icon(Icons.stop)
                                           : const Icon(Icons.play_arrow),
                                     ),
+
+                                    viewModel.isPlaying
+                                        ? IconButton(
+                                            onPressed: () {
+                                              viewModel.pauseResume();
+                                              viewModel.toggleButton(
+                                                 );
+                                            },
+                                            icon: viewModel.isPaused
+                                                ? const Icon(Icons.play_arrow)
+                                                : const Icon(Icons.pause))
+                                        : horizontalSpaceTiny,
+
                                     // seek Bar
                                     Expanded(
                                       child: Slider(
@@ -94,7 +110,6 @@ class RecordingList extends StatelessWidget {
                                     if (viewModel.activeIndex == index)
                                       Text(
                                           "00:${viewModel.totalDuration.toString()}"),
-               
                                   ],
                                 ),
                               )

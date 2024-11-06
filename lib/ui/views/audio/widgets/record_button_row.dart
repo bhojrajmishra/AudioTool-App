@@ -12,11 +12,11 @@ class RecordButtonRow extends StatelessWidget {
       children: [
         // previous
         IconButton(onPressed: () {}, icon: const Icon(Icons.skip_previous)),
-        // Play or pause
+        // Record button
         IconButton(
             onPressed: () {
               viewModel.tooglePlayPause(viewModel.isRecording);
-              viewModel.playPause();
+              viewModel.record();
             },
             icon: Icon(
               viewModel.isRecording ? Icons.stop : Icons.mic,
@@ -27,7 +27,7 @@ class RecordButtonRow extends StatelessWidget {
         /// Next
         IconButton(
             onPressed: () {
-              // viewModel.start();
+       
               viewModel.pauseRecording();
             },
             icon: viewModel.isRecordingPaused

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
 import 'package:audiobook_record/ui/views/home/home_view.form.dart';
 import 'package:flutter/foundation.dart';
@@ -38,13 +37,15 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
   }
 
   /// To record and stop record
-  void playPause() async {
+  void record() async {
     /// to stop recording
     if (isRecording) {
       final String? filePath = await audioRecorder.stop();
       if (filePath != null) {
         isRecording = false;
         audioPath = filePath;
+        navigation.back();
+        title1Controller.clear();
         notifyListeners();
       }
     } else {
@@ -68,9 +69,10 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
           audioPath = '${dir?.path}/${title1Controller.text}.caf';
 
           // Start recording to the specified path
+         
+     
           await audioRecorder.start(const RecordConfig(),
-              path: audioPath ??
-                  '$DateTime.fromMicrosecondsSinceEpoch(microsecondsSinceEpoch)');
+              path: audioPath ?? '${DateTime.now()}');
         }
       } catch (e) {
         debugPrint(e.toString());
