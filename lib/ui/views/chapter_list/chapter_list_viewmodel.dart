@@ -95,7 +95,12 @@ class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
   Future<List<FileSystemEntity>> retrieveRecordings() async {
     Directory? dir = await getApplicationDocumentsDirectory();
     notifyListeners();
-    return dir.listSync().where((file) => file.path.endsWith('.caf')).toList();
+    List<FileSystemEntity> finalList =
+        dir.listSync().where((file) => file.path.endsWith('.caf')).toList();
+    finalList.sort((a, b) {
+      return a.path.toLowerCase().compareTo(b.path.toLowerCase());
+    });
+    return finalList;
   }
 
   /// Delete a recording file
