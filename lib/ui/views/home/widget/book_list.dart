@@ -13,7 +13,7 @@ class BooksList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: Helpers.getScreenHeight(context),
+      height: Helpers.getScreenHeight(context) * 0.7,
       child: FutureBuilder<List<FileSystemEntity>>(
         future: viewModel.retriveBooks(),
         builder: (context, snapshot) {
@@ -28,7 +28,7 @@ class BooksList extends StatelessWidget {
             itemCount: recordings.length,
             itemBuilder: (context, index) {
               final file = recordings[index];
-              final fileName = file.path.split('/').last;
+              final fileName = file.path;
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),

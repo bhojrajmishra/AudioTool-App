@@ -14,7 +14,7 @@ class RecordingList extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: Helpers.getScreenHeight(context) * 0.8, // 100,
-      child: FutureBuilder<List<FileSystemEntity>>(
+      child: FutureBuilder<List<FileSystemEntity>?>(
         future: viewModel.retrieveRecordings(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
