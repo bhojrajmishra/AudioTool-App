@@ -28,11 +28,11 @@ class ChapterListView extends StackedView<ChapterListViewModel>
             icon: const Icon(Icons.arrow_back_ios)),
       ),
       body: SingleChildScrollView(
-        ///
-        /// Recording List
         child: Column(
           children: [
             SizedBox(
+              ///
+              /// Recording List
               child: RecordingList(
                 viewModel: viewModel,
               ),
@@ -53,5 +53,7 @@ class ChapterListView extends StackedView<ChapterListViewModel>
   ChapterListViewModel viewModelBuilder(
     BuildContext context,
   ) =>
-      ChapterListViewModel();
+      ChapterListViewModel(
+        bookTitle: booktitle,
+      );
 }

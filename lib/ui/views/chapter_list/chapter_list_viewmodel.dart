@@ -8,8 +8,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 class ChapterListViewModel extends BaseViewModelWrapper with $AudioView {
+  ChapterListViewModel({required this.bookTitle});
+
   double currentPosition = 0;
   double totalDuration = 0;
+  String? bookTitle;
 
   int time = 0;
   bool isRecording = false, isPlaying = false, isPaused = false;
@@ -93,16 +96,31 @@ class ChapterListViewModel extends BaseViewModelWrapper with $AudioView {
     navigation.replaceWithHomeView();
   }
 
-  ///
-  /// Retrieve recordings from the directory
+  /// Retrieve recordings from the directory inside the folder named after the book title
   Future<List<FileSystemEntity>> retrieveRecordings() async {
-    Directory? dir = await getApplicationDocumentsDirectory();
-    notifyListeners();
-    List<FileSystemEntity> finalList =
-        dir.listSync().where((file) => file.path.endsWith('.m4a')).toList();
+    Directory baseDir = await getApplicationDocumentsDirectory();
+
+    // Get the folder for the specific book
+    final bookFolderName = bookTitle!.trim();
+    final bookDir = Directory('${baseDir.path}/$bookFolderName');
+
+    // Check if the book directory exists
+    if (!await bookDir.exists()) {
+      // If the directory does not exist, return an empty list
+      return [];
+    }
+
+    // List all files in the book directory with `.m4a` extension
+    List<FileSystemEntity> finalList = bookDir.listSync().where((file) {
+      return file.path.endsWith('.m4a');
+    }).toList();
+
+    // Sort the list alphabetically by file path
     finalList.sort((a, b) {
       return a.path.toLowerCase().compareTo(b.path.toLowerCase());
     });
+
+    notifyListeners();
     return finalList;
   }
 

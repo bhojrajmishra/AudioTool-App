@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 class RecordingList extends StatelessWidget {
   const RecordingList({super.key, required this.viewModel});
   final ChapterListViewModel viewModel;
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(

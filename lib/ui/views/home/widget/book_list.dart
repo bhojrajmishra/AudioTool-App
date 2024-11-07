@@ -46,13 +46,11 @@ class BooksList extends StatelessWidget {
                     child: Column(
                       children: [
                         ListTile(
-                          // file  name
+                          onTap: () {
+                            viewModel.bookNavigation(fileName);
+                          },
                           title: Text(fileName),
-
-                          /// Delete Button
                         ),
-
-                        /// active row
                       ],
                     ),
                   ),

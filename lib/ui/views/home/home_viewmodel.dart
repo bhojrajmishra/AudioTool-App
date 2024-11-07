@@ -2,17 +2,18 @@ import 'dart:io';
 
 import 'package:audiobook_record/app/app.router.dart';
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
-import 'package:audiobook_record/ui/views/home/home_view.form.dart';
-import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
-class HomeViewModel extends BaseViewModelWrapper with $HomeView {
+class HomeViewModel extends BaseViewModelWrapper {
   void navigationto() {
     // navigation.replaceWithAudioView(title: title1Controller.text);
-    navigation.replaceWithChapterListView(
-        booktitle: bookTitleController.text.toString());
-    createFolder();
-    debugPrint(bookTitleController.text.toString());
+    navigation.replaceWithChapterListView(booktitle: bookTitleController.text);
+  }
+
+  /// book navigation
+  bookNavigation(String title) {
+    // navigation.replaceWithAudioView(title: title1Controller.text);
+    navigation.replaceWithChapterListView(booktitle: title);
   }
 
   /// Retrieve recordings from the directory

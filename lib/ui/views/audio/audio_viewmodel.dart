@@ -37,9 +37,10 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   }
 
   /// To record and stop record
+  /// To record and stop record
   void record() async {
-    /// to stop recording
     if (isRecording) {
+      // Stop recording
       final String? filePath = await audioRecorder.stop();
       if (filePath != null) {
         isRecording = false;
@@ -49,36 +50,36 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
         notifyListeners();
       }
     } else {
-      /// To start recording
+      // Start recording
       isRecording = true;
       try {
         if (await audioRecorder.hasPermission()) {
-          Directory? dir;
+          Directory? baseDir;
 
-          // Choose directory based on platform
+          // Choose base directory based on platform
           if (Platform.isIOS) {
-            dir = await getApplicationDocumentsDirectory();
+            baseDir = await getApplicationDocumentsDirectory();
           } else {
-            dir = Directory('/storage/emulated/0/Download');
-            if (!await dir.exists()) {
-              dir = await getExternalStorageDirectory();
+            baseDir = Directory('/storage/emulated/0/Download');
+            if (!await baseDir.exists()) {
+              baseDir = await getExternalStorageDirectory();
             }
           }
 
-          // Create a unique folder for each recording
-          final folderName = recordingTitleController.text;
-          final recordingDir = Directory('${dir!.path}/$folderName');
+          // Create a directory for the book using bookTextController
+          final bookFolderName = bookTitleController.text.trim();
+          final bookDir = Directory('${baseDir?.path}/$bookFolderName');
 
-          // Create the directory if it doesn't exist
-          if (!await recordingDir.exists()) {
-            await recordingDir.create(recursive: true);
+          // Ensure the book directory exists
+          if (!await bookDir.exists()) {
+            await bookDir.create(recursive: true);
+            debugPrint("Book already exist");
           }
 
-          // Set the file path for recording
-          audioPath = '${dir.path}/${recordingTitleController.text}.m4a';
+          // Set the file path for the recording inside the book folder
+          audioPath = '${bookDir.path}/${recordingTitleController.text}.m4a';
 
           // Start recording to the specified path
-
           await audioRecorder.start(const RecordConfig(),
               path: audioPath ?? '');
         }

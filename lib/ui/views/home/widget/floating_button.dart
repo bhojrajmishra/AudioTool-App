@@ -20,7 +20,7 @@ class FloatingButton extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: PrimaryButton(
-          title: "Add",
+          title: "Create a Book",
           onPressedCallBack: () {
             showDialog(
                 context: context,
