@@ -4,9 +4,13 @@ import 'package:audiobook_record/ui/views/audio/widgets/record_button_row.dart';
 import 'package:audiobook_record/widget/rounded_image.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked/stacked_annotations.dart';
 
 import 'audio_viewmodel.dart';
 
+@FormView(fields: [
+  FormTextField(name: 'recordingTitle'),
+])
 class AudioView extends StackedView<AudioViewModel> {
   const AudioView({Key? key, required this.title}) : super(key: key);
   final String title;

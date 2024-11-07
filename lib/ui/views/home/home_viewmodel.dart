@@ -16,14 +16,20 @@ class HomeViewModel extends BaseViewModelWrapper with $HomeView {
   }
 
   /// Retrieve recordings from the directory
-  Future<List<FileSystemEntity>> retrieveRecordings() async {
+  Future<List<FileSystemEntity>> retriveBooks() async {
     Directory? dir = await getApplicationDocumentsDirectory();
     notifyListeners();
-    List<FileSystemEntity> finalList =
-        dir.listSync().where((file) => file.path.contains('book')).toList();
+
+    List<FileSystemEntity> finalList = dir.listSync().where((file) {
+      // Exclude files named ".DS_Store"
+      return !file.path.endsWith('.DS_Store');
+    }).toList();
+
+    // Sort the final list alphabetically by file path
     finalList.sort((a, b) {
       return a.path.toLowerCase().compareTo(b.path.toLowerCase());
     });
+
     return finalList;
   }
 

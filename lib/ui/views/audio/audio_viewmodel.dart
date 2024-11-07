@@ -1,12 +1,12 @@
 import 'dart:io';
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
-import 'package:audiobook_record/ui/views/home/home_view.form.dart';
+import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
-class AudioViewModel extends BaseViewModelWrapper with $HomeView {
+class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   double currentPosition = 0;
   double totalDuration = 0;
 
@@ -45,7 +45,7 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
         isRecording = false;
         audioPath = filePath;
         navigation.back();
-        title1Controller.clear();
+        recordingTitleController.clear();
         notifyListeners();
       }
     } else {
@@ -66,7 +66,7 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
           }
 
           // Create a unique folder for each recording
-          final folderName = title1Controller.text;
+          final folderName = recordingTitleController.text;
           final recordingDir = Directory('${dir!.path}/$folderName');
 
           // Create the directory if it doesn't exist
@@ -75,7 +75,7 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
           }
 
           // Set the file path for recording
-          audioPath = '${dir.path}/${title1Controller.text}.m4a';
+          audioPath = '${dir.path}/${recordingTitleController.text}.m4a';
 
           // Start recording to the specified path
 

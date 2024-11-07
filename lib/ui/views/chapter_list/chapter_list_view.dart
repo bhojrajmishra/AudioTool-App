@@ -1,12 +1,13 @@
+import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
 import 'package:audiobook_record/ui/views/chapter_list/widget/floating_button.dart';
 import 'package:audiobook_record/ui/views/chapter_list/widget/recording_list.dart';
-import 'package:audiobook_record/ui/views/home/home_view.form.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 
 import 'chapter_list_viewmodel.dart';
 
-class ChapterListView extends StackedView<ChapterListViewModel> with $HomeView {
+class ChapterListView extends StackedView<ChapterListViewModel>
+    with $AudioView {
   const ChapterListView({Key? key, this.booktitle}) : super(key: key);
   final String? booktitle;
 
@@ -42,7 +43,7 @@ class ChapterListView extends StackedView<ChapterListViewModel> with $HomeView {
 
       /// Floating action Button
       floatingActionButton: FloatingButton(
-        title1Controller: title1Controller,
+        title1Controller: recordingTitleController,
         viewModel: viewModel,
       ),
     );
