@@ -99,7 +99,7 @@ class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
     Directory? dir = await getApplicationDocumentsDirectory();
     notifyListeners();
     List<FileSystemEntity> finalList =
-        dir.listSync().where((file) => file.path.endsWith('.caf')).toList();
+        dir.listSync().where((file) => file.path.endsWith('.m4a')).toList();
     finalList.sort((a, b) {
       return a.path.toLowerCase().compareTo(b.path.toLowerCase());
     });
@@ -109,14 +109,6 @@ class ChapterListViewModel extends BaseViewModelWrapper with $HomeView {
   /// Delete a recording file
   Future<void> deleteRecording(FileSystemEntity file) async {
     await file.delete();
-    notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    title1Controller.dispose();
-
     notifyListeners();
   }
 }

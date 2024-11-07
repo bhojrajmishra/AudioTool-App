@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:audiobook_record/base/utils/helpers.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/home/home_view.form.dart';
 import 'package:audiobook_record/widget/primary_button.dart';
@@ -35,13 +38,66 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
               /// TextField
               child: Column(
                 children: [
-                  const PrimaryTextField(
-                    hintText: "Book Title",
-                  ),
-                  verticalSpaceMedium,
                   PrimaryTextField(
+                    hintText: "Book Title",
                     controller: bookTitleController,
                   ),
+                  verticalSpaceMedium,
+                  SizedBox(
+                    height: Helpers.getScreenHeight(context) * 0.5, // 100,
+                    child: FutureBuilder<List<FileSystemEntity>>(
+                      future: viewModel.retrieveRecordings(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return const Center(
+                              child: Text('No recordings found'));
+                        }
+
+                        final recordings = snapshot.data!;
+                        return ListView.builder(
+                          itemCount: recordings.length,
+                          itemBuilder: (context, index) {
+                            /// to check the item is active or not
+
+                            final file = recordings[index];
+                            final fileName = file.path.split('/').last;
+
+                            return GestureDetector(
+                              onTap: () {},
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Container(
+                                  height: 100,
+                                  decoration: BoxDecoration(boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.1),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ]),
+                                  // duration: const Duration(milliseconds: 200),
+                                  child: Column(
+                                    children: [
+                                      ListTile(
+                                        // file  name
+                                        title: Text(fileName),
+
+                                        /// Delete Button
+                                      ),
+
+                                      /// active row
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  )
                 ],
               ),
             ),
@@ -53,7 +109,7 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: PrimaryButton(
-                title: "Next",
+                title: "Add",
                 onPressedCallBack: () {
                   viewModel.navigationto();
                 },

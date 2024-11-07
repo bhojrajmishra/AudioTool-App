@@ -65,14 +65,22 @@ class AudioViewModel extends BaseViewModelWrapper with $HomeView {
             }
           }
 
+          // Create a unique folder for each recording
+          final folderName = title1Controller.text;
+          final recordingDir = Directory('${dir!.path}/$folderName');
+
+          // Create the directory if it doesn't exist
+          if (!await recordingDir.exists()) {
+            await recordingDir.create(recursive: true);
+          }
+
           // Set the file path for recording
-          audioPath = '${dir?.path}/${title1Controller.text}.caf';
+          audioPath = '${dir.path}/${title1Controller.text}.m4a';
 
           // Start recording to the specified path
-         
-     
+
           await audioRecorder.start(const RecordConfig(),
-              path: audioPath ?? '${DateTime.now()}');
+              path: audioPath ?? '');
         }
       } catch (e) {
         debugPrint(e.toString());

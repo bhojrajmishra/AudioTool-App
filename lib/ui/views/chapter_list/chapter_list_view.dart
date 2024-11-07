@@ -36,7 +36,6 @@ class ChapterListView extends StackedView<ChapterListViewModel> with $HomeView {
                 viewModel: viewModel,
               ),
             ),
-          
           ],
         ),
       ),

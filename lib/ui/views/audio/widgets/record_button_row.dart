@@ -27,7 +27,6 @@ class RecordButtonRow extends StatelessWidget {
         /// Next
         IconButton(
             onPressed: () {
-       
               viewModel.pauseRecording();
             },
             icon: viewModel.isRecordingPaused
