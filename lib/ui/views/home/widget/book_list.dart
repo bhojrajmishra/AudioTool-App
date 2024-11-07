@@ -28,7 +28,7 @@ class BooksList extends StatelessWidget {
             itemCount: recordings.length,
             itemBuilder: (context, index) {
               final file = recordings[index];
-              final fileName = file.path;
+              final fileName = file.path.split('/').last;
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 10.0),

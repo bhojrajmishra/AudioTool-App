@@ -73,11 +73,12 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
           // Ensure the book directory exists
           if (!await bookDir.exists()) {
             await bookDir.create(recursive: true);
-            debugPrint("Book already exist");
           }
 
           // Set the file path for the recording inside the book folder
-          audioPath = '${bookDir.path}/${recordingTitleController.text}.m4a';
+          audioPath = Platform.isIOS
+              ? '${bookDir.path}/${recordingTitleController.text}.m4a'
+              : '${bookDir.path}/${recordingTitleController.text}.wav';
 
           // Start recording to the specified path
           await audioRecorder.start(const RecordConfig(),
