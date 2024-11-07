@@ -1,3 +1,4 @@
+import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
 import 'package:audiobook_record/ui/views/chapter_list/widget/floating_button.dart';
 import 'package:audiobook_record/ui/views/chapter_list/widget/recording_list.dart';
@@ -20,7 +21,7 @@ class ChapterListView extends StackedView<ChapterListViewModel>
     return Scaffold(
       appBar: AppBar(
         title:
-            booktitle!.isEmpty ? const Text("Book Title") : Text("$booktitle"),
+            booktitle!.isEmpty ? const Text(AppStrings.bookTitle) : Text("$booktitle"),
         leading: IconButton(
             onPressed: () {
               viewModel.popNavigation();

@@ -1,3 +1,4 @@
+import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/home/home_viewmodel.dart';
 import 'package:audiobook_record/widget/primary_button.dart';
 import 'package:audiobook_record/widget/primary_text_field.dart';
@@ -16,29 +17,29 @@ class FloatingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 100,
       child: Padding(
         padding: const EdgeInsets.all(10.0),
         child: PrimaryButton(
-          title: "Create a Book",
+          title: AppStrings.createBook,
           onPressedCallBack: () {
+            /// shows dialog
             showDialog(
                 context: context,
                 builder: (context) {
                   return AlertDialog(
-                    title: const Text("Enter Book tilte"),
+                    title: const Text(AppStrings.enterBookTitle),
 
                     /// Button
                     actions: [
                       PrimaryButton(
-                          title: "Create",
+                          title: AppStrings.create,
                           onPressedCallBack: () {
-                            viewModel.navigationto();
-                            viewModel.createFolder();
+                            viewModel.createBook();
                           })
                     ],
                     content: PrimaryTextField(
                       controller: bookTitleController,
+                      hintText: AppStrings.enterBookTitle,
                     ),
                   );
                 });

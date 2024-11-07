@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:audiobook_record/base/utils/helpers.dart';
+import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/chapter_list/chapter_list_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -17,9 +18,9 @@ class RecordingList extends StatelessWidget {
         future: viewModel.retrieveRecordings(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
-            return const Center(child: Text('Error loading recordings'));
+            return const Center(child: Text(AppStrings.errorLoadinRecording));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No recordings found'));
+            return const Center(child: Text(AppStrings.noRecordingFound));
           }
 
           final recordings = snapshot.data!;
@@ -53,7 +54,7 @@ class RecordingList extends StatelessWidget {
                         ListTile(
                             // file  name
                             title: Text(fileName),
-                            subtitle: const Text("Recording"),
+                            subtitle: const Text(AppStrings.recording),
 
                             /// Delete Button
                             trailing: isActive

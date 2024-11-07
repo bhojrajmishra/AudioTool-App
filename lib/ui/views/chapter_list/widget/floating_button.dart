@@ -1,3 +1,4 @@
+import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/chapter_list/chapter_list_viewmodel.dart';
 import 'package:audiobook_record/widget/primary_button.dart';
 import 'package:audiobook_record/widget/primary_text_field.dart';
@@ -17,12 +18,12 @@ class FloatingButton extends StatelessWidget {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: const Text("Enter Book tilte"),
+                title: const Text(AppStrings.enterRecordingTitle),
 
                 /// Button
                 actions: [
                   PrimaryButton(
-                    title: "Save",
+                    title:AppStrings.save,
                     onPressedCallBack: viewModel.navigationto,
                   )
                 ],

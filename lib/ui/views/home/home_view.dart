@@ -1,3 +1,4 @@
+import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/home/home_view.form.dart';
 import 'package:audiobook_record/ui/views/home/widget/book_list.dart';
 import 'package:audiobook_record/ui/views/home/widget/floating_button.dart';
@@ -22,13 +23,14 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Scaffold(
+          // app bar
           appBar: AppBar(
-            title: const Text("AudioBook"),
+            title: const Text(AppStrings.audioBook)
           ),
           body: Padding(
             padding: const EdgeInsets.all(20.0),
             child: SingleChildScrollView(
-              /// TextField
+              /// List of books
               child: BooksList(
                 viewModel: viewModel,
               ),
