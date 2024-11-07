@@ -76,9 +76,7 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
           }
 
           // Set the file path for the recording inside the book folder
-          audioPath = Platform.isIOS
-              ? '${bookDir.path}/${recordingTitleController.text}.m4a'
-              : '${bookDir.path}/${recordingTitleController.text}.wav';
+          audioPath = '${bookDir.path}/${recordingTitleController.text}.m4a';
 
           // Start recording to the specified path
           await audioRecorder.start(const RecordConfig(),

@@ -143,7 +143,7 @@ class ChapterListViewModel extends BaseViewModelWrapper with $AudioView {
 
       // List all files in the book directory with `.m4a` extension
       List<FileSystemEntity> finalList = bookDir.listSync().where((file) {
-        return file.path.endsWith('.wav');
+        return file.path.endsWith('.m4a');
       }).toList();
 
       // Sort the list alphabetically by file path
