@@ -107,7 +107,7 @@ class ChapterListViewModel extends BaseViewModelWrapper with $AudioView {
   Future<List<FileSystemEntity>> retrieveRecordings() async {
     Directory baseDir;
     if (Platform.isAndroid) {
-      baseDir = Directory('/storage/emulated/0/Recordings');
+      baseDir = Directory('/storage/emulated/0/AudioBooks');
     } else if (Platform.isIOS) {
       baseDir = await getApplicationDocumentsDirectory();
     } else {
