@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:audiobook_record/app/app.router.dart';
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
 import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
+import 'package:audiobook_record/ui/views/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -100,10 +101,12 @@ class ChapterListViewModel extends BaseViewModelWrapper
   void navigationto() {
     navigation.replaceWithAudioView(
         title: recordingTitleController.text, bookTitle: bookTitle);
+    debugPrint(bookTitle);
   }
 
   void popNavigation() {
-    navigation.replaceWithHomeView();
+    navigation.clearStackAndShowView(const HomeView());
+    bookTitleController.clear();
   }
 
   ///

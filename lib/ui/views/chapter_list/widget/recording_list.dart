@@ -104,14 +104,20 @@ class RecordingList extends StatelessWidget {
                                         value: viewModel.currentPosition
                                             .toDouble(),
                                         max: viewModel.totalDuration.toDouble(),
-                                        divisions:
-                                            viewModel.totalDuration.toInt(),
                                         label: viewModel.currentPosition
                                             .toStringAsFixed(0),
                                         onChanged: (value) {
                                           viewModel.audioPlayer.seek(
                                               Duration(seconds: value.toInt()));
                                         },
+                                        thumbColor: viewModel.isPlaying
+                                            ? Colors.blue
+                                            : Colors.grey,
+                                        activeColor: viewModel.isPlaying
+                                            ? Colors.blueAccent
+                                            : Colors.grey,
+                                        inactiveColor:
+                                            Colors.grey.withOpacity(0.5),
                                       ),
                                     ),
                                     Text(

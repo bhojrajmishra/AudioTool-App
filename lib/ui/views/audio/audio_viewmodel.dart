@@ -43,6 +43,7 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
     if (isRecording) {
       // Stop recording
       final String? filePath = await audioRecorder.stop();
+      debugPrint(audioPath);
       if (filePath != null) {
         isRecording = false;
         audioPath = filePath;
@@ -69,12 +70,12 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
           }
 
           // Create a directory for the book using bookTextController
-          final bookFolderName = bookTitleController.text.trim();
+          final bookFolderName = bookTitle.toString().trim();
           final bookDir = Directory('${baseDir?.path}/$bookFolderName');
 
           // Ensure the book directory exists
           if (!await bookDir.exists()) {
-            await bookDir.create(recursive: true);
+            await bookDir.create(recursive: false);
           }
 
           // Set the file path for the recording inside the book folder

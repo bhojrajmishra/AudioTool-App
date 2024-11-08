@@ -8,6 +8,12 @@ import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
+  /// book navigation
+  bookNavigation(String title) {
+    navigation.replaceWithChapterListView(booktitle: title);
+    debugPrint(title);
+  }
+
   void createBook() {
     if (bookTitleController.text.isNotEmpty) {
       navigation.replaceWithChapterListView(
@@ -31,12 +37,6 @@ class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
         variant: 'empty title',
       );
     }
-  }
-
-  /// book navigation
-  bookNavigation(String title) {
-    // navigation.replaceWithAudioView(title: title1Controller.text);
-    navigation.replaceWithChapterListView(booktitle: title);
   }
 
   Future<List<FileSystemEntity>> retrieveBooks() async {
