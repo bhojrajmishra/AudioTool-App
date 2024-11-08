@@ -24,9 +24,7 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
         backgroundColor: Theme.of(context).colorScheme.surface,
         body: Scaffold(
           // app bar
-          appBar: AppBar(
-            title: const Text(AppStrings.audioBook)
-          ),
+          appBar: AppBar(title: const Text(AppStrings.audioBook)),
           body: Padding(
             padding: const EdgeInsets.all(20.0),
             child: SingleChildScrollView(
