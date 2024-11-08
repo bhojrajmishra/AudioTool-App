@@ -37,7 +37,6 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   }
 
   /// To record and stop record
-  /// To record and stop record
   void record() async {
     if (isRecording) {
       // Stop recording
