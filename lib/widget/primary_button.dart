@@ -1,6 +1,7 @@
 import 'package:audiobook_record/base/utils/helpers.dart';
 import 'package:audiobook_record/ui/common/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({super.key, this.onPressedCallBack, required this.title});
@@ -13,16 +14,16 @@ class PrimaryButton extends StatelessWidget {
     return ElevatedButton(
         style: ButtonStyle(
           shape: WidgetStateProperty.all(RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10.r),
           )),
           fixedSize: WidgetStateProperty.all(
-              Size(Helpers.getScreenWidth(context) * 0.3, 70)),
+              Size(Helpers.getScreenWidth(context) * 0.4.w, 70.h)),
           backgroundColor: WidgetStateProperty.all(kcPrimaryColor),
         ),
         onPressed: onPressedCallBack,
         child: Text(
           title,
-          style: const TextStyle(color: Colors.white, fontSize: 25),
+          style: TextStyle(color: Colors.white, fontSize: 25.sp),
         ));
   }
 }

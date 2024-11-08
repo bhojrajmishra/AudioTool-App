@@ -5,6 +5,7 @@ import 'package:audiobook_record/ui/common/app_colors.dart';
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/home/home_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BooksList extends StatelessWidget {
   const BooksList({super.key, required this.viewModel});
@@ -13,7 +14,7 @@ class BooksList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: Helpers.getScreenHeight(context) * 0.7,
+      height: Helpers.getScreenHeight(context) * 0.7.r,
       child: FutureBuilder<List<FileSystemEntity>>(
         future: viewModel.retrieveBooks(),
         builder: (context, snapshot) {
@@ -31,7 +32,7 @@ class BooksList extends StatelessWidget {
               final fileName = file.path.split('/').last;
 
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                padding:  EdgeInsets.symmetric(vertical: 10.0.h),
                 child: Container(
                   height: 90, // height of the tile
                   decoration: BoxDecoration(boxShadow: [

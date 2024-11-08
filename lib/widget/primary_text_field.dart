@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PrimaryTextField extends StatelessWidget {
   const PrimaryTextField(
@@ -16,7 +17,7 @@ class PrimaryTextField extends StatelessWidget {
         controller: controller,
         decoration: InputDecoration(
           labelText: hintText,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10.r)),
         ));
   }
 }

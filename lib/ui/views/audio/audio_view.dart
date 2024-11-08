@@ -4,6 +4,7 @@ import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/audio/widgets/record_button_row.dart';
 import 'package:audiobook_record/widget/rounded_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
 
@@ -46,7 +47,7 @@ class AudioView extends StackedView<AudioViewModel> {
               children: [
                 verticalSpaceMedium,
                 SizedBox(
-                  height: 200,
+                  height: 200.h,
                   // Animation
                   child: viewModel.isRecording
                       ? (viewModel.isRecordingPaused
@@ -57,17 +58,19 @@ class AudioView extends StackedView<AudioViewModel> {
                 // Text
                 viewModel.isRecording
                     ? viewModel.isRecordingPaused
-                        ? const Text(
+                        ? Text(
                             AppStrings.paused,
-                            style: TextStyle(color: Colors.blue, fontSize: 30),
+                            style:
+                                TextStyle(color: Colors.blue, fontSize: 30.sp),
                           )
-                        : const Text(
+                        : Text(
                             AppStrings.recordings,
-                            style: TextStyle(color: Colors.red, fontSize: 30),
+                            style:
+                                TextStyle(color: Colors.red, fontSize: 30.sp),
                           )
-                    : const Text(
+                    : Text(
                         AppStrings.startRecord,
-                        style: TextStyle(color: Colors.black, fontSize: 30),
+                        style: TextStyle(color: Colors.black, fontSize: 30.sp),
                       ),
 
                 verticalSpaceMedium,

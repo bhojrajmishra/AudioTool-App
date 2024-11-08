@@ -1,8 +1,10 @@
+
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/home/home_view.form.dart';
 import 'package:audiobook_record/ui/views/home/widget/book_list.dart';
 import 'package:audiobook_record/ui/views/home/widget/floating_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked/stacked_annotations.dart';
 
@@ -26,7 +28,7 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
           // app bar
           appBar: AppBar(title: const Text(AppStrings.audioBook)),
           body: Padding(
-            padding: const EdgeInsets.all(20.0),
+            padding:  EdgeInsets.all(20.0.r),
             child: SingleChildScrollView(
               /// List of books
               child: BooksList(

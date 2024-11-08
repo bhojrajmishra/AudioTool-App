@@ -1,5 +1,6 @@
 import 'package:audiobook_record/ui/views/audio/audio_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RecordButtonRow extends StatelessWidget {
   const RecordButtonRow({super.key, required this.viewModel});
@@ -21,7 +22,7 @@ class RecordButtonRow extends StatelessWidget {
             icon: Icon(
               viewModel.isRecording ? Icons.stop : Icons.mic,
               color: Colors.red,
-              size: 50,
+              size: 50.r,
             )),
 
         /// Next

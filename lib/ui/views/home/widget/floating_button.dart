@@ -1,8 +1,10 @@
+
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/home/home_viewmodel.dart';
 import 'package:audiobook_record/widget/primary_button.dart';
 import 'package:audiobook_record/widget/primary_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class FloatingButton extends StatelessWidget {
   const FloatingButton({
@@ -18,7 +20,7 @@ class FloatingButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       child: Padding(
-        padding: const EdgeInsets.all(10.0),
+        padding:  EdgeInsets.all(10.0.r),
         child: PrimaryButton(
           title: AppStrings.createBook,
           onPressedCallBack: () {
