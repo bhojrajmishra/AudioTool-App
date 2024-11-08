@@ -1,3 +1,4 @@
+import 'package:audiobook_record/app/app.router.dart';
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
 import 'package:audiobook_record/ui/views/chapter_list/widget/floating_button.dart';
@@ -18,37 +19,42 @@ class ChapterListView extends StackedView<ChapterListViewModel>
     ChapterListViewModel viewModel,
     Widget? child,
   ) {
-    return Scaffold(
-      appBar: AppBar(
-        title: booktitle!.isEmpty
-            ? const Text(AppStrings.bookTitle)
-            : Text("$booktitle"),
-        leading: IconButton(
-            onPressed: () {
-              viewModel.popNavigation();
-            },
-            icon: const Icon(Icons.arrow_back_ios)),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(
-              ///
-              /// Recording List
-              child: RecordingList(
-                viewModel: viewModel,
-              ),
+    return PopScope(
+        onPopInvokedWithResult: (didPop, result) {
+          (viewModel.navigation.replaceWithHomeView(),);
+          true;
+        },
+        child: Scaffold(
+          appBar: AppBar(
+            title: booktitle!.isEmpty
+                ? const Text(AppStrings.bookTitle)
+                : Text("$booktitle"),
+            leading: IconButton(
+                onPressed: () {
+                  viewModel.popNavigation();
+                },
+                icon: const Icon(Icons.arrow_back_ios)),
+          ),
+          body: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(
+                  ///
+                  /// Recording List
+                  child: RecordingList(
+                    viewModel: viewModel,
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
 
-      /// Floating action Button
-      floatingActionButton: FloatingButton(
-        title1Controller: recordingTitleController,
-        viewModel: viewModel,
-      ),
-    );
+          /// Floating action Button
+          floatingActionButton: FloatingButton(
+            title1Controller: recordingTitleController,
+            viewModel: viewModel,
+          ),
+        ));
   }
 
   @override
