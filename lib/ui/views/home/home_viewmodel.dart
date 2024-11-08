@@ -78,6 +78,15 @@ class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
     }
   }
 
+  Future<void> deleteBooks(FileSystemEntity file) async {
+    try {
+      file.deleteSync(recursive: true);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error deleting recording: $e');
+    }
+  }
+
   @override
   void initialise() {
     retrieveBooks();
