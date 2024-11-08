@@ -71,20 +71,25 @@ class ChapterListViewModel extends BaseViewModelWrapper with $AudioView {
   // on tap for list
   void onTapRecord(int index) {
     if (activeIndex == index) {
-      activeIndex = null;
-      isPlaying = false;
-      currentPosition = 0;
-      audioPlayer.pause();
-      notifyListeners(); // Deselect if already selected
+      _deselectItem();
     } else {
-      activeIndex = index; // Set the active item index
-      isPlaying = false;
-      audioPlayer.pause();
-      currentPosition = 0;
-
-      notifyListeners();
+      _selectItem(index);
     }
+  }
 
+  void _deselectItem() {
+    activeIndex = null;
+    isPlaying = false;
+    currentPosition = 0;
+    audioPlayer.pause();
+    notifyListeners();
+  }
+
+  void _selectItem(int index) {
+    activeIndex = index;
+    isPlaying = false;
+    audioPlayer.pause();
+    currentPosition = 0;
     notifyListeners();
   }
 

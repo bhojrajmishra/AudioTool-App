@@ -15,7 +15,7 @@ class BooksList extends StatelessWidget {
     return SizedBox(
       height: Helpers.getScreenHeight(context) * 0.7,
       child: FutureBuilder<List<FileSystemEntity>>(
-        future: viewModel.retriveBooks(),
+        future: viewModel.retrieveBooks(),
         builder: (context, snapshot) {
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
             return const Center(

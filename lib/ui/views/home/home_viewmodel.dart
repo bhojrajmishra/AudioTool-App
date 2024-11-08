@@ -40,39 +40,25 @@ class HomeViewModel extends BaseViewModelWrapper {
     navigation.replaceWithChapterListView(booktitle: title);
   }
 
-  /// Retrieve recordings from the directory
-  Future<List<FileSystemEntity>> retriveBooks() async {
+  Future<List<FileSystemEntity>> retrieveBooks() async {
+    Directory? dir;
     if (Platform.isIOS) {
-      Directory? dir = await getApplicationDocumentsDirectory();
-      notifyListeners();
-
-      List<FileSystemEntity> finalList = dir.listSync().where((file) {
-        // Exclude files named ".DS_Store"
-        return !file.path.endsWith('.DS_Store');
-      }).toList();
-
-      // Sort the final list alphabetically by file path
-      finalList.sort((a, b) {
-        notifyListeners();
-        return a.path.toLowerCase().compareTo(b.path.toLowerCase());
-      });
-      notifyListeners();
-
-      return finalList;
+      dir = await getApplicationDocumentsDirectory();
+    } else {
+      dir = Directory('/storage/emulated/0/Recordings');
     }
-    if (Platform.isAndroid) {
-      Directory dir = Directory('/storage/emulated/0/Recordings');
 
+    if (dir != null) {
       List<FileSystemEntity> finalList = dir.listSync().where((file) {
-        // Exclude files named ".DS_Store"
-        return !file.path.endsWith('flutter_assets');
+        return !file.path.endsWith('.DS_Store') &&
+            !file.path.endsWith('flutter_assets');
       }).toList();
 
-      // Sort the final list alphabetically by file path
       finalList.sort((a, b) {
         return a.path.toLowerCase().compareTo(b.path.toLowerCase());
       });
 
+      notifyListeners();
       return finalList;
     }
     return [];
