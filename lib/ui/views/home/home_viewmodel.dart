@@ -46,6 +46,9 @@ class HomeViewModel extends BaseViewModelWrapper {
       dir = await getApplicationDocumentsDirectory();
     } else {
       dir = Directory('/storage/emulated/0/Recordings');
+      if (!await dir.exists()) {
+        createFolder();
+      }
     }
 
     List<FileSystemEntity> finalList = dir.listSync().where((file) {
@@ -62,20 +65,13 @@ class HomeViewModel extends BaseViewModelWrapper {
 
   void createFolder() async {
     Directory? dir;
-    dir = await getApplicationDocumentsDirectory();
-    // Choose directory based on platform
-    if (Platform.isIOS) {
-      dir = await getApplicationDocumentsDirectory();
-    } else {
-      dir = Directory('/storage/emulated/0/Download');
-      if (!await dir.exists()) {
-        dir = await getExternalStorageDirectory();
-      }
+
+    dir = Directory('/storage/emulated/0/Recordings');
+    if (!await dir.exists()) {
+      dir = await getExternalStorageDirectory();
     }
 
-    // Create a unique folder for each recording
-    final folderName = bookTitleController.text;
-    final recordingDir = Directory('${dir!.path}/$folderName');
+    final recordingDir = Directory('/storage/emulated/0/Recordings');
 
     // Create the directory if it doesn't exist
     if (!await recordingDir.exists()) {
