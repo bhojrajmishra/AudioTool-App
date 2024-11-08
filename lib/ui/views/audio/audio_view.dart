@@ -13,8 +13,10 @@ import 'audio_viewmodel.dart';
   FormTextField(name: 'recordingTitle'),
 ])
 class AudioView extends StackedView<AudioViewModel> {
-  const AudioView({Key? key, required this.title}) : super(key: key);
+  const AudioView({Key? key, required this.title, this.bookTitle})
+      : super(key: key);
   final String title;
+  final String? bookTitle;
 
   @override
   Widget builder(
@@ -85,5 +87,5 @@ class AudioView extends StackedView<AudioViewModel> {
   AudioViewModel viewModelBuilder(
     BuildContext context,
   ) =>
-      AudioViewModel();
+      AudioViewModel(bookTitle: bookTitle);
 }

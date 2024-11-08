@@ -94,7 +94,8 @@ class ChapterListViewModel extends BaseViewModelWrapper with $AudioView {
   }
 
   void navigationto() {
-    navigation.replaceWithAudioView(title: recordingTitleController.text);
+    navigation.replaceWithAudioView(
+        title: recordingTitleController.text, bookTitle: bookTitle);
   }
 
   void popNavigation() {

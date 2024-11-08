@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:audiobook_record/app/app.router.dart';
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
 import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 class AudioViewModel extends BaseViewModelWrapper with $AudioView {
+  AudioViewModel({this.bookTitle});
+  String? bookTitle;
   double currentPosition = 0;
   double totalDuration = 0;
 
@@ -44,7 +47,7 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
       if (filePath != null) {
         isRecording = false;
         audioPath = filePath;
-        navigation.back();
+        navigation.replaceWithChapterListView(booktitle: bookTitle);
         recordingTitleController.clear();
         notifyListeners();
       }

@@ -20,8 +20,9 @@ class ChapterListView extends StackedView<ChapterListViewModel>
   ) {
     return Scaffold(
       appBar: AppBar(
-        title:
-            booktitle!.isEmpty ? const Text(AppStrings.bookTitle) : Text("$booktitle"),
+        title: booktitle!.isEmpty
+            ? const Text(AppStrings.bookTitle)
+            : Text("$booktitle"),
         leading: IconButton(
             onPressed: () {
               viewModel.popNavigation();
