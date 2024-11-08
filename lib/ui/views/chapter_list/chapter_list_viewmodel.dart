@@ -99,67 +99,32 @@ class ChapterListViewModel extends BaseViewModelWrapper with $AudioView {
   ///
   ///
   ///Retrieve recordings from the directory inside the folder named after the book title
-
   Future<List<FileSystemEntity>> retrieveRecordings() async {
-    if (Platform.isAndroid) // For android
-    {
-      Directory baseDir = Directory('/storage/emulated/0/Recordings');
-
-      // Get the folder for the specific book
-      final bookFolderName = bookTitle!.trim();
-      final bookDir = Directory('${baseDir.path}/$bookFolderName');
-
-      // Check if the book directory exists
-      if (!await bookDir.exists()) {
-        // If the directory does not exist, return an empty list
-        return [];
-      }
-
-      // List all files in the book directory with `.m4a` extension
-      List<FileSystemEntity> finalList = bookDir.listSync().where((file) {
-        return file.path.endsWith('.m4a');
-      }).toList();
-      notifyListeners();
-
-      // Sort the list alphabetically by file path
-      finalList.sort((a, b) {
-        return a.path.toLowerCase().compareTo(b.path.toLowerCase());
-      });
-
-      notifyListeners();
-      return finalList;
+    Directory baseDir;
+    if (Platform.isAndroid) {
+      baseDir = Directory('/storage/emulated/0/Recordings');
+    } else if (Platform.isIOS) {
+      baseDir = await getApplicationDocumentsDirectory();
+    } else {
+      return [];
     }
 
-    ///
-    if (Platform.isIOS) // For ios
-    {
-      Directory baseDir = await getApplicationDocumentsDirectory();
+    final bookFolderName = bookTitle!.trim();
+    final bookDir = Directory('${baseDir.path}/$bookFolderName');
 
-      // Get the folder for the specific book
-      final bookFolderName = bookTitle!.trim();
-      final bookDir = Directory('${baseDir.path}/$bookFolderName');
-
-      // Check if the book directory exists
-      if (!await bookDir.exists()) {
-        // If the directory does not exist, return an empty list
-        return [];
-      }
-
-      // List all files in the book directory with `.m4a` extension
-      List<FileSystemEntity> finalList = bookDir.listSync().where((file) {
-        return file.path.endsWith('.m4a');
-      }).toList();
-
-      // Sort the list alphabetically by file path
-      finalList.sort((a, b) {
-        return a.path.toLowerCase().compareTo(b.path.toLowerCase());
-      });
-      notifyListeners();
-      return finalList;
+    if (!await bookDir.exists()) {
+      return [];
     }
 
+    List<FileSystemEntity> finalList = bookDir.listSync().where((file) {
+      return file.path.endsWith('.m4a');
+    }).toList();
+
+    finalList.sort((a, b) {
+      return a.path.toLowerCase().compareTo(b.path.toLowerCase());
+    });
     notifyListeners();
-    return [];
+    return finalList;
   }
 
   /// Delete a recording file
