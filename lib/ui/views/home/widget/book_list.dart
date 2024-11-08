@@ -32,7 +32,7 @@ class BooksList extends StatelessWidget {
               final fileName = file.path.split('/').last;
 
               return Padding(
-                padding:  EdgeInsets.symmetric(vertical: 10.0.h),
+                padding: EdgeInsets.symmetric(vertical: 10.0.h),
                 child: Container(
                   height: 90, // height of the tile
                   decoration: BoxDecoration(boxShadow: [

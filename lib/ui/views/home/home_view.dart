@@ -1,4 +1,3 @@
-
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/home/home_view.form.dart';
 import 'package:audiobook_record/ui/views/home/widget/book_list.dart';
@@ -28,7 +27,7 @@ class HomeView extends StackedView<HomeViewModel> with $HomeView {
           // app bar
           appBar: AppBar(title: const Text(AppStrings.audioBook)),
           body: Padding(
-            padding:  EdgeInsets.all(20.0.r),
+            padding: EdgeInsets.all(20.0.r),
             child: SingleChildScrollView(
               /// List of books
               child: BooksList(

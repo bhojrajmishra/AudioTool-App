@@ -18,7 +18,6 @@ class FloatingButton extends StatelessWidget {
             context: context,
             builder: (context) {
               return AlertDialog(
-              
                 title: const Text(AppStrings.enterRecordingTitle),
 
                 /// Button

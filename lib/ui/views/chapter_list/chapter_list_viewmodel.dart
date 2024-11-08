@@ -27,6 +27,7 @@ class ChapterListViewModel extends BaseViewModelWrapper
 
   /// AudioPlayer to playback audio
   final AudioPlayer audioPlayer = AudioPlayer();
+
   Future<void> pauseResume() async {
     if (isPaused == true) {
       await audioPlayer.play();
@@ -136,10 +137,13 @@ class ChapterListViewModel extends BaseViewModelWrapper
     return finalList;
   }
 
-  /// Delete a recording file
   Future<void> deleteRecording(FileSystemEntity file) async {
-    await file.delete();
-    notifyListeners();
+    try {
+      await file.delete();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error deleting recording: $e');
+    }
   }
 
   @override

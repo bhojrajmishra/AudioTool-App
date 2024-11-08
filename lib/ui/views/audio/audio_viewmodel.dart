@@ -12,7 +12,6 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   String? bookTitle;
   double currentPosition = 0;
   double totalDuration = 0;
-
   int time = 0;
   bool isRecording = false, isPlaying = false, isRecordingPaused = false;
   String? audioPath;
@@ -47,6 +46,7 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
       if (filePath != null) {
         isRecording = false;
         audioPath = filePath;
+
         navigation.replaceWithChapterListView(booktitle: bookTitle);
         recordingTitleController.clear();
         notifyListeners();
