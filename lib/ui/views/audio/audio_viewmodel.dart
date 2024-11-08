@@ -59,7 +59,7 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
           if (Platform.isIOS) {
             baseDir = await getApplicationDocumentsDirectory();
           } else {
-            baseDir = Directory('/storage/emulated/0/Recordings');
+            baseDir = Directory('/storage/emulated/0/AudioBooks');
             if (!await baseDir.exists()) {
               baseDir = await getExternalStorageDirectory();
             }

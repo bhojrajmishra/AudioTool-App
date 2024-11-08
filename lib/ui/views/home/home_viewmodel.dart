@@ -7,8 +7,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class HomeViewModel extends BaseViewModelWrapper {
-  get snackBar => null;
-
   void createBook() {
     if (bookTitleController.text.isNotEmpty) {
       navigation.replaceWithChapterListView(
@@ -45,7 +43,7 @@ class HomeViewModel extends BaseViewModelWrapper {
     if (Platform.isIOS) {
       dir = await getApplicationDocumentsDirectory();
     } else {
-      dir = Directory('/storage/emulated/0/Recordings');
+      dir = Directory('/storage/emulated/0/AudioBooks');
       if (!await dir.exists()) {
         createFolder();
       }
@@ -66,12 +64,12 @@ class HomeViewModel extends BaseViewModelWrapper {
   void createFolder() async {
     Directory? dir;
 
-    dir = Directory('/storage/emulated/0/Recordings');
+    dir = Directory('/storage/emulated/0/AudioBooks');
     if (!await dir.exists()) {
       dir = await getExternalStorageDirectory();
     }
 
-    final recordingDir = Directory('/storage/emulated/0/Recordings');
+    final recordingDir = Directory('/storage/emulated/0/AudioBooks');
 
     // Create the directory if it doesn't exist
     if (!await recordingDir.exists()) {
