@@ -5,6 +5,7 @@ import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/chapter_list/chapter_list_viewmodel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class RecordingList extends StatelessWidget {
   const RecordingList({super.key, required this.viewModel});
@@ -13,7 +14,7 @@ class RecordingList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: Helpers.getScreenHeight(context) * 0.8, // 100,
+      height: Helpers.getScreenHeight(context) * 0.8.r, // 100,
       child: FutureBuilder<List<FileSystemEntity>?>(
         future: viewModel.retrieveRecordings(),
         builder: (context, snapshot) {
@@ -37,9 +38,9 @@ class RecordingList extends StatelessWidget {
                   viewModel.onTapRecord(index);
                 },
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  padding:  EdgeInsets.symmetric(vertical: 8.0.h),
                   child: Container(
-                    height: isActive ? 160 : 100,
+                    height: isActive ? 160.h : 100.h,
                     decoration: BoxDecoration(boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.1),
@@ -73,7 +74,7 @@ class RecordingList extends StatelessWidget {
                         /// active row
                         isActive
                             ? Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding:  EdgeInsets.all(8.0.r),
                                 child: Row(
                                   children: [
                                     /// Play pause button
