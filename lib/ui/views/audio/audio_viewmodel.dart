@@ -1,67 +1,98 @@
 import 'dart:io';
-
+import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
+import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
+import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
-import 'package:stacked/stacked.dart';
-import 'package:path/path.dart' as p;
 
-class AudioViewModel extends BaseViewModel {
+class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   double currentPosition = 0;
   double totalDuration = 0;
+
+  int time = 0;
+  bool isRecording = false, isPlaying = false, isRecordingPaused = false;
+  String? audioPath;
 
   /// Instance for audio recorder
   final AudioRecorder audioRecorder = AudioRecorder();
 
-  /// File path for audio file
+  /// AudioPlayer to playback audio
   final AudioPlayer audioPlayer = AudioPlayer();
 
-  bool isRecording = false, isPlaying = false;
+  void tooglePlayPause(button) {
+    button = !button;
+    notifyListeners();
+  }
 
-  String? recordingPath;
-
-  /// To play the recording
-  void playRecord() async {
-    if (audioPlayer.playing) {
-      audioPlayer.stop();
-      isPlaying = false;
-      notifyListeners();
+  void pauseRecording() async {
+    if (isRecordingPaused) {
+      await audioRecorder.resume();
     } else {
-      await audioPlayer.setFilePath(recordingPath!);
-      audioPlayer.play();
-      totalDuration = audioPlayer.duration?.inSeconds.toDouble() ?? 0;
-      isPlaying = true;
-      audioPlayer.positionStream.listen((position) {
-        currentPosition = position.inSeconds.toDouble();
-        notifyListeners();
-      });
-      notifyListeners(); 
+      await audioRecorder.pause();
     }
+
+    isRecordingPaused = !isRecordingPaused;
+    notifyListeners();
   }
 
   /// To record and stop record
-  void playPause() async {
+  /// To record and stop record
+  void record() async {
     if (isRecording) {
+      // Stop recording
       final String? filePath = await audioRecorder.stop();
       if (filePath != null) {
         isRecording = false;
-        recordingPath = filePath;
+        audioPath = filePath;
+        navigation.back();
+        recordingTitleController.clear();
         notifyListeners();
       }
     } else {
+      // Start recording
       isRecording = true;
-      if (await audioRecorder.hasPermission()) {
-        final Directory appDocumentDir =
-            await getApplicationDocumentsDirectory();
-        final String filePath = p.join(appDocumentDir.path,
-            "recording${DateTime.now().millisecondsSinceEpoch}.caf");
-        await audioRecorder.start(
-          const RecordConfig(),
-          path: filePath,
-        );
-        recordingPath = null;
-        notifyListeners();
+      try {
+        if (await audioRecorder.hasPermission()) {
+          Directory? baseDir;
+
+          // Choose base directory based on platform
+          if (Platform.isIOS) {
+            baseDir = await getApplicationDocumentsDirectory();
+          } else {
+            baseDir = Directory('/storage/emulated/0/Recordings');
+            if (!await baseDir.exists()) {
+              baseDir = await getExternalStorageDirectory();
+            }
+          }
+
+          // Create a directory for the book using bookTextController
+          final bookFolderName = bookTitleController.text.trim();
+          final bookDir = Directory('${baseDir?.path}/$bookFolderName');
+
+          // Ensure the book directory exists
+          if (!await bookDir.exists()) {
+            await bookDir.create(recursive: true);
+          }
+
+          // Set the file path for the recording inside the book folder
+          audioPath = '${bookDir.path}/${recordingTitleController.text}.m4a';
+
+          // Start recording to the specified path
+          await audioRecorder.start(const RecordConfig(),
+              path: audioPath ?? '');
+        }
+      } catch (e) {
+        debugPrint(e.toString());
       }
     }
+  }
+
+  @override
+  void dispose() {
+    audioRecorder.dispose();
+    audioPlayer.dispose();
+
+    super.dispose();
   }
 }

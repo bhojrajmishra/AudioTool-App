@@ -11,47 +11,48 @@ import 'package:stacked/stacked.dart';
 
 const bool _autoTextFieldValidation = true;
 
-const String BookTitleValueKey = 'book_title';
+const String RecordingTitleValueKey = 'recordingTitle';
 
-final Map<String, TextEditingController> _HomeViewTextEditingControllers = {};
+final Map<String, TextEditingController> _AudioViewTextEditingControllers = {};
 
-final Map<String, FocusNode> _HomeViewFocusNodes = {};
+final Map<String, FocusNode> _AudioViewFocusNodes = {};
 
-final Map<String, String? Function(String?)?> _HomeViewTextValidations = {
-  BookTitleValueKey: null,
+final Map<String, String? Function(String?)?> _AudioViewTextValidations = {
+  RecordingTitleValueKey: null,
 };
 
-mixin $HomeView {
-  TextEditingController get bookTitleController =>
-      _getFormTextEditingController(BookTitleValueKey);
+mixin $AudioView {
+  TextEditingController get recordingTitleController =>
+      _getFormTextEditingController(RecordingTitleValueKey);
 
-  FocusNode get bookTitleFocusNode => _getFormFocusNode(BookTitleValueKey);
+  FocusNode get recordingTitleFocusNode =>
+      _getFormFocusNode(RecordingTitleValueKey);
 
   TextEditingController _getFormTextEditingController(
     String key, {
     String? initialValue,
   }) {
-    if (_HomeViewTextEditingControllers.containsKey(key)) {
-      return _HomeViewTextEditingControllers[key]!;
+    if (_AudioViewTextEditingControllers.containsKey(key)) {
+      return _AudioViewTextEditingControllers[key]!;
     }
 
-    _HomeViewTextEditingControllers[key] =
+    _AudioViewTextEditingControllers[key] =
         TextEditingController(text: initialValue);
-    return _HomeViewTextEditingControllers[key]!;
+    return _AudioViewTextEditingControllers[key]!;
   }
 
   FocusNode _getFormFocusNode(String key) {
-    if (_HomeViewFocusNodes.containsKey(key)) {
-      return _HomeViewFocusNodes[key]!;
+    if (_AudioViewFocusNodes.containsKey(key)) {
+      return _AudioViewFocusNodes[key]!;
     }
-    _HomeViewFocusNodes[key] = FocusNode();
-    return _HomeViewFocusNodes[key]!;
+    _AudioViewFocusNodes[key] = FocusNode();
+    return _AudioViewFocusNodes[key]!;
   }
 
   /// Registers a listener on every generated controller that calls [model.setData()]
   /// with the latest textController values
   void syncFormWithViewModel(FormStateHelper model) {
-    bookTitleController.addListener(() => _updateFormData(model));
+    recordingTitleController.addListener(() => _updateFormData(model));
 
     _updateFormData(model, forceValidate: _autoTextFieldValidation);
   }
@@ -63,7 +64,7 @@ mixin $HomeView {
     'This feature was deprecated after 3.1.0.',
   )
   void listenToFormUpdated(FormViewModel model) {
-    bookTitleController.addListener(() => _updateFormData(model));
+    recordingTitleController.addListener(() => _updateFormData(model));
 
     _updateFormData(model, forceValidate: _autoTextFieldValidation);
   }
@@ -73,7 +74,7 @@ mixin $HomeView {
     model.setData(
       model.formValueMap
         ..addAll({
-          BookTitleValueKey: bookTitleController.text,
+          RecordingTitleValueKey: recordingTitleController.text,
         }),
     );
 
@@ -91,15 +92,15 @@ mixin $HomeView {
   void disposeForm() {
     // The dispose function for a TextEditingController sets all listeners to null
 
-    for (var controller in _HomeViewTextEditingControllers.values) {
+    for (var controller in _AudioViewTextEditingControllers.values) {
       controller.dispose();
     }
-    for (var focusNode in _HomeViewFocusNodes.values) {
+    for (var focusNode in _AudioViewFocusNodes.values) {
       focusNode.dispose();
     }
 
-    _HomeViewTextEditingControllers.clear();
-    _HomeViewFocusNodes.clear();
+    _AudioViewTextEditingControllers.clear();
+    _AudioViewFocusNodes.clear();
   }
 }
 
@@ -115,53 +116,56 @@ extension ValueProperties on FormStateHelper {
     return !hasAnyValidationMessage;
   }
 
-  String? get bookTitleValue => this.formValueMap[BookTitleValueKey] as String?;
+  String? get recordingTitleValue =>
+      this.formValueMap[RecordingTitleValueKey] as String?;
 
-  set bookTitleValue(String? value) {
+  set recordingTitleValue(String? value) {
     this.setData(
-      this.formValueMap..addAll({BookTitleValueKey: value}),
+      this.formValueMap..addAll({RecordingTitleValueKey: value}),
     );
 
-    if (_HomeViewTextEditingControllers.containsKey(BookTitleValueKey)) {
-      _HomeViewTextEditingControllers[BookTitleValueKey]?.text = value ?? '';
+    if (_AudioViewTextEditingControllers.containsKey(RecordingTitleValueKey)) {
+      _AudioViewTextEditingControllers[RecordingTitleValueKey]?.text =
+          value ?? '';
     }
   }
 
-  bool get hasBookTitle =>
-      this.formValueMap.containsKey(BookTitleValueKey) &&
-      (bookTitleValue?.isNotEmpty ?? false);
+  bool get hasRecordingTitle =>
+      this.formValueMap.containsKey(RecordingTitleValueKey) &&
+      (recordingTitleValue?.isNotEmpty ?? false);
 
-  bool get hasBookTitleValidationMessage =>
-      this.fieldsValidationMessages[BookTitleValueKey]?.isNotEmpty ?? false;
+  bool get hasRecordingTitleValidationMessage =>
+      this.fieldsValidationMessages[RecordingTitleValueKey]?.isNotEmpty ??
+      false;
 
-  String? get bookTitleValidationMessage =>
-      this.fieldsValidationMessages[BookTitleValueKey];
+  String? get recordingTitleValidationMessage =>
+      this.fieldsValidationMessages[RecordingTitleValueKey];
 }
 
 extension Methods on FormStateHelper {
-  setBookTitleValidationMessage(String? validationMessage) =>
-      this.fieldsValidationMessages[BookTitleValueKey] = validationMessage;
+  setRecordingTitleValidationMessage(String? validationMessage) =>
+      this.fieldsValidationMessages[RecordingTitleValueKey] = validationMessage;
 
   /// Clears text input fields on the Form
   void clearForm() {
-    bookTitleValue = '';
+    recordingTitleValue = '';
   }
 
   /// Validates text input fields on the Form
   void validateForm() {
     this.setValidationMessages({
-      BookTitleValueKey: getValidationMessage(BookTitleValueKey),
+      RecordingTitleValueKey: getValidationMessage(RecordingTitleValueKey),
     });
   }
 }
 
 /// Returns the validation message for the given key
 String? getValidationMessage(String key) {
-  final validatorForKey = _HomeViewTextValidations[key];
+  final validatorForKey = _AudioViewTextValidations[key];
   if (validatorForKey == null) return null;
 
   String? validationMessageForKey = validatorForKey(
-    _HomeViewTextEditingControllers[key]!.text,
+    _AudioViewTextEditingControllers[key]!.text,
   );
 
   return validationMessageForKey;
@@ -170,5 +174,5 @@ String? getValidationMessage(String key) {
 /// Updates the fieldsValidationMessages on the FormViewModel
 void updateValidationData(FormStateHelper model) =>
     model.setValidationMessages({
-      BookTitleValueKey: getValidationMessage(BookTitleValueKey),
+      RecordingTitleValueKey: getValidationMessage(RecordingTitleValueKey),
     });

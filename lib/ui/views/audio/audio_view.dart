@@ -1,13 +1,17 @@
 import 'package:audiobook_record/ui/common/app_image.dart';
+import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/audio/widgets/record_button_row.dart';
-import 'package:audiobook_record/ui/views/audio/widgets/seekbar.dart';
 import 'package:audiobook_record/widget/rounded_image.dart';
 import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked/stacked_annotations.dart';
 
 import 'audio_viewmodel.dart';
 
+@FormView(fields: [
+  FormTextField(name: 'recordingTitle'),
+])
 class AudioView extends StackedView<AudioViewModel> {
   const AudioView({Key? key, required this.title}) : super(key: key);
   final String title;
@@ -38,31 +42,39 @@ class AudioView extends StackedView<AudioViewModel> {
           body: SingleChildScrollView(
             child: Column(
               children: [
-                const RoundedImage(imageUrl: AppImage.audioBook),
                 verticalSpaceMedium,
-                const Text("AudioBook Title 1"),
-                const Text("AudioBook Title 2"),
-                verticalSpaceMedium,
-                if (viewModel.recordingPath != null)
-                  ElevatedButton(
-                      onPressed: viewModel.playRecord,
-                      child: viewModel.isPlaying
-                          ? const Icon(Icons.pause)
-                          : const Icon(Icons.play_arrow)),
-                if (viewModel.recordingPath == null)
-                  const Text("No recording found :("),
-
-                /// slider seek bar
-                SeekBar(
-                  viewModel: viewModel,
+                SizedBox(
+                  height: 200,
+                  // Animation
+                  child: viewModel.isRecording
+                      ? (viewModel.isRecordingPaused
+                          ? const RoundedImage(imageUrl: AppImage.mic)
+                          : const RoundedImage(imageUrl: AppImage.micAnimation))
+                      : const RoundedImage(imageUrl: AppImage.mic),
                 ),
+                // Text
+                viewModel.isRecording
+                    ? viewModel.isRecordingPaused
+                        ? const Text(
+                            AppStrings.paused,
+                            style: TextStyle(color: Colors.blue, fontSize: 30),
+                          )
+                        : const Text(
+                            AppStrings.recordings,
+                            style: TextStyle(color: Colors.red, fontSize: 30),
+                          )
+                    : const Text(
+                        AppStrings.startRecord,
+                        style: TextStyle(color: Colors.black, fontSize: 30),
+                      ),
 
                 verticalSpaceMedium,
                 //
                 // paly pause buttons
+                verticalSpaceMassive,
                 RecordButtonRow(
                   viewModel: viewModel,
-                )
+                ),
               ],
             ),
           ),

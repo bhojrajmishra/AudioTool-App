@@ -4,8 +4,6 @@ import 'package:audiobook_record/app/app.locator.dart';
 import 'package:stacked_services/stacked_services.dart';
 // @stacked-import
 
-import 'test_helpers.mocks.dart';
-
 @GenerateMocks([], customMocks: [
   MockSpec<NavigationService>(onMissingStub: OnMissingStub.returnDefault),
   MockSpec<BottomSheetService>(onMissingStub: OnMissingStub.returnDefault),
@@ -22,9 +20,11 @@ void registerServices() {
 MockNavigationService getAndRegisterNavigationService() {
   _removeRegistrationIfExists<NavigationService>();
   final service = MockNavigationService();
-  locator.registerSingleton<NavigationService>(service);
+  locator.registerSingleton<NavigationService>(service as NavigationService);
   return service;
 }
+
+class MockNavigationService {}
 
 MockBottomSheetService getAndRegisterBottomSheetService<T>({
   SheetResponse<T>? showCustomSheetResponse,
@@ -32,7 +32,7 @@ MockBottomSheetService getAndRegisterBottomSheetService<T>({
   _removeRegistrationIfExists<BottomSheetService>();
   final service = MockBottomSheetService();
 
-  when(service.showCustomSheet<T, T>(
+  when(service.showCustomSheet(
     enableDrag: anyNamed('enableDrag'),
     enterBottomSheetDuration: anyNamed('enterBottomSheetDuration'),
     exitBottomSheetDuration: anyNamed('exitBottomSheetDuration'),
@@ -58,16 +58,44 @@ MockBottomSheetService getAndRegisterBottomSheetService<T>({
   )).thenAnswer((realInvocation) =>
       Future.value(showCustomSheetResponse ?? SheetResponse<T>()));
 
-  locator.registerSingleton<BottomSheetService>(service);
+  locator.registerSingleton<BottomSheetService>(service as BottomSheetService);
   return service;
+}
+
+class MockBottomSheetService {
+  showCustomSheet(
+      {required enableDrag,
+      required enterBottomSheetDuration,
+      required exitBottomSheetDuration,
+      required ignoreSafeArea,
+      required isScrollControlled,
+      required barrierDismissible,
+      required additionalButtonTitle,
+      required variant,
+      required title,
+      required hasImage,
+      required imageUrl,
+      required showIconInMainButton,
+      required mainButtonTitle,
+      required showIconInSecondaryButton,
+      required secondaryButtonTitle,
+      required showIconInAdditionalButton,
+      required takesInput,
+      required barrierColor,
+      required barrierLabel,
+      required customData,
+      required data,
+      required description}) {}
 }
 
 MockDialogService getAndRegisterDialogService() {
   _removeRegistrationIfExists<DialogService>();
   final service = MockDialogService();
-  locator.registerSingleton<DialogService>(service);
+  locator.registerSingleton<DialogService>(service as DialogService);
   return service;
 }
+
+class MockDialogService {}
 
 // @stacked-mock-create
 
