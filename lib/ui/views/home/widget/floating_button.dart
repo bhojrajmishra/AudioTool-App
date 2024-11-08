@@ -1,4 +1,3 @@
-
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/home/home_viewmodel.dart';
 import 'package:audiobook_record/widget/primary_button.dart';
@@ -20,7 +19,7 @@ class FloatingButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       child: Padding(
-        padding:  EdgeInsets.all(10.0.r),
+        padding: EdgeInsets.all(10.0.r),
         child: PrimaryButton(
           title: AppStrings.createBook,
           onPressedCallBack: () {

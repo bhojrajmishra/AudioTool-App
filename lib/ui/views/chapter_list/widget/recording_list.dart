@@ -38,7 +38,7 @@ class RecordingList extends StatelessWidget {
                   viewModel.onTapRecord(index);
                 },
                 child: Padding(
-                  padding:  EdgeInsets.symmetric(vertical: 8.0.h),
+                  padding: EdgeInsets.symmetric(vertical: 8.0.h),
                   child: Container(
                     height: isActive ? 160.h : 100.h,
                     decoration: BoxDecoration(boxShadow: [
@@ -74,7 +74,7 @@ class RecordingList extends StatelessWidget {
                         /// active row
                         isActive
                             ? Padding(
-                                padding:  EdgeInsets.all(8.0.r),
+                                padding: EdgeInsets.all(8.0.r),
                                 child: Row(
                                   children: [
                                     /// Play pause button
@@ -101,8 +101,13 @@ class RecordingList extends StatelessWidget {
                                     // seek Bar
                                     Expanded(
                                       child: Slider(
-                                        value: viewModel.currentPosition,
-                                        max: viewModel.totalDuration,
+                                        value: viewModel.currentPosition
+                                            .toDouble(),
+                                        max: viewModel.totalDuration.toDouble(),
+                                        divisions:
+                                            viewModel.totalDuration.toInt(),
+                                        label: viewModel.currentPosition
+                                            .toStringAsFixed(0),
                                         onChanged: (value) {
                                           viewModel.audioPlayer.seek(
                                               Duration(seconds: value.toInt()));
