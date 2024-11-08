@@ -5,7 +5,6 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
-import 'package:stacked/stacked.dart';
 
 class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   double currentPosition = 0;

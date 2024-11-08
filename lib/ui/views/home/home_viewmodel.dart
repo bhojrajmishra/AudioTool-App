@@ -53,8 +53,10 @@ class HomeViewModel extends BaseViewModelWrapper {
 
       // Sort the final list alphabetically by file path
       finalList.sort((a, b) {
+        notifyListeners();
         return a.path.toLowerCase().compareTo(b.path.toLowerCase());
       });
+      notifyListeners();
 
       return finalList;
     }

@@ -16,7 +16,7 @@ class PrimaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(10),
           )),
           fixedSize: WidgetStateProperty.all(
-              Size(Helpers.getScreenWidth(context) * 0.3, 100)),
+              Size(Helpers.getScreenWidth(context) * 0.3, 70)),
           backgroundColor: WidgetStateProperty.all(kcPrimaryColor),
         ),
         onPressed: onPressedCallBack,
