@@ -49,6 +49,14 @@ class BooksList extends StatelessWidget {
                         viewModel.bookNavigation(fileName);
                       },
                       title: Text(fileName),
+                      trailing: IconButton(
+                          onPressed: () {
+                            viewModel.deleteBooks(file);
+                          },
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Color.fromARGB(230, 218, 43, 31),
+                          )),
                     ),
                   ]),
                 ),
