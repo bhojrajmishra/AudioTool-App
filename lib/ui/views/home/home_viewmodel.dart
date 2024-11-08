@@ -59,7 +59,7 @@ class HomeViewModel extends BaseViewModelWrapper {
       return finalList;
     }
     if (Platform.isAndroid) {
-      Directory dir = Directory('/storage/emulated/0/Download');
+      Directory dir = Directory('/storage/emulated/0/Recordings');
 
       List<FileSystemEntity> finalList = dir.listSync().where((file) {
         // Exclude files named ".DS_Store"

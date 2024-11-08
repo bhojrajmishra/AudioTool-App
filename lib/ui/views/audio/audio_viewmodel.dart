@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
+import 'package:stacked/stacked.dart';
 
 class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   double currentPosition = 0;
@@ -60,7 +61,7 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
           if (Platform.isIOS) {
             baseDir = await getApplicationDocumentsDirectory();
           } else {
-            baseDir = Directory('/storage/emulated/0/Download');
+            baseDir = Directory('/storage/emulated/0/Recordings');
             if (!await baseDir.exists()) {
               baseDir = await getExternalStorageDirectory();
             }
