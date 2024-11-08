@@ -125,6 +125,8 @@ class ChapterListViewModel extends BaseViewModelWrapper with $AudioView {
       finalList.sort((a, b) {
         return a.path.toLowerCase().compareTo(b.path.toLowerCase());
       });
+      notifyListeners();
+      return finalList;
     }
 
     if (Platform.isAndroid) // For android

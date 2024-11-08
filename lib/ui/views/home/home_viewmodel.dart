@@ -95,7 +95,7 @@ class HomeViewModel extends BaseViewModelWrapper {
 
     // Create the directory if it doesn't exist
     if (!await recordingDir.exists()) {
-      await recordingDir.create(recursive: true);
+      await recordingDir.create(recursive: false);
     }
   }
 }
