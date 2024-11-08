@@ -48,20 +48,16 @@ class HomeViewModel extends BaseViewModelWrapper {
       dir = Directory('/storage/emulated/0/Recordings');
     }
 
-    if (dir != null) {
-      List<FileSystemEntity> finalList = dir.listSync().where((file) {
-        return !file.path.endsWith('.DS_Store') &&
-            !file.path.endsWith('flutter_assets');
-      }).toList();
+    List<FileSystemEntity> finalList = dir.listSync().where((file) {
+      return !file.path.endsWith('.DS_Store') &&
+          !file.path.endsWith('flutter_assets');
+    }).toList();
 
-      finalList.sort((a, b) {
-        return a.path.toLowerCase().compareTo(b.path.toLowerCase());
-      });
+    finalList.sort((a, b) {
+      return a.path.toLowerCase().compareTo(b.path.toLowerCase());
+    });
 
-      notifyListeners();
-      return finalList;
-    }
-    return [];
+    return finalList;
   }
 
   void createFolder() async {
