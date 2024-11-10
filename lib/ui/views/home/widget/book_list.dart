@@ -58,7 +58,7 @@ class BooksList extends StatelessWidget {
                                   return AlertDialog(
                                     title: Text(
                                       "Delete the Book:- \n${fileName.toString()}",
-                                      style: const TextStyle(fontSize: 20),
+                                      style:  TextStyle(fontSize: 20.sp),
                                     ),
                                     actions: [
                                       PrimaryButton(
