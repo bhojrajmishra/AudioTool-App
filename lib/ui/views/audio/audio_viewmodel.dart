@@ -23,7 +23,8 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   /// AudioPlayer to playback audio
   final AudioPlayer audioPlayer = AudioPlayer();
 
-  void backNavigation() {
+  void backNavigation() //  Back navigation for Icon button appbar
+  {
     navigation.clearStackAndShowView(
       ChapterListView(
         booktitle: bookTitle,
@@ -32,28 +33,18 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
     recordingTitleController.clear();
   }
 
-  void tooglePlayPause(button) {
-    button = !button;
-    notifyListeners();
-  }
-
-  void pauseRecording() async {
-    if (isRecordingPaused) {
-      await audioRecorder.resume();
-    } else {
-      await audioRecorder.pause();
-    }
-
-    isRecordingPaused = !isRecordingPaused;
-    notifyListeners();
-  }
-
-  /// To record and stop record
   void record() async {
-    stopRecord();
+    if (isRecording) {
+      // Stop recording
+      stopRecord();
+    } else {
+      // Start recording
+      startRecord();
+    }
   }
 
   void startRecord() async {
+    isRecording = true;
     try {
       if (await audioRecorder.hasPermission()) {
         Directory? baseDir;
@@ -89,23 +80,34 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   }
 
   void stopRecord() async {
-    if (isRecording) {
-      // Stop recording
-      final String? filePath = await audioRecorder.stop();
-      debugPrint(audioPath);
-      if (filePath != null) {
-        isRecording = false;
-        audioPath = filePath;
+    final String? filePath = await audioRecorder.stop();
+    debugPrint(audioPath);
+    if (filePath != null) {
+      isRecording = false;
+      audioPath = filePath;
 
-        navigation.replaceWithChapterListView(booktitle: bookTitle);
-        recordingTitleController.clear();
-        notifyListeners();
-      }
-    } else {
-      // Start recording
-      isRecording = true;
-      startRecord();
+      navigation.replaceWithChapterListView(booktitle: bookTitle);
+      recordingTitleController.clear();
+      notifyListeners();
     }
+  }
+
+  void pauseRecording() // Pauses the recording
+  async {
+    if (isRecordingPaused) {
+      await audioRecorder.resume();
+    } else {
+      await audioRecorder.pause();
+    }
+
+    isRecordingPaused = !isRecordingPaused;
+    notifyListeners();
+  }
+
+  void toogleButton(button) // toogle  button
+  {
+    button = !button;
+    notifyListeners();
   }
 
   @override
