@@ -1,4 +1,3 @@
-
 import 'package:audiobook_record/ui/views/chapter_list/chapter_list_viewmodel.dart';
 import 'package:flutter/material.dart';
 
@@ -6,7 +5,9 @@ class SeekBarRow extends StatelessWidget {
   const SeekBarRow({
     super.key,
     required this.viewModel,
+    required this.isActive,
   });
+  final bool isActive;
 
   final ChapterListViewModel viewModel;
 
@@ -14,7 +15,7 @@ class SeekBarRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        viewModel.isPlaying
+        isActive
             ? IconButton(
                 onPressed: () {
                   viewModel.pauseResume();
@@ -27,31 +28,22 @@ class SeekBarRow extends StatelessWidget {
                 height: 0,
                 child: Text("data"),
               ),
-    
+
         // seek Bar
         Expanded(
           child: Slider(
-            value: viewModel.currentPosition
-                .toDouble(),
+            value: viewModel.currentPosition.toDouble(),
             max: viewModel.totalDuration.toDouble(),
-            label: viewModel.currentPosition
-                .toStringAsFixed(0),
+            label: viewModel.currentPosition.toStringAsFixed(0),
             onChanged: (value) {
-              viewModel.audioPlayer.seek(
-                  Duration(seconds: value.toInt()));
+              viewModel.audioPlayer.seek(Duration(seconds: value.toInt()));
             },
-            thumbColor: viewModel.isPlaying
-                ? Colors.blue
-                : Colors.grey,
-            activeColor: viewModel.isPlaying
-                ? Colors.blueAccent
-                : Colors.grey,
-            inactiveColor:
-                Colors.grey.withOpacity(0.5),
+            thumbColor: isActive ? Colors.blue : Colors.grey,
+            activeColor: isActive ? Colors.blueAccent : Colors.grey,
+            inactiveColor: Colors.grey.withOpacity(0.5),
           ),
         ),
-        Text(
-            "00:${viewModel.currentPosition.toStringAsFixed(0)}"),
+        Text("00:${viewModel.currentPosition.toStringAsFixed(0)}"),
       ],
     );
   }

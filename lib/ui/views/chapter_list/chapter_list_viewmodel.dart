@@ -19,7 +19,10 @@ class ChapterListViewModel extends BaseViewModelWrapper
   double totalDuration = 0;
   String? bookTitle;
   int time = 0;
-  bool isRecording = false, isPlaying = false, isPaused = false;
+  bool isRecording = false,
+      isPlaying = false,
+      isPaused = false,
+      isCurrentPlaying = false;
   String? audioPath;
   int? activeIndex;
 
@@ -40,6 +43,14 @@ class ChapterListViewModel extends BaseViewModelWrapper
     }
   }
 
+  void togglePlayBackButton(int index) {
+    if (activeIndex == index) {
+      isCurrentPlaying = !isCurrentPlaying;
+      notifyListeners();
+    }
+  }
+
+// toogle button for play pause
   void toggleButton() {
     isPaused = !isPaused;
     notifyListeners();
@@ -48,15 +59,13 @@ class ChapterListViewModel extends BaseViewModelWrapper
   /// play back recording
   Future<void> playBackRecording(String filePath) async {
     if (isPlaying == true) {
-      isPlaying = false;
-
       audioPlayer.stop();
       notifyListeners();
     } else {
       try {
         await audioPlayer.setFilePath(filePath);
         audioPlayer.play();
-        isPlaying = true;
+
         isPaused = false;
         totalDuration = audioPlayer.duration?.inSeconds.toDouble() ?? 0;
         audioPlayer.positionStream.listen((position) {
@@ -71,29 +80,16 @@ class ChapterListViewModel extends BaseViewModelWrapper
     }
   }
 
-  void onTapRecord(int index) // select or deselect the item of the list
+  void tooglePlayButton(int index) // select or deselect the item of the list
   {
     if (activeIndex == index) {
-      _deselectItem();
+      activeIndex = null;
+      isPlaying = true;
     } else {
-      _selectItem(index);
+      activeIndex = index;
+      isPlaying = false;
+      notifyListeners();
     }
-  }
-
-  void _deselectItem() {
-    activeIndex = null;
-    isPlaying = false;
-    currentPosition = 0;
-    audioPlayer.pause();
-    notifyListeners();
-  }
-
-  void _selectItem(int index) {
-    activeIndex = index;
-    isPlaying = false;
-    audioPlayer.pause();
-    currentPosition = 0;
-    notifyListeners();
   }
 
   void navigationto() {
