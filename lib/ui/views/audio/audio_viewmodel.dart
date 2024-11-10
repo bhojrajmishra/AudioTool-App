@@ -40,6 +40,45 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
 
   /// To record and stop record
   void record() async {
+    stopRecord();
+  }
+
+  void startRecord() async {
+    try {
+      if (await audioRecorder.hasPermission()) {
+        Directory? baseDir;
+
+        // Choose base directory based on platform
+        if (Platform.isIOS) {
+          baseDir = await getApplicationDocumentsDirectory();
+        } else {
+          baseDir = Directory('/storage/emulated/0/AudioBooks');
+          if (!await baseDir.exists()) {
+            baseDir = await getExternalStorageDirectory();
+          }
+        }
+
+        // Create a directory for the book using bookTextController
+        final bookFolderName = bookTitle.toString().trim();
+        final bookDir = Directory('${baseDir?.path}/$bookFolderName');
+
+        // Ensure the book directory exists
+        if (!await bookDir.exists()) {
+          await bookDir.create(recursive: false);
+        }
+
+        // Set the file path for the recording inside the book folder
+        audioPath = '${bookDir.path}/${recordingTitleController.text}.m4a';
+
+        // Start recording to the specified path
+        await audioRecorder.start(const RecordConfig(), path: audioPath ?? '');
+      }
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  void stopRecord() async {
     if (isRecording) {
       // Stop recording
       final String? filePath = await audioRecorder.stop();
@@ -55,39 +94,7 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
     } else {
       // Start recording
       isRecording = true;
-      try {
-        if (await audioRecorder.hasPermission()) {
-          Directory? baseDir;
-
-          // Choose base directory based on platform
-          if (Platform.isIOS) {
-            baseDir = await getApplicationDocumentsDirectory();
-          } else {
-            baseDir = Directory('/storage/emulated/0/AudioBooks');
-            if (!await baseDir.exists()) {
-              baseDir = await getExternalStorageDirectory();
-            }
-          }
-
-          // Create a directory for the book using bookTextController
-          final bookFolderName = bookTitle.toString().trim();
-          final bookDir = Directory('${baseDir?.path}/$bookFolderName');
-
-          // Ensure the book directory exists
-          if (!await bookDir.exists()) {
-            await bookDir.create(recursive: false);
-          }
-
-          // Set the file path for the recording inside the book folder
-          audioPath = '${bookDir.path}/${recordingTitleController.text}.m4a';
-
-          // Start recording to the specified path
-          await audioRecorder.start(const RecordConfig(),
-              path: audioPath ?? '');
-        }
-      } catch (e) {
-        debugPrint(e.toString());
-      }
+      startRecord();
     }
   }
 
