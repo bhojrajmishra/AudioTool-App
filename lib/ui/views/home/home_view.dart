@@ -13,7 +13,7 @@ import 'home_viewmodel.dart';
   FormTextField(name: 'book_title'),
 ])
 class HomeView extends StackedView<HomeViewModel> with $HomeView {
-  const HomeView({Key? key}) : super(key: key);
+  const HomeView({super.key});
 
   @override
   Widget builder(

@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:audiobook_record/base/utils/helpers.dart';
-import 'package:audiobook_record/ui/common/app_colors.dart';
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/home/home_viewmodel.dart';
 import 'package:audiobook_record/widget/primary_button.dart';
@@ -36,20 +35,25 @@ class BooksList extends StatelessWidget {
                 padding: EdgeInsets.symmetric(vertical: 10.0.h),
                 child: Container(
                   height: 90, // height of the tile
-                  decoration: BoxDecoration(boxShadow: [
-                    BoxShadow(
-                      color: kcPrimaryColor.withOpacity(0.2),
-                      spreadRadius: 2,
-                      blurRadius: 5,
-                      offset: const Offset(0, 3),
-                    ),
-                  ]),
+                  decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.4),
+                      borderRadius: BorderRadius.circular(20.r),
+                      border: Border.all(color: Colors.black.withOpacity(0.5)),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.1),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ]),
                   child: Column(children: [
                     ListTile(
                       onTap: () {
                         viewModel.bookNavigation(fileName);
                       },
                       title: Text(fileName),
+                      subtitle: Text("Audio Book"),
                       trailing: IconButton(
                           onPressed: () {
                             showDialog(

@@ -9,7 +9,7 @@ import 'chapter_list_viewmodel.dart';
 
 class ChapterListView extends StackedView<ChapterListViewModel>
     with $AudioView {
-  const ChapterListView({Key? key, this.booktitle}) : super(key: key);
+  const ChapterListView({super.key, this.booktitle});
   final String? booktitle;
 
   @override
