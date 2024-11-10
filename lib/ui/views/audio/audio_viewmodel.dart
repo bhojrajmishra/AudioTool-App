@@ -24,9 +24,12 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   final AudioPlayer audioPlayer = AudioPlayer();
 
   void backNavigation() {
-    navigation.clearStackAndShowView(ChapterListView(
-      booktitle: bookTitle,
-    ));
+    navigation.clearStackAndShowView(
+      ChapterListView(
+        booktitle: bookTitle,
+      ),
+    );
+    recordingTitleController.clear();
   }
 
   void tooglePlayPause(button) {
