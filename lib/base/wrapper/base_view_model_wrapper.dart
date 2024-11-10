@@ -7,4 +7,6 @@ abstract class BaseViewModelWrapper extends BaseViewModel with $HomeView {
   final navigation = locator<NavigationService>();
   final dialogService = locator<DialogService>();
   final showSnackBar = locator<SnackbarService>();
+
+
 }
