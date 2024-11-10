@@ -1,7 +1,7 @@
 name: audiobook_record
-description: A new Flutter project.
+description: Audio Book recorder.
 publish_to: 'none'
-version: 0.1.0
+version: 0.2.1
 
 environment:
   sdk: '>=3.0.3 <4.0.0'

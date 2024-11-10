@@ -4,6 +4,7 @@ import 'package:audiobook_record/base/utils/helpers.dart';
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/chapter_list/chapter_list_viewmodel.dart';
+import 'package:audiobook_record/widget/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -60,8 +61,28 @@ class RecordingList extends StatelessWidget {
                             /// Delete Button
                             trailing: isActive
                                 ? IconButton(
-                                    onPressed: () =>
-                                        viewModel.deleteRecording(file),
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Text(
+                                                "Delete the recording:- \n${fileName.toString()}",
+                                                style: const TextStyle(
+                                                    fontSize: 20),
+                                              ),
+                                              actions: [
+                                                PrimaryButton(
+                                                    color: Colors.red,
+                                                    title: "Delete",
+                                                    onPressedCallBack: () {
+                                                      viewModel.deleteRecording(
+                                                          file);
+                                                    })
+                                              ],
+                                            );
+                                          });
+                                    },
                                     icon: const Icon(
                                       Icons.delete,
                                       color: Colors.red,
