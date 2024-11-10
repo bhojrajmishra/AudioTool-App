@@ -107,7 +107,7 @@ class ChapterListViewModel extends BaseViewModelWrapper
     navigation.clearStackAndShowView(const HomeView());
     bookTitleController.clear();
     recordingTitleController.clear();
-    bookTitleController.dispose();
+
   }
 
   ///
