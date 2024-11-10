@@ -1,4 +1,3 @@
-import 'package:audiobook_record/app/app.router.dart';
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
 import 'package:audiobook_record/ui/views/chapter_list/widget/floating_button.dart';
@@ -21,9 +20,8 @@ class ChapterListView extends StackedView<ChapterListViewModel>
   ) {
     return PopScope(
         canPop: false,
-        onPopInvokedWithResult: (bool didPop, result) {
-          (viewModel.navigation.replaceWithHomeView());
-        },
+        onPopInvokedWithResult: (bool didPop, result) =>
+            viewModel.popNavigation(),
         child: Scaffold(
           appBar: AppBar(
             title: booktitle!.isEmpty
