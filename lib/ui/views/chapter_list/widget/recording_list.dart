@@ -1,9 +1,9 @@
 import 'dart:io';
-
 import 'package:audiobook_record/base/utils/helpers.dart';
 import 'package:audiobook_record/ui/common/app_strings.dart';
-import 'package:audiobook_record/ui/common/ui_helpers.dart';
 import 'package:audiobook_record/ui/views/chapter_list/chapter_list_viewmodel.dart';
+import 'package:audiobook_record/ui/views/chapter_list/widget/seekbar_row.dart';
+import 'package:audiobook_record/widget/box_decoration/recording_list_decoration.dart';
 import 'package:audiobook_record/widget/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -14,9 +14,11 @@ class RecordingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: Helpers.getScreenHeight(context) * 0.8.r, // 100,
-      child: FutureBuilder<List<FileSystemEntity>?>(
+    return SizedBox // first Box
+        (
+      height: Helpers.getScreenHeight(context) * 0.9.r,
+      child: FutureBuilder<List<FileSystemEntity>?> // Future Builder
+          (
         future: viewModel.retrieveRecordings(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -26,130 +28,92 @@ class RecordingList extends StatelessWidget {
           }
 
           final recordings = snapshot.data!;
-          return ListView.builder(
+          return ListView.builder // ListView Builder
+              (
             itemCount: recordings.length,
             itemBuilder: (context, index) {
               /// to check the item is active or not
-              bool isActive = viewModel.activeIndex == index;
+              bool isActive = viewModel.activeIndex == index; // active index
               final file = recordings[index];
               final fileName = file.path.split('/').last;
 
-              return GestureDetector(
-                onTap: () {
-                  viewModel.onTapRecord(index);
-                },
-                child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8.0.h),
-                  child: Container(
-                    height: isActive ? 190.h : 130.h,
-                    decoration: BoxDecoration(boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        spreadRadius: 2,
-                        blurRadius: 5,
-                        offset: const Offset(0, 3),
-                      ),
-                    ]),
-                    child: Column(
-                      children: [
-                        ListTile(
-                            // file  name
-                            title: Text(fileName),
-                            subtitle: const Text(AppStrings.recording),
+              return Padding // To create space between records in list and padding for actule container
+                  (
+                padding: EdgeInsets.all(10.0.r),
+                child: Container(
+                  height: isActive ? 190.h : 90.h, // set height when active
+                  decoration: recordingListDecoration(isActive), // decoration
+                  child: Column // column of container
+                      (
+                    children: [
+                      ListTile(
+                        title: Text(fileName), // file  name
+                        subtitle: const Text(AppStrings.recording),
+                        leading: IconButton // Play pause button
+                            (
+                          onPressed: () {
+                            viewModel.tooglePlayButton(index);
+                            viewModel.playBackRecording(file.path);
+                          },
+                          icon: viewModel.activeIndex ==
+                                  index // toggle the play and pause button
+                              ? const Icon(Icons.stop)
+                              : const Icon(Icons.play_arrow),
+                        ),
 
-                            /// Delete Button
-                            trailing: isActive
-                                ? IconButton(
-                                    onPressed: () {
-                                      showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return AlertDialog(
-                                              title: Text(
-                                                "Delete the recording:- \n${fileName.toString()}",
-                                                style:
-                                                    TextStyle(fontSize: 20.sp),
-                                              ),
-                                              actions: [
-                                                PrimaryButton(
-                                                    color: Colors.red,
-                                                    title: "Delete",
-                                                    onPressedCallBack: () {
-                                                      viewModel.deleteRecording(
-                                                          file);
-                                                      viewModel.navigation
-                                                          .back();
-                                                    })
-                                              ],
-                                            );
-                                          });
-                                    },
-                                    icon: const Icon(
-                                      Icons.delete,
-                                      color: Colors.red,
-                                    ),
-                                  )
-                                : IconButton(
-                                    onPressed: () {},
-                                    icon: const Icon(Icons.more_horiz))),
+                        /// Delete Button
 
-                        /// active row
-                        isActive
-                            ? Padding(
-                                padding: EdgeInsets.all(8.0.r),
-                                child: Row(
-                                  children: [
-                                    /// Play pause button
-                                    IconButton(
-                                      onPressed: () {
-                                        viewModel.playBackRecording(file.path);
-                                      },
-                                      icon: viewModel.isPlaying
-                                          ? const Icon(Icons.stop)
-                                          : const Icon(Icons.play_arrow),
-                                    ),
-
-                                    viewModel.isPlaying
-                                        ? IconButton(
-                                            onPressed: () {
-                                              viewModel.pauseResume();
-                                              viewModel.toggleButton();
-                                            },
-                                            icon: viewModel.isPaused
-                                                ? const Icon(Icons.play_arrow)
-                                                : const Icon(Icons.pause))
-                                        : horizontalSpaceTiny,
-
-                                    // seek Bar
-                                    Expanded(
-                                      child: Slider(
-                                        value: viewModel.currentPosition
-                                            .toDouble(),
-                                        max: viewModel.totalDuration.toDouble(),
-                                        label: viewModel.currentPosition
-                                            .toStringAsFixed(0),
-                                        onChanged: (value) {
-                                          viewModel.audioPlayer.seek(
-                                              Duration(seconds: value.toInt()));
-                                        },
-                                        thumbColor: viewModel.isPlaying
-                                            ? Colors.blue
-                                            : Colors.grey,
-                                        activeColor: viewModel.isPlaying
-                                            ? Colors.blueAccent
-                                            : Colors.grey,
-                                        inactiveColor:
-                                            Colors.grey.withOpacity(0.5),
-                                      ),
-                                    ),
-                                    Text(
-                                        "00:${viewModel.currentPosition.toStringAsFixed(0)}"),
-                                  ],
+                        trailing: isActive
+                            ? IconButton // delete button when expanded and shows dialog
+                                (
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text(
+                                            "Delete the recording:- \n${fileName.toString()}",
+                                            style: TextStyle(fontSize: 20.sp),
+                                          ),
+                                          actions: [
+                                            PrimaryButton(
+                                                color: Colors.red,
+                                                title: "Delete",
+                                                onPressedCallBack: () {
+                                                  viewModel
+                                                      .deleteRecording(file);
+                                                  viewModel.navigation.back();
+                                                })
+                                          ],
+                                        );
+                                      });
+                                },
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
                                 ),
                               )
-                            : const Text('')
-                      ],
-                    ),
+                            : IconButton // more horizontal button
+                                (
+                                onPressed: () {},
+                                icon: const Icon(Icons.more_horiz),
+                              ),
+                      ),
+
+                      /// active row
+                      isActive
+                          ? Padding(
+                              padding: EdgeInsets.all(8.0.r),
+                              //
+                              child: SeekBarRow(
+                                viewModel: viewModel,
+                                isActive: isActive,
+                              ), // seek Bar Row (Expandable)
+                            )
+                          : SizedBox(
+                              height: 0,
+                            )
+                    ],
                   ),
                 ),
               );
