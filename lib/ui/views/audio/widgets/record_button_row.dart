@@ -16,7 +16,7 @@ class RecordButtonRow extends StatelessWidget {
         // Record button
         IconButton(
             onPressed: () {
-              viewModel.tooglePlayPause(viewModel.isRecording);
+              viewModel.toogleButton(viewModel.isRecording);
               viewModel.record();
             },
             icon: Icon(
