@@ -4,6 +4,7 @@ import 'package:audiobook_record/base/utils/helpers.dart';
 import 'package:audiobook_record/ui/common/app_colors.dart';
 import 'package:audiobook_record/ui/common/app_strings.dart';
 import 'package:audiobook_record/ui/views/home/home_viewmodel.dart';
+import 'package:audiobook_record/widget/primary_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -51,7 +52,24 @@ class BooksList extends StatelessWidget {
                       title: Text(fileName),
                       trailing: IconButton(
                           onPressed: () {
-                            viewModel.deleteBooks(file);
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text(
+                                      "Delete the Book:- \n${fileName.toString()}",
+                                      style: const TextStyle(fontSize: 20),
+                                    ),
+                                    actions: [
+                                      PrimaryButton(
+                                          color: Colors.red,
+                                          title: "Delete",
+                                          onPressedCallBack: () {
+                                            viewModel.deleteBooks(file);
+                                          }),
+                                    ],
+                                  );
+                                });
                           },
                           icon: const Icon(
                             Icons.delete,

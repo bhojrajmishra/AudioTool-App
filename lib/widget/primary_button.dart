@@ -4,8 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class PrimaryButton extends StatelessWidget {
-  const PrimaryButton({super.key, this.onPressedCallBack, required this.title});
+  const PrimaryButton(
+      {super.key,
+      this.onPressedCallBack,
+      required this.title,
+      this.color = kcPrimaryColor});
   final String title;
+  final Color color;
 
   /// To set the on pressed function of the button
   final VoidCallback? onPressedCallBack;
@@ -18,7 +23,7 @@ class PrimaryButton extends StatelessWidget {
           )),
           fixedSize: WidgetStateProperty.all(
               Size(Helpers.getScreenWidth(context) * 0.4.w, 70.h)),
-          backgroundColor: WidgetStateProperty.all(kcPrimaryColor),
+          backgroundColor: WidgetStateProperty.all(color),
         ),
         onPressed: onPressedCallBack,
         child: Text(
