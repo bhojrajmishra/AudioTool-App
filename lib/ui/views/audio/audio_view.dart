@@ -14,8 +14,7 @@ import 'audio_viewmodel.dart';
   FormTextField(name: 'recordingTitle'),
 ])
 class AudioView extends StackedView<AudioViewModel> {
-  const AudioView({Key? key, required this.title, this.bookTitle})
-      : super(key: key);
+  const AudioView({super.key, required this.title, this.bookTitle});
   final String title;
   final String? bookTitle;
 

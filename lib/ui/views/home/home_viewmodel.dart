@@ -65,15 +65,17 @@ class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
     Directory? dir;
 
     dir = Directory('/storage/emulated/0/AudioBooks');
-    if (!await dir.exists()) {
-      dir = await getExternalStorageDirectory();
-    }
+    if (Platform.isAndroid) {
+      if (!await dir.exists()) {
+        dir = await getExternalStorageDirectory();
+      }
 
-    final recordingDir = Directory('/storage/emulated/0/AudioBooks');
+      final recordingDir = Directory('/storage/emulated/0/AudioBooks');
 
-    // Create the directory if it doesn't exist
-    if (!await recordingDir.exists()) {
-      await recordingDir.create(recursive: false);
+      // Create the directory if it doesn't exist
+      if (!await recordingDir.exists()) {
+        await recordingDir.create(recursive: false);
+      }
     }
   }
 
