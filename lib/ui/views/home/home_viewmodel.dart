@@ -8,7 +8,7 @@ import 'package:stacked_services/stacked_services.dart';
 
 class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
   /// book navigation
-  bookNavigation(String title) {
+  void bookNavigation(String title) {
     navigation.replaceWithChapterListView(booktitle: title);
     debugPrint(title);
   }

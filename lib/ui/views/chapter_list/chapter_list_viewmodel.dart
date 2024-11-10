@@ -29,10 +29,6 @@ class ChapterListViewModel extends BaseViewModelWrapper
   /// AudioPlayer to playback audio
   final AudioPlayer audioPlayer = AudioPlayer();
 
-  void popScopNavigatio() {
-    navigation.clearStackAndShowView(const HomeView());
-  }
-
   Future<void> pauseResume() async {
     if (isPaused == true) {
       await audioPlayer.play();
@@ -105,12 +101,13 @@ class ChapterListViewModel extends BaseViewModelWrapper
   void navigationto() {
     navigation.replaceWithAudioView(
         title: recordingTitleController.text, bookTitle: bookTitle);
-    debugPrint(bookTitle);
   }
 
   void popNavigation() {
     navigation.clearStackAndShowView(const HomeView());
     bookTitleController.clear();
+    recordingTitleController.clear();
+    bookTitleController.dispose();
   }
 
   ///
