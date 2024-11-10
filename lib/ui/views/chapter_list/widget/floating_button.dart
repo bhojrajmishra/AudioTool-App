@@ -33,7 +33,7 @@ class FloatingButton extends StatelessWidget {
                   actions: [
                     PrimaryButton(
                       title: AppStrings.save,
-                      onPressedCallBack: viewModel.navigationto,
+                      onPressedCallBack: viewModel.checkAndNavigate,
                     )
                   ],
                   content: PrimaryTextField(

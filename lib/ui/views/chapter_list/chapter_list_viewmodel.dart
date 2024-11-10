@@ -92,28 +92,69 @@ class ChapterListViewModel extends BaseViewModelWrapper
     }
   }
 
-  void navigationto() {
-    if (recordingTitleController.text.isNotEmpty) {
-      navigation.replaceWithAudioView(
-          title: recordingTitleController.text, bookTitle: bookTitle);
+  void checkAndNavigate() async {
+    final baseDir = await _getBaseDirectory();
+    if (baseDir == null) return;
+
+    final bookFolderName = bookTitle.toString().trim();
+    final bookDir = Directory('${baseDir.path}/$bookFolderName');
+    final audioPath =
+        File('${bookDir.path}/${recordingTitleController.text}.m4a');
+
+    if (!await audioPath.exists()) {
+      if (recordingTitleController.text.isNotEmpty) {
+        navigation.replaceWithAudioView(
+          title: recordingTitleController.text,
+          bookTitle: bookTitle,
+        );
+      } else {
+        _showEmptyTitleError();
+      }
     } else {
-      //Snackbar on success
-      showSnackBar.registerCustomSnackbarConfig(
-        variant: 'empty title',
-        config: SnackbarConfig(
-          titleText: const Text("Error"),
-          backgroundColor: Colors.white.withOpacity(0.8),
-          textColor: Colors.black,
-          borderRadius: 8,
-          duration: const Duration(seconds: 2),
-          snackPosition: SnackPosition.TOP,
-        ),
+      final response = await dialogService.showConfirmationDialog(
+        title: 'Audio Already Exists',
+        description: 'Do you want to overwrite the existing audio file?',
+        confirmationTitle: 'Yes',
+        cancelTitle: 'Cancel',
       );
-      showSnackBar.showCustomSnackBar(
-        message: "Recording title cannot be empty",
-        variant: 'empty title',
-      );
+      if (response?.confirmed == true) {
+        navigation.replaceWithAudioView(
+          title: recordingTitleController.text,
+          bookTitle: bookTitle,
+        );
+      }
     }
+  }
+
+  Future<Directory?> _getBaseDirectory() async {
+    if (Platform.isIOS) {
+      return await getApplicationDocumentsDirectory();
+    } else {
+      final androidDir = Directory('/storage/emulated/0/AudioBooks');
+      if (await androidDir.exists()) {
+        return androidDir;
+      } else {
+        return await getExternalStorageDirectory();
+      }
+    }
+  }
+
+  void _showEmptyTitleError() {
+    showSnackBar.registerCustomSnackbarConfig(
+      variant: 'empty title',
+      config: SnackbarConfig(
+        titleText: const Text("Error"),
+        backgroundColor: Colors.white.withOpacity(0.8),
+        textColor: Colors.black,
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+        snackPosition: SnackPosition.TOP,
+      ),
+    );
+    showSnackBar.showCustomSnackBar(
+      message: "Recording title cannot be empty",
+      variant: 'empty title',
+    );
   }
 
   void popNavigation() {
