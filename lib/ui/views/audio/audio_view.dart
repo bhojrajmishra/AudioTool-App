@@ -37,8 +37,7 @@ class AudioView extends StackedView<AudioViewModel> {
                     onPressed: () {
                       viewModel.backNavigation();
                     },
-                    icon: Icon(
-                        viewModel.isRecording ? null : Icons.arrow_back_ios)),
+                    icon: const Icon(Icons.arrow_back_ios)),
                 actions: [
                   IconButton(
                     icon: const Icon(Icons.bookmark_add),
