@@ -29,6 +29,10 @@ class ChapterListViewModel extends BaseViewModelWrapper
   /// AudioPlayer to playback audio
   final AudioPlayer audioPlayer = AudioPlayer();
 
+  void popScopNavigatio() {
+    navigation.clearStackAndShowView(const HomeView());
+  }
+
   Future<void> pauseResume() async {
     if (isPaused == true) {
       await audioPlayer.play();

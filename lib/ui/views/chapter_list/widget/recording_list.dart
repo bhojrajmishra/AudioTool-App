@@ -77,6 +77,8 @@ class RecordingList extends StatelessWidget {
                                                     onPressedCallBack: () {
                                                       viewModel.deleteRecording(
                                                           file);
+                                                      viewModel.navigation
+                                                          .back();
                                                     })
                                               ],
                                             );

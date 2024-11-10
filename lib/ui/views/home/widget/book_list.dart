@@ -58,7 +58,7 @@ class BooksList extends StatelessWidget {
                                   return AlertDialog(
                                     title: Text(
                                       "Delete the Book:- \n${fileName.toString()}",
-                                      style:  TextStyle(fontSize: 20.sp),
+                                      style: TextStyle(fontSize: 20.sp),
                                     ),
                                     actions: [
                                       PrimaryButton(
@@ -66,6 +66,7 @@ class BooksList extends StatelessWidget {
                                           title: "Delete",
                                           onPressedCallBack: () {
                                             viewModel.deleteBooks(file);
+                                            viewModel.navigation.back();
                                           }),
                                     ],
                                   );
