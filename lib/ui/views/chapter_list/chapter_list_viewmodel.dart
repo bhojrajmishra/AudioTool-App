@@ -8,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
 class ChapterListViewModel extends BaseViewModelWrapper
     with $AudioView
@@ -17,7 +18,6 @@ class ChapterListViewModel extends BaseViewModelWrapper
   double currentPosition = 0;
   double totalDuration = 0;
   String? bookTitle;
-
   int time = 0;
   bool isRecording = false, isPlaying = false, isPaused = false;
   String? audioPath;
@@ -32,12 +32,10 @@ class ChapterListViewModel extends BaseViewModelWrapper
   Future<void> pauseResume() async {
     if (isPaused == true) {
       await audioPlayer.play();
-
       notifyListeners();
     }
     if (isPaused == false) {
       await audioPlayer.pause();
-
       notifyListeners();
     }
   }
@@ -73,8 +71,8 @@ class ChapterListViewModel extends BaseViewModelWrapper
     }
   }
 
-  // on tap for list
-  void onTapRecord(int index) {
+  void onTapRecord(int index) // select or deselect the item of the list
+  {
     if (activeIndex == index) {
       _deselectItem();
     } else {
@@ -99,15 +97,33 @@ class ChapterListViewModel extends BaseViewModelWrapper
   }
 
   void navigationto() {
-    navigation.replaceWithAudioView(
-        title: recordingTitleController.text, bookTitle: bookTitle);
+    if (recordingTitleController.text.isNotEmpty) {
+      navigation.replaceWithAudioView(
+          title: recordingTitleController.text, bookTitle: bookTitle);
+    } else {
+      //Snackbar on success
+      showSnackBar.registerCustomSnackbarConfig(
+        variant: 'empty title',
+        config: SnackbarConfig(
+          titleText: const Text("Error"),
+          backgroundColor: Colors.white.withOpacity(0.8),
+          textColor: Colors.black,
+          borderRadius: 8,
+          duration: const Duration(seconds: 2),
+          snackPosition: SnackPosition.TOP,
+        ),
+      );
+      showSnackBar.showCustomSnackBar(
+        message: "Recording title cannot be empty",
+        variant: 'empty title',
+      );
+    }
   }
 
   void popNavigation() {
     navigation.clearStackAndShowView(const HomeView());
     bookTitleController.clear();
     recordingTitleController.clear();
-
   }
 
   ///
@@ -134,14 +150,16 @@ class ChapterListViewModel extends BaseViewModelWrapper
       return file.path.endsWith('.m4a');
     }).toList();
 
-    finalList.sort((a, b) {
+    finalList.sort((a, b) // sorts the list
+        {
       return a.path.toLowerCase().compareTo(b.path.toLowerCase());
     });
     notifyListeners();
     return finalList;
   }
 
-  Future<void> deleteRecording(FileSystemEntity file) async {
+  Future<void> deleteRecording(FileSystemEntity file) // delete recording
+  async {
     try {
       await file.delete();
       notifyListeners();
