@@ -35,7 +35,7 @@ class FloatingButton extends StatelessWidget {
                       PrimaryButton(
                           title: AppStrings.create,
                           onPressedCallBack: () {
-                            viewModel.createBook();
+                            viewModel.checkAndNavigate();
                           })
                     ],
                     content: PrimaryTextField(
