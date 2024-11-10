@@ -25,65 +25,75 @@ class AudioView extends StackedView<AudioViewModel> {
     AudioViewModel viewModel,
     Widget? child,
   ) {
-    return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        body: Scaffold(
-          /// AppBar
-          appBar: AppBar(
-            title: Text(title),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.bookmark_add),
-                onPressed: () {},
+    return PopScope(
+        canPop: false,
+        child: Scaffold(
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            body: Scaffold(
+              /// AppBar
+              appBar: AppBar(
+                title: Text(title),
+                leading: IconButton(
+                    onPressed: () {
+                      viewModel.backNavigation();
+                    },
+                    icon: Icon(
+                        viewModel.isRecording ? null : Icons.arrow_back_ios)),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.bookmark_add),
+                    onPressed: () {},
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.more_horiz_sharp),
+                    onPressed: () {},
+                  ),
+                ],
               ),
-              IconButton(
-                icon: const Icon(Icons.more_horiz_sharp),
-                onPressed: () {},
-              ),
-            ],
-          ),
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                verticalSpaceMedium,
-                SizedBox(
-                  height: 200.h,
-                  // Animation
-                  child: viewModel.isRecording
-                      ? (viewModel.isRecordingPaused
-                          ? const RoundedImage(imageUrl: AppImage.mic)
-                          : const RoundedImage(imageUrl: AppImage.micAnimation))
-                      : const RoundedImage(imageUrl: AppImage.mic),
-                ),
-                // Text
-                viewModel.isRecording
-                    ? viewModel.isRecordingPaused
-                        ? Text(
-                            AppStrings.paused,
-                            style:
-                                TextStyle(color: Colors.blue, fontSize: 30.sp),
-                          )
+              body: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    verticalSpaceMedium,
+                    SizedBox(
+                      height: 200.h,
+                      // Animation
+                      child: viewModel.isRecording
+                          ? (viewModel.isRecordingPaused
+                              ? const RoundedImage(imageUrl: AppImage.mic)
+                              : const RoundedImage(
+                                  imageUrl: AppImage.micAnimation))
+                          : const RoundedImage(imageUrl: AppImage.mic),
+                    ),
+                    // Text
+                    viewModel.isRecording
+                        ? viewModel.isRecordingPaused
+                            ? Text(
+                                AppStrings.paused,
+                                style: TextStyle(
+                                    color: Colors.blue, fontSize: 30.sp),
+                              )
+                            : Text(
+                                AppStrings.recordings,
+                                style: TextStyle(
+                                    color: Colors.red, fontSize: 30.sp),
+                              )
                         : Text(
-                            AppStrings.recordings,
+                            AppStrings.startRecord,
                             style:
-                                TextStyle(color: Colors.red, fontSize: 30.sp),
-                          )
-                    : Text(
-                        AppStrings.startRecord,
-                        style: TextStyle(color: Colors.black, fontSize: 30.sp),
-                      ),
+                                TextStyle(color: Colors.black, fontSize: 30.sp),
+                          ),
 
-                verticalSpaceMedium,
-                //
-                // paly pause buttons
-                verticalSpaceMassive,
-                RecordButtonRow(
-                  viewModel: viewModel,
+                    verticalSpaceMedium,
+                    //
+                    // paly pause buttons
+                    verticalSpaceMassive,
+                    RecordButtonRow(
+                      viewModel: viewModel,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ));
+              ),
+            )));
   }
 
   @override

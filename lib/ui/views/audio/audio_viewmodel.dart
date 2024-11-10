@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:audiobook_record/app/app.router.dart';
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
 import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
+import 'package:audiobook_record/ui/views/chapter_list/chapter_list_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -21,6 +22,12 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
 
   /// AudioPlayer to playback audio
   final AudioPlayer audioPlayer = AudioPlayer();
+
+  void backNavigation() {
+    navigation.clearStackAndShowView(ChapterListView(
+      booktitle: bookTitle,
+    ));
+  }
 
   void tooglePlayPause(button) {
     button = !button;
