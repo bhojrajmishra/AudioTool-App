@@ -20,9 +20,9 @@ class ChapterListView extends StackedView<ChapterListViewModel>
     Widget? child,
   ) {
     return PopScope(
-        onPopInvokedWithResult: (didPop, result) {
-          (viewModel.navigation.replaceWithHomeView(),);
-          true;
+        canPop: false,
+        onPopInvokedWithResult: (bool didPop, result) {
+          (viewModel.navigation.replaceWithHomeView());
         },
         child: Scaffold(
           appBar: AppBar(

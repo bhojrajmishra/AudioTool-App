@@ -41,7 +41,7 @@ class RecordingList extends StatelessWidget {
                 child: Padding(
                   padding: EdgeInsets.symmetric(vertical: 8.0.h),
                   child: Container(
-                    height: isActive ? 160.h : 100.h,
+                    height: isActive ? 190.h : 130.h,
                     decoration: BoxDecoration(boxShadow: [
                       BoxShadow(
                         color: Colors.grey.withOpacity(0.1),
@@ -50,7 +50,6 @@ class RecordingList extends StatelessWidget {
                         offset: const Offset(0, 3),
                       ),
                     ]),
-                    // duration: const Duration(milliseconds: 200),
                     child: Column(
                       children: [
                         ListTile(
@@ -68,8 +67,8 @@ class RecordingList extends StatelessWidget {
                                             return AlertDialog(
                                               title: Text(
                                                 "Delete the recording:- \n${fileName.toString()}",
-                                                style: const TextStyle(
-                                                    fontSize: 20),
+                                                style:
+                                                    TextStyle(fontSize: 20.sp),
                                               ),
                                               actions: [
                                                 PrimaryButton(
