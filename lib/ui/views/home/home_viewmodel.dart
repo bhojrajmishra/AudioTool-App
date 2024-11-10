@@ -13,29 +13,64 @@ class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
     debugPrint(title);
   }
 
-  void createBook() {
-    if (bookTitleController.text.isNotEmpty) {
-      navigation.replaceWithChapterListView(
-          booktitle: bookTitleController.text);
-      createFolder();
+  void checkAndNavigate() async {
+    final baseDir = await _getBaseDirectory();
+    if (baseDir == null) return;
+
+    final folderName = bookTitleController.text;
+    final bookpath = Directory('${baseDir.path}/$folderName');
+    if (!await bookpath.exists()) {
+      if (bookTitleController.text.isNotEmpty) {
+        navigation.replaceWithChapterListView(
+            booktitle: bookTitleController.text);
+
+        createFolder();
+      } else {
+        _showTitleError();
+      }
     } else {
-      //Snackbar on success
-      showSnackBar.registerCustomSnackbarConfig(
-        variant: 'empty title',
-        config: SnackbarConfig(
-          titleText: const Text("Error"),
-          backgroundColor: Colors.white.withOpacity(0.8),
-          textColor: Colors.black,
-          borderRadius: 8,
-          duration: const Duration(seconds: 2),
-          snackPosition: SnackPosition.TOP,
-        ),
-      );
-      showSnackBar.showCustomSnackBar(
-        message: "Book title cannot be empty",
-        variant: 'empty title',
-      );
+      final response = await dialogService.showConfirmationDialog(
+          title: 'Book already exists',
+          description:
+              'Do you want to go \n Book:- ${bookTitleController.text}');
+      if (response?.confirmed == true) {
+        navigation.replaceWithChapterListView(
+            booktitle: bookTitleController.text);
+      }
     }
+  }
+
+  Future<Directory?> _getBaseDirectory() async {
+    if (Platform.isIOS) {
+      return await getApplicationDocumentsDirectory();
+    } else {
+      final androidDir = Directory('/storage/emulated/0/AudioBooks');
+      if (await androidDir.exists()) {
+        return androidDir;
+      } else {
+        return await getExternalStorageDirectory();
+      }
+    }
+  }
+
+  void _showTitleError() // title error snack bar
+  {
+    //Snackbar on success
+    showSnackBar.registerCustomSnackbarConfig(
+      variant: 'empty title',
+      config: SnackbarConfig(
+        titleText: const Text("Error"),
+        backgroundColor: Colors.white.withOpacity(0.8),
+        textColor: Colors.black,
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+        snackPosition: SnackPosition.TOP,
+      ),
+    );
+    showSnackBar.showCustomSnackBar(
+      message: "Book title cannot be empty",
+      variant: 'empty title',
+    );
   }
 
   Future<List<FileSystemEntity>> retrieveBooks() async {
