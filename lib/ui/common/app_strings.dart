@@ -14,7 +14,7 @@ class AppStrings {
   static const bookTitle = 'Book Title';
   static const errorLoadinRecording = 'Error loading recordings';
   static const noRecordingFound = 'No recordings found';
-  static const recording = 'Recording';
+  static const recording = 'Record';
   static const enterRecordingTitle = 'Enter Recording Title';
   static const save = 'Save';
 

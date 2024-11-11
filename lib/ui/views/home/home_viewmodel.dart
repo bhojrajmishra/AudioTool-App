@@ -8,7 +8,8 @@ import 'package:stacked_services/stacked_services.dart';
 
 class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
   /// book navigation
-  void bookNavigation(String title) {
+  void bookNavigation(String title) // navigation from book list to book
+  {
     navigation.replaceWithChapterListView(booktitle: title);
     debugPrint(title);
   }
@@ -19,58 +20,23 @@ class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
 
     final folderName = bookTitleController.text;
     final bookpath = Directory('${baseDir.path}/$folderName');
-    if (!await bookpath.exists()) {
-      if (bookTitleController.text.isNotEmpty) {
+    if (bookTitleController.text.isNotEmpty) {
+      if (!await bookpath.exists()) {
         navigation.replaceWithChapterListView(
             booktitle: bookTitleController.text);
-
-        createFolder();
       } else {
-        _showTitleError();
+        final response = await dialogService.showConfirmationDialog(
+            title: 'Book already exists',
+            description:
+                'Do you want to go \n Book:- ${bookTitleController.text}');
+        if (response?.confirmed == true) {
+          navigation.replaceWithChapterListView(
+              booktitle: bookTitleController.text);
+        }
       }
     } else {
-      final response = await dialogService.showConfirmationDialog(
-          title: 'Book already exists',
-          description:
-              'Do you want to go \n Book:- ${bookTitleController.text}');
-      if (response?.confirmed == true) {
-        navigation.replaceWithChapterListView(
-            booktitle: bookTitleController.text);
-      }
+      _showTitleError();
     }
-  }
-
-  Future<Directory?> _getBaseDirectory() async {
-    if (Platform.isIOS) {
-      return await getApplicationDocumentsDirectory();
-    } else {
-      final androidDir = Directory('/storage/emulated/0/AudioBooks');
-      if (await androidDir.exists()) {
-        return androidDir;
-      } else {
-        return await getExternalStorageDirectory();
-      }
-    }
-  }
-
-  void _showTitleError() // title error snack bar
-  {
-    //Snackbar on success
-    showSnackBar.registerCustomSnackbarConfig(
-      variant: 'empty title',
-      config: SnackbarConfig(
-        titleText: const Text("Error"),
-        backgroundColor: Colors.white.withOpacity(0.8),
-        textColor: Colors.black,
-        borderRadius: 8,
-        duration: const Duration(seconds: 2),
-        snackPosition: SnackPosition.TOP,
-      ),
-    );
-    showSnackBar.showCustomSnackBar(
-      message: "Book title cannot be empty",
-      variant: 'empty title',
-    );
   }
 
   Future<List<FileSystemEntity>> retrieveBooks() async {
@@ -121,6 +87,39 @@ class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
     } catch (e) {
       debugPrint('Error deleting recording: $e');
     }
+  }
+
+  Future<Directory?> _getBaseDirectory() async {
+    if (Platform.isIOS) {
+      return await getApplicationDocumentsDirectory();
+    } else {
+      final androidDir = Directory('/storage/emulated/0/AudioBooks');
+      if (await androidDir.exists()) {
+        return androidDir;
+      } else {
+        return await getExternalStorageDirectory();
+      }
+    }
+  }
+
+  void _showTitleError() // title error snack bar
+  {
+    //Snackbar on success
+    showSnackBar.registerCustomSnackbarConfig(
+      variant: 'empty title',
+      config: SnackbarConfig(
+        titleText: const Text("Error"),
+        backgroundColor: Colors.white.withOpacity(0.8),
+        textColor: Colors.black,
+        borderRadius: 8,
+        duration: const Duration(seconds: 2),
+        snackPosition: SnackPosition.TOP,
+      ),
+    );
+    showSnackBar.showCustomSnackBar(
+      message: "Book title cannot be empty",
+      variant: 'empty title',
+    );
   }
 
   @override

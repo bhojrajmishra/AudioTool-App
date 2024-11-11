@@ -4,24 +4,18 @@ import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
 import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
 import 'package:audiobook_record/ui/views/chapter_list/chapter_list_view.dart';
 import 'package:flutter/foundation.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   AudioViewModel({this.bookTitle});
-  String? bookTitle;
-  double currentPosition = 0;
-  double totalDuration = 0;
+  String? bookTitle, audioPath;
+  double totalDuration = 0, currentPosition = 0;
+  bool isRecording = false, isRecordingPaused = false;
   int time = 0;
-  bool isRecording = false, isPlaying = false, isRecordingPaused = false;
-  String? audioPath;
 
   /// Instance for audio recorder
   final AudioRecorder audioRecorder = AudioRecorder();
-
-  /// AudioPlayer to playback audio
-  final AudioPlayer audioPlayer = AudioPlayer();
 
   void backNavigation() //  Back navigation for Icon button appbar
   {
@@ -33,7 +27,8 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
     recordingTitleController.clear();
   }
 
-  void record() async {
+  void record() // function to record and stop
+  async {
     if (isRecording) {
       // Stop recording
       stopRecord();
@@ -72,7 +67,13 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
         audioPath = '${bookDir.path}/${recordingTitleController.text}.m4a';
 
         // Start recording to the specified path
-        await audioRecorder.start(const RecordConfig(), path: audioPath ?? '');
+        await audioRecorder.start(
+            const RecordConfig(
+                numChannels: 2,
+                sampleRate: 44100,
+                bitRate: 128000,
+                noiseSuppress: true),
+            path: audioPath ?? '');
       }
     } catch (e) {
       debugPrint(e.toString());
@@ -85,7 +86,6 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
     if (filePath != null) {
       isRecording = false;
       audioPath = filePath;
-
       navigation.replaceWithChapterListView(booktitle: bookTitle);
       recordingTitleController.clear();
       notifyListeners();
@@ -113,8 +113,6 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
   @override
   void dispose() {
     audioRecorder.dispose();
-    audioPlayer.dispose();
-
     super.dispose();
   }
 }
