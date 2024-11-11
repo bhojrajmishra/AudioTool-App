@@ -6,6 +6,7 @@ import 'package:stacked_services/stacked_services.dart';
 import 'package:audiobook_record/ui/views/home/home_view.dart';
 import 'package:audiobook_record/ui/views/audio/audio_view.dart';
 import 'package:audiobook_record/ui/views/chapter_list/chapter_list_view.dart';
+import 'package:audiobook_record/ui/views/audio_tool/audio_tool_view.dart';
 // @stacked-import
 
 @StackedApp(
@@ -14,6 +15,7 @@ import 'package:audiobook_record/ui/views/chapter_list/chapter_list_view.dart';
     MaterialRoute(page: HomeView),
     MaterialRoute(page: AudioView),
     MaterialRoute(page: ChapterListView),
+    MaterialRoute(page: AudioToolView),
 // @stacked-route
   ],
   dependencies: [
