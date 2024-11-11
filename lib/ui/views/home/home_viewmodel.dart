@@ -18,9 +18,9 @@ class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
     final baseDir = await _getBaseDirectory();
     if (baseDir == null) return;
 
-    final folderName = bookTitleController.text;
+    final folderName = bookTitleController.text.trim();
     final bookpath = Directory('${baseDir.path}/$folderName');
-    if (bookTitleController.text.isNotEmpty) {
+    if (bookTitleController.text.trim().isNotEmpty) {
       if (!await bookpath.exists()) {
         navigation.replaceWithChapterListView(
             booktitle: bookTitleController.text);
