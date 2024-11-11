@@ -122,6 +122,8 @@ class ChapterListViewModel extends BaseViewModelWrapper
           title: recordingTitleController.text,
           bookTitle: bookTitle,
         );
+      } else {
+        recordingTitleController.clear();
       }
     }
   }

@@ -14,7 +14,7 @@ class BooksList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: Helpers.getScreenHeight(context) * 0.7.r,
+      height: Helpers.getScreenHeight(context) * 0.8.r,
       child: FutureBuilder<List<FileSystemEntity>>(
         future: viewModel.retrieveBooks(),
         builder: (context, snapshot) {
