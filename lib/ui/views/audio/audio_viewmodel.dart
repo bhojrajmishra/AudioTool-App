@@ -69,10 +69,11 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
         // Start recording to the specified path
         await audioRecorder.start(
             const RecordConfig(
-                numChannels: 2,
-                sampleRate: 44100,
-                bitRate: 128000,
-                noiseSuppress: true),
+              numChannels: 2,
+              sampleRate: 44100,
+              bitRate: 128000,
+              noiseSuppress: true,
+            ),
             path: audioPath ?? '');
       }
     } catch (e) {
