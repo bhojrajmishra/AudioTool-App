@@ -63,16 +63,8 @@ class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
   }
 
   void createFolder() async {
-    Directory? dir;
-
-    dir = Directory('/storage/emulated/0/AudioBooks');
     if (Platform.isAndroid) {
-      if (!await dir.exists()) {
-        dir = await getExternalStorageDirectory();
-      }
-
       final recordingDir = Directory('/storage/emulated/0/AudioBooks');
-
       // Create the directory if it doesn't exist
       if (!await recordingDir.exists()) {
         await recordingDir.create(recursive: false);
@@ -94,11 +86,8 @@ class HomeViewModel extends BaseViewModelWrapper implements Initialisable {
       return await getApplicationDocumentsDirectory();
     } else {
       final androidDir = Directory('/storage/emulated/0/AudioBooks');
-      if (await androidDir.exists()) {
-        return androidDir;
-      } else {
-        return await getExternalStorageDirectory();
-      }
+
+      return androidDir;
     }
   }
 

@@ -49,14 +49,11 @@ class AudioViewModel extends BaseViewModelWrapper with $AudioView {
           baseDir = await getApplicationDocumentsDirectory();
         } else {
           baseDir = Directory('/storage/emulated/0/AudioBooks');
-          if (!await baseDir.exists()) {
-            baseDir = await getExternalStorageDirectory();
-          }
         }
 
         // Create a directory for the book using bookTextController
         final bookFolderName = bookTitle.toString().trim();
-        final bookDir = Directory('${baseDir?.path}/$bookFolderName');
+        final bookDir = Directory('${baseDir.path}/$bookFolderName');
 
         // Ensure the book directory exists
         if (!await bookDir.exists()) {
