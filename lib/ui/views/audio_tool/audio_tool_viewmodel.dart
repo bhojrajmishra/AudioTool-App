@@ -33,7 +33,7 @@ class AudioToolViewModel extends BaseViewModel {
         (session) async {
           final output = await session.getOutput();
           if (output != null) {
-            final durationStr = output.split('Duration: ')[1].split(',')[0];
+            final durationStr = output[0].split('Duration: ')[1].split(',')[0];
             final parts = durationStr.split(':');
             duration = Duration(
               hours: int.parse(parts[0]),
