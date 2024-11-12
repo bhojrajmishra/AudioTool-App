@@ -81,10 +81,11 @@ class ChapterListViewModel extends BaseViewModelWrapper
     }
   }
 
-  void navigateToAudioToolView() {
+  void navigateToAudioToolView(
+      {required String bookTitle, required String audioPath}) {
     navigation.navigateToView(
       AudioToolView(
-        bookTitle: bookTitle!,
+        bookTitle: bookTitle,
         audioPath: audioPath,
       ),
     );

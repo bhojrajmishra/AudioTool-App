@@ -48,11 +48,41 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text("00:00"),
-                        Text("00:00"),
+                        Text(
+                            //current time
+                            "00:00"),
+                        Text(
+                            //total duration
+                            "00:00"),
                       ],
                     )),
                 const SizedBox(height: 20),
+                //playback controls
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    //toggle play/pause
+                    IconButton(
+                      onPressed: () =>
+                          viewModel.initializeAudioPlayer(audioPath!),
+                      icon: viewModel.isPlaying
+                          ? const Icon(Icons.pause)
+                          : const Icon(Icons.play_arrow),
+                    ),
+                    IconButton(
+                      onPressed: viewModel.stop,
+                      icon: const Icon(Icons.stop),
+                    ),
+                    IconButton(
+                      onPressed: viewModel.fastForward,
+                      icon: const Icon(Icons.fast_forward),
+                    ),
+                    IconButton(
+                      onPressed: viewModel.rewind,
+                      icon: const Icon(Icons.fast_rewind),
+                    ),
+                  ],
+                )
               ],
             )),
       ),

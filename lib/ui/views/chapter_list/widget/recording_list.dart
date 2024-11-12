@@ -52,6 +52,10 @@ class RecordingList extends StatelessWidget {
                         leading: IconButton // Play pause button
                             (
                           onPressed: () {
+                            viewModel.navigateToAudioToolView(
+                              bookTitle: fileName,
+                              audioPath: file.path,
+                            );
                             // viewModel.tooglePlayButton(index);
                             // viewModel.playBackRecording(file.path);
                           },
@@ -62,7 +66,10 @@ class RecordingList extends StatelessWidget {
                         ),
 
                         onTap: () {
-                          viewModel.navigateToAudioToolView();
+                          viewModel.navigateToAudioToolView(
+                            bookTitle: fileName,
+                            audioPath: file.path,
+                          );
                         },
 
                         /// Delete Button
