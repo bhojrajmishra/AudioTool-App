@@ -50,10 +50,10 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                       children: [
                         Text(
                             //current time
-                            "00:00"),
+                            viewModel.formatDuration(viewModel.position)),
                         Text(
                             //total duration
-                            "00:00"),
+                            viewModel.formatDuration(viewModel.duration)),
                       ],
                     )),
                 const SizedBox(height: 20),
