@@ -1,27 +1,19 @@
-import 'package:mockito/annotations.dart';
-import 'package:mockito/mockito.dart';
+// import 'package:mockito/annotations.dart';
+// import 'package:mockito/mockito.dart';
 import 'package:audiobook_record/app/app.locator.dart';
 import 'package:stacked_services/stacked_services.dart';
 // @stacked-import
 
-@GenerateMocks([], customMocks: [
-  MockSpec<NavigationService>(onMissingStub: OnMissingStub.returnDefault),
-  MockSpec<BottomSheetService>(onMissingStub: OnMissingStub.returnDefault),
-  MockSpec<DialogService>(onMissingStub: OnMissingStub.returnDefault),
-  // @stacked-mock-spec
-])
+// @GenerateMocks([], customMocks: [
+//   MockSpec<NavigationService>(onMissingStub: OnMissingStub.returnDefault),
+//   MockSpec<BottomSheetService>(onMissingStub: OnMissingStub.returnDefault),
+//   MockSpec<DialogService>(onMissingStub: OnMissingStub.returnDefault),
+//   // @stacked-mock-spec
+// ])
 void registerServices() {
-  getAndRegisterNavigationService();
   getAndRegisterBottomSheetService();
   getAndRegisterDialogService();
   // @stacked-mock-register
-}
-
-MockNavigationService getAndRegisterNavigationService() {
-  _removeRegistrationIfExists<NavigationService>();
-  final service = MockNavigationService();
-  locator.registerSingleton<NavigationService>(service as NavigationService);
-  return service;
 }
 
 class MockNavigationService {}
@@ -32,31 +24,31 @@ MockBottomSheetService getAndRegisterBottomSheetService<T>({
   _removeRegistrationIfExists<BottomSheetService>();
   final service = MockBottomSheetService();
 
-  when(service.showCustomSheet(
-    enableDrag: anyNamed('enableDrag'),
-    enterBottomSheetDuration: anyNamed('enterBottomSheetDuration'),
-    exitBottomSheetDuration: anyNamed('exitBottomSheetDuration'),
-    ignoreSafeArea: anyNamed('ignoreSafeArea'),
-    isScrollControlled: anyNamed('isScrollControlled'),
-    barrierDismissible: anyNamed('barrierDismissible'),
-    additionalButtonTitle: anyNamed('additionalButtonTitle'),
-    variant: anyNamed('variant'),
-    title: anyNamed('title'),
-    hasImage: anyNamed('hasImage'),
-    imageUrl: anyNamed('imageUrl'),
-    showIconInMainButton: anyNamed('showIconInMainButton'),
-    mainButtonTitle: anyNamed('mainButtonTitle'),
-    showIconInSecondaryButton: anyNamed('showIconInSecondaryButton'),
-    secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
-    showIconInAdditionalButton: anyNamed('showIconInAdditionalButton'),
-    takesInput: anyNamed('takesInput'),
-    barrierColor: anyNamed('barrierColor'),
-    barrierLabel: anyNamed('barrierLabel'),
-    customData: anyNamed('customData'),
-    data: anyNamed('data'),
-    description: anyNamed('description'),
-  )).thenAnswer((realInvocation) =>
-      Future.value(showCustomSheetResponse ?? SheetResponse<T>()));
+  // // when(service.showCustomSheet(
+  // //   enableDrag: anyNamed('enableDrag'),
+  // //   enterBottomSheetDuration: anyNamed('enterBottomSheetDuration'),
+  // //   exitBottomSheetDuration: anyNamed('exitBottomSheetDuration'),
+  // //   ignoreSafeArea: anyNamed('ignoreSafeArea'),
+  // //   isScrollControlled: anyNamed('isScrollControlled'),
+  // //   barrierDismissible: anyNamed('barrierDismissible'),
+  // //   additionalButtonTitle: anyNamed('additionalButtonTitle'),
+  // //   variant: anyNamed('variant'),
+  // //   title: anyNamed('title'),
+  // //   hasImage: anyNamed('hasImage'),
+  // //   imageUrl: anyNamed('imageUrl'),
+  // //   showIconInMainButton: anyNamed('showIconInMainButton'),
+  // //   mainButtonTitle: anyNamed('mainButtonTitle'),
+  // //   showIconInSecondaryButton: anyNamed('showIconInSecondaryButton'),
+  // //   secondaryButtonTitle: anyNamed('secondaryButtonTitle'),
+  // //   showIconInAdditionalButton: anyNamed('showIconInAdditionalButton'),
+  // //   takesInput: anyNamed('takesInput'),
+  // //   barrierColor: anyNamed('barrierColor'),
+  // //   barrierLabel: anyNamed('barrierLabel'),
+  // //   customData: anyNamed('customData'),
+  // //   data: anyNamed('data'),
+  // //   description: anyNamed('description'),
+  // )).thenAnswer((realInvocation) =>
+  //     Future.value(showCustomSheetResponse ?? SheetResponse<T>()));
 
   locator.registerSingleton<BottomSheetService>(service as BottomSheetService);
   return service;

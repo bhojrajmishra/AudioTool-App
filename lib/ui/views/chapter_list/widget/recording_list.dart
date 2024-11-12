@@ -52,14 +52,18 @@ class RecordingList extends StatelessWidget {
                         leading: IconButton // Play pause button
                             (
                           onPressed: () {
-                            viewModel.tooglePlayButton(index);
-                            viewModel.playBackRecording(file.path);
+                            // viewModel.tooglePlayButton(index);
+                            // viewModel.playBackRecording(file.path);
                           },
                           icon: viewModel.activeIndex ==
                                   index // toggle the play and pause button
                               ? const Icon(Icons.stop)
                               : const Icon(Icons.play_arrow),
                         ),
+
+                        onTap: () {
+                          viewModel.navigateToAudioToolView();
+                        },
 
                         /// Delete Button
 

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:audiobook_record/app/app.router.dart';
 import 'package:audiobook_record/base/wrapper/base_view_model_wrapper.dart';
 import 'package:audiobook_record/ui/views/audio/audio_view.form.dart';
+import 'package:audiobook_record/ui/views/audio_tool/audio_tool_view.dart';
 import 'package:audiobook_record/ui/views/home/home_view.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
@@ -78,6 +79,16 @@ class ChapterListViewModel extends BaseViewModelWrapper
         debugPrint('Error playing recording: $e');
       }
     }
+  }
+
+  void navigateToAudioToolView() {
+    navigation.navigateToView(
+      AudioToolView(
+        bookTitle: bookTitle!,
+        audioPath: audioPath,
+      ),
+    );
+    debugPrint("AudioPath: $audioPath");
   }
 
   void tooglePlayButton(int index) // select or deselect the item of the list

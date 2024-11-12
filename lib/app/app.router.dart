@@ -93,8 +93,12 @@ class StackedRouter extends _i1.RouterBase {
       );
     },
     _i6.AudioToolView: (data) {
+      final args = data.getArgs<AudioToolViewArguments>(nullOk: false);
       return _i7.MaterialPageRoute<dynamic>(
-        builder: (context) => const _i6.AudioToolView(),
+        builder: (context) => _i6.AudioToolView(
+            key: args.key,
+            bookTitle: args.bookTitle,
+            audioPath: args.audioPath),
         settings: data,
       );
     },
@@ -166,6 +170,38 @@ class ChapterListViewArguments {
   }
 }
 
+class AudioToolViewArguments {
+  const AudioToolViewArguments({
+    this.key,
+    required this.bookTitle,
+    required this.audioPath,
+  });
+
+  final _i7.Key? key;
+
+  final String bookTitle;
+
+  final dynamic audioPath;
+
+  @override
+  String toString() {
+    return '{"key": "$key", "bookTitle": "$bookTitle", "audioPath": "$audioPath"}';
+  }
+
+  @override
+  bool operator ==(covariant AudioToolViewArguments other) {
+    if (identical(this, other)) return true;
+    return other.key == key &&
+        other.bookTitle == bookTitle &&
+        other.audioPath == audioPath;
+  }
+
+  @override
+  int get hashCode {
+    return key.hashCode ^ bookTitle.hashCode ^ audioPath.hashCode;
+  }
+}
+
 extension NavigatorStateExtension on _i8.NavigationService {
   Future<dynamic> navigateToStartupView([
     int? routerId,
@@ -231,14 +267,19 @@ extension NavigatorStateExtension on _i8.NavigationService {
         transition: transition);
   }
 
-  Future<dynamic> navigateToAudioToolView([
+  Future<dynamic> navigateToAudioToolView({
+    _i7.Key? key,
+    required String bookTitle,
+    required dynamic audioPath,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
     Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
         transition,
-  ]) async {
+  }) async {
     return navigateTo<dynamic>(Routes.audioToolView,
+        arguments: AudioToolViewArguments(
+            key: key, bookTitle: bookTitle, audioPath: audioPath),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
@@ -309,14 +350,19 @@ extension NavigatorStateExtension on _i8.NavigationService {
         transition: transition);
   }
 
-  Future<dynamic> replaceWithAudioToolView([
+  Future<dynamic> replaceWithAudioToolView({
+    _i7.Key? key,
+    required String bookTitle,
+    required dynamic audioPath,
     int? routerId,
     bool preventDuplicates = true,
     Map<String, String>? parameters,
     Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
         transition,
-  ]) async {
+  }) async {
     return replaceWith<dynamic>(Routes.audioToolView,
+        arguments: AudioToolViewArguments(
+            key: key, bookTitle: bookTitle, audioPath: audioPath),
         id: routerId,
         preventDuplicates: preventDuplicates,
         parameters: parameters,
