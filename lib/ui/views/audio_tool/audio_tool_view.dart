@@ -1,5 +1,5 @@
-import 'package:audiobook_record/main.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/audio_waveform.dart';
+import 'package:audiobook_record/ui/views/audio_tool/widgets/edit_button.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/play_push_button.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/progress_bar.dart';
 import 'package:flutter/material.dart';
@@ -37,9 +37,7 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                   playerController: viewModel.playerController,
                   isLoading: viewModel.isloading,
                 ),
-
                 const SizedBox(height: 20),
-
                 // Time and duration
                 Padding(
                   padding: const EdgeInsets.all(8.0),
@@ -61,9 +59,28 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
+                    EditButton(
+                      icon: Icons.content_cut,
+                      label: 'Trim',
+                      isActive: false,
+                      onPressed: () {
+                        // viewModel.trimAudio(
+
+                        // );
+                      },
+                    ),
                     PlayPushButton(viewModel: viewModel),
+                    EditButton(
+                      icon: Icons.playlist_add,
+                      label: 'Insert',
+                      isActive: false,
+                      onPressed: () {},
+                    ),
                   ],
-                )
+                ),
+                SizedBox(height: 20.h),
+                if (viewModel.isloading)
+                  const Center(child: CircularProgressIndicator())
               ],
             )),
       ),

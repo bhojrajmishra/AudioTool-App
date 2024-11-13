@@ -7,10 +7,10 @@ class AudioWaveformWidget extends StatelessWidget {
   final bool isLoading;
 
   const AudioWaveformWidget({
-    Key? key,
+    super.key,
     required this.playerController,
     required this.isLoading,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,19 +34,20 @@ class AudioWaveformWidget extends StatelessWidget {
                   ),
                   if (playerController != null)
                     AudioFileWaveforms(
-                      size: Size(double.infinity, 200.h),
+                      size: Size(double.infinity, 300.h),
                       playerController: playerController!,
                       enableSeekGesture: true,
-                      waveformType: WaveformType.fitWidth,
+                      waveformType: WaveformType.long,
                       playerWaveStyle: PlayerWaveStyle(
                         fixedWaveColor: Colors.blue.withOpacity(0.5),
-                        liveWaveColor: Colors.blue,
+                        liveWaveColor: Colors.green,
                         spacing: 5,
                         showTop: true,
                         showBottom: true,
                         seekLineColor: Colors.red,
                         showSeekLine: true,
                         waveCap: StrokeCap.round,
+                        scaleFactor: 1000,
                       ),
                     ),
                 ],
