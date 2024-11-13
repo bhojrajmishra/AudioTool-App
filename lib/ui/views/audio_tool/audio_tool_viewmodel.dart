@@ -1,115 +1,172 @@
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:stacked/stacked.dart';
+import 'package:stacked_services/stacked_services.dart';
 
-class AudioToolViewModel extends BaseViewModel {
+class AudioToolViewModel extends BaseViewModel with Initialisable {
   AudioToolViewModel({required this.bookTitle, required this.audioPath});
 
   final String bookTitle;
   final String? audioPath;
+  PlayerController? playerController;
+
+  @override
+  void initialise() {
+    if (audioPath != null) {
+      initializeAudioPlayer(audioPath!);
+      initializedWaveform();
+    }
+  }
 
   final AudioPlayer audioPlayer = AudioPlayer();
-
-  bool isPlaying = false,
-      isPaused = false,
-      isFastForwarding = false,
-      isRewinding = false;
+  bool isPlaying = false, isloading = true;
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
   String? currentAudioPath;
   final List<String> undoStack = [];
 
-  @override
-  bool isBusy = false;
+  Future<void> initializedWaveform() async {
+    try {
+      playerController = PlayerController();
+      await playerController?.preparePlayer(
+        path: audioPath!,
+        shouldExtractWaveform: true,
+        noOfSamples: 100,
+        volume: 1.0,
+      );
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error in initializedWaveform: $e');
+    }
+  }
 
   Future<void> initializeAudioPlayer(String audioPath) async {
+    if (audioPath.isEmpty) {
+      debugPrint('Error: Audio path is empty');
+      return;
+    }
+
     currentAudioPath = audioPath;
     undoStack.add(audioPath);
     setBusy(true);
+    isloading = true;
+
     try {
-      //get duration using ffmpeg
-      await FFmpegKit.execute('-i $audioPath 2>&1 | grep "Duration"').then(
-        (session) async {
-          final output = await session.getOutput();
-          if (output != null) {
-            final durationStr = output[0].split('Duration: ')[1].split(',')[0];
-            final parts = durationStr.split(':');
-            duration = Duration(
-              hours: int.parse(parts[0]),
-              minutes: int.parse(parts[1]),
-              seconds: double.parse(parts[2]).toInt(),
-            );
-          }
-        },
-      );
-      //set audio player
+      // First try to set up the audio player
       await audioPlayer.setFilePath(audioPath);
 
-      //listen to position changes
-      audioPlayer.positionStream.listen((event) {
-        position = event;
-        notifyListeners();
-      });
-      //listen to player state changes
-      audioPlayer.playerStateStream.listen((state) {
-        isPlaying = state.playing;
-        isPaused = state.processingState == ProcessingState.completed;
-        notifyListeners();
-      });
+      // Get duration directly from the audio player
+      duration = await audioPlayer.duration ?? Duration.zero;
+
+      // If duration is zero, try using FFmpeg as fallback
+      if (duration == Duration.zero) {
+        final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
+        final output = await session.getOutput();
+
+        if (output != null) {
+          final durationRegex =
+              RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
+          final match = durationRegex.firstMatch(output);
+
+          if (match != null) {
+            duration = Duration(
+              hours: int.parse(match.group(1) ?? '0'),
+              minutes: int.parse(match.group(2) ?? '0'),
+              seconds: int.parse(match.group(3) ?? '0'),
+              milliseconds: (int.parse(match.group(4) ?? '0') * 10),
+            );
+          }
+        }
+      }
+
+      // Set up position stream listener
+      audioPlayer.positionStream.listen(
+        (pos) {
+          position = pos;
+          notifyListeners();
+        },
+        onError: (error) {
+          debugPrint('Position stream error: $error');
+        },
+      );
+
+      // Set up player state stream listener
+      audioPlayer.playerStateStream.listen(
+        (state) {
+          isPlaying = state.playing;
+          if (state.processingState == ProcessingState.completed) {
+            isPlaying = false;
+            position =
+                duration; // Explicitly set position to duration when completed
+            notifyListeners();
+          }
+          notifyListeners();
+        },
+        onError: (error) {
+          debugPrint('Player state stream error: $error');
+        },
+      );
     } catch (e) {
-      //handle error
-      debugPrint('Error getting duration: $e');
+      debugPrint('Error initializing audio player: $e');
+      SnackbarService().showSnackbar(
+        message: 'Error initializing audio player: ${e.toString()}',
+        duration: const Duration(seconds: 3),
+      );
     } finally {
+      isloading = false;
       setBusy(false);
-    }
-    await audioPlayer.setFilePath(audioPath);
-    await audioPlayer.load();
-    await audioPlayer.play();
-    await audioPlayer.pause();
-    setBusy(false);
-  }
-
-  void togglePlayPause() {
-    if (isPlaying) {
-      audioPlayer.pause();
-    } else {
-      audioPlayer.play();
+      notifyListeners();
     }
   }
 
-  void playPause() {
-    // Implement playPause functionality
-    if (isPlaying) {
-      audioPlayer.pause();
-    } else {
-      audioPlayer.play();
+  Future<void> playPause() async {
+    try {
+      if (audioPlayer.playerState.playing) {
+        await audioPlayer.pause();
+      } else {
+        // Check if we're at or near the end
+        if (position >= duration ||
+            duration - position < const Duration(milliseconds: 300)) {
+          await audioPlayer.seek(Duration.zero);
+          position = Duration.zero;
+          notifyListeners();
+        }
+        await audioPlayer.play();
+      }
+    } catch (e) {
+      debugPrint('Error in playPause: $e');
     }
   }
 
-  void stop() {
-    // Implement stop functionality
-    audioPlayer.stop();
+  Future<void> seek(double seconds) async {
+    if (seconds >= 0 && seconds <= duration.inSeconds) {
+      try {
+        await audioPlayer.seek(Duration(seconds: seconds.toInt()));
+        position = Duration(seconds: seconds.toInt());
+        // If we're at the end and seeking, make sure play button shows
+        if (seconds >= duration.inSeconds) {
+          isPlaying = false;
+          notifyListeners();
+        }
+      } catch (e) {
+        debugPrint('Error in seek: $e');
+      }
+    }
   }
 
-  void fastForward() {
-    // Implement fastForward functionality
-  }
-
-  void rewind() {
-    // Implement rewind functionality
-  }
-
-  void seekTo(double seconds) {
-    // Implement seekTo functionality
-    audioPlayer.seek(Duration(seconds: seconds.toInt()));
-  }
-
-  //format duration
   String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return "${duration.inHours > 0 ? '${duration.inHours}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
   }
 }
