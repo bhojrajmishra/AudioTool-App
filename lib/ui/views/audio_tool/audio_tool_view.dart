@@ -24,14 +24,18 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(bookTitle),
-      ),
-      body: SingleChildScrollView(
-        child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              children: [
+        appBar: AppBar(
+          title: Text(bookTitle),
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(children: [
+                //show seekbar position
+                Text(
+                  viewModel.formatDuration(viewModel.position),
+                  style: const TextStyle(fontSize: 20),
+                ),
                 // Audio Waveform Widget
                 AudioWaveformWidget(
                   playerController: viewModel.playerController,
@@ -64,9 +68,8 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                       label: 'Trim',
                       isActive: false,
                       onPressed: () {
-                        // viewModel.trimAudio(
-
-                        // );
+                        viewModel.trimAudio;
+                        debugPrint('Trim');
                       },
                     ),
                     PlayPushButton(viewModel: viewModel),
@@ -79,12 +82,30 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                   ],
                 ),
                 SizedBox(height: 20.h),
-                if (viewModel.isloading)
-                  const Center(child: CircularProgressIndicator())
-              ],
-            )),
-      ),
-    );
+                if (viewModel.isSelecting)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.check),
+                        label: const Text('Apply'),
+                        onPressed: viewModel.applyChanges,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.close),
+                        label: const Text('Cancel'),
+                        onPressed: () => viewModel.setEditMode(EditMode.none),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                        ),
+                      ),
+                    ],
+                  )
+              ])),
+        ));
   }
 
   @override

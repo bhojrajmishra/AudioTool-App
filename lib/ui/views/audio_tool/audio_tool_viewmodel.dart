@@ -16,7 +16,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   final String bookTitle;
   final String? audioPath;
   PlayerController? playerController;
-
   @override
   void initialise() {
     if (audioPath != null) {
@@ -40,12 +39,13 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
 
   //Editing state
   EditMode editMode = EditMode.none;
-  bool isSelecting = false;
+  bool isSelecting = true;
   double selectionStart = 0.0;
   double selectionEnd = 0.0;
   Duration selectionStartTime = Duration.zero;
   Duration selectionEndTime = Duration.zero;
   String currentOutputPath = '';
+
   //this function will be used to initialize the waveform
   Future<void> initializedWaveform() async {
     try {
@@ -112,7 +112,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           debugPrint('Position stream error: $error');
         },
       );
-
       // Set up player state stream listener
       audioPlayer.playerStateStream.listen(
         (state) {
@@ -124,9 +123,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
             notifyListeners();
           }
           notifyListeners();
-        },
-        onError: (error) {
-          debugPrint('Player state stream error: $error');
         },
       );
     } catch (e) {
@@ -166,21 +162,30 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   Future<void> trimAudio(String outputPath) async {
     final startSeconds = selectionStartTime.inMilliseconds / 1000;
     debugPrint('Start seconds: $startSeconds');
+
     final duration =
         (selectionEndTime - selectionStartTime).inMilliseconds / 1000;
     debugPrint('Duration: $duration');
 
     final command =
         '-i "$currentAudioPath" -ss $startSeconds -t $duration -c copy "$outputPath"';
-
+    debugPrint('Command: $command');
     final session = await FFmpegKit.execute(command);
+    debugPrint('Session: $session');
     final returnCode = await session.getReturnCode();
+    debugPrint('Return code: $returnCode');
 
     if (ReturnCode.isSuccess(returnCode)) {
       undoStack.add(currentAudioPath);
       currentAudioPath = outputPath;
-      // await _reloadAudio();
+      await _reloadAudio();
     }
+    debugPrint('Return code: $returnCode');
+  }
+
+  Future<void> _reloadAudio() async {
+    await audioPlayer.stop();
+    await initializeAudioPlayer(currentAudioPath);
   }
 
   void setEditMode(EditMode mode) {
@@ -188,25 +193,27 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     isSelecting = mode != EditMode.none;
     if (!isSelecting) {
       selectionStart = 0.0;
+      debugPrint('Selection start: $selectionStart');
       selectionEnd = 0.0;
+      debugPrint('Selection end: $selectionEnd');
     }
     notifyListeners();
   }
 
-  //this
   Future<void> applyChanges() async {
     if (!isSelecting) return;
 
     setBusy(true);
 
     try {
-      final tempDir = await getTemporaryDirectory();
       final outputPath =
-          '${tempDir.path}/edited_${DateTime.now().millisecondsSinceEpoch}..m4a';
+          '$currentAudioPath/edited_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
+      debugPrint('Output path: $outputPath');
       switch (editMode) {
         case EditMode.trim:
           await trimAudio(outputPath);
+          debugPrint('Trimming audio');
           break;
         // case EditMode.insert:
         // await _insertAudio(outputPath);
@@ -228,6 +235,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         await audioPlayer.seek(Duration(seconds: seconds.toInt()));
         debugPrint('Seeking to $seconds');
         position = Duration(seconds: seconds.toInt());
+        debugPrint('Position: $position');
         // If we're at the end and seeking, make sure play button shows
         if (seconds >= duration.inSeconds) {
           isPlaying = false;
@@ -242,14 +250,23 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   //this formatDuration function will be used to format the duration of the audio
   String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
+    debugPrint('twoDigits: $twoDigits(n)');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    debugPrint('twoDigitMinutes: $twoDigitMinutes');
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${duration.inHours > 0 ? '${duration.inHours}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
+    debugPrint('twoDigitSeconds: $twoDigitSeconds');
+    String twoDigitMilisecods =
+        twoDigits(duration.inMilliseconds.remainder(60));
+    debugPrint('Duration here: $duration');
+    return "${duration.inHours > 0 ? '${duration.inHours}:' : ''}$twoDigitMinutes:$twoDigitSeconds:$twoDigitMilisecods";
   }
 
   @override
   void dispose() {
     audioPlayer.dispose();
+    debugPrint('Audio player disposed');
+    playerController?.dispose();
+    debugPrint('Player controller disposed');
     super.dispose();
   }
 }
