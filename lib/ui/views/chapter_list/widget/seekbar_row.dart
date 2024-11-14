@@ -28,7 +28,6 @@ class SeekBarRow extends StatelessWidget {
                 height: 0,
                 child: Text("data"),
               ),
-
         // seek Bar
         Expanded(
           child: Slider(

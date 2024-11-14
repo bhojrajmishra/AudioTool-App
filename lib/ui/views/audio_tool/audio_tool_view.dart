@@ -1,3 +1,4 @@
+import 'package:audiobook_record/ui/views/audio/widgets/record_button_row.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/audio_waveform.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/edit_button.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/play_push_button.dart';
@@ -56,9 +57,7 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
 
                 // Progress bar
                 ProgressBar(viewModel: viewModel),
-
                 const SizedBox(height: 20),
-
                 // Playback controls
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -66,9 +65,9 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                     EditButton(
                       icon: Icons.content_cut,
                       label: 'Trim',
-                      isActive: false,
+                      isActive: viewModel.editMode == EditMode.trim,
                       onPressed: () {
-                        viewModel.trimAudio;
+                        viewModel.setEditMode(EditMode.trim);
                         debugPrint('Trim');
                       },
                     ),
@@ -76,8 +75,11 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                     EditButton(
                       icon: Icons.playlist_add,
                       label: 'Insert',
-                      isActive: false,
-                      onPressed: () {},
+                      isActive: viewModel.editMode == EditMode.insert,
+                      onPressed: () {
+                        viewModel.setEditMode(EditMode.insert);
+                        debugPrint('Insert');
+                      },
                     ),
                   ],
                 ),
@@ -116,10 +118,4 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
         bookTitle: bookTitle,
         audioPath: audioPath,
       );
-
-  // @override
-  // void onViewModelReady(AudioToolViewModel viewModel) {
-  //   super.onViewModelReady(viewModel);
-  //   viewModel.initializeAudioPlayer(audioPath!);
-  // }
 }

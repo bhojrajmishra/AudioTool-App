@@ -33,18 +33,17 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   //Duration of the audio and the current position of the audio
   Duration position = Duration.zero;
   //String to store the current audio path
-  String currentAudioPath = '';
-  //List to store the undo stack but its not used now but can be used in the future
-  final List<String> undoStack = [];
 
   //Editing state
   EditMode editMode = EditMode.none;
-  bool isSelecting = true;
+  bool isSelecting = false;
   double selectionStart = 0.0;
-  double selectionEnd = 0.0;
+  double selectionWidth = 0.0;
   Duration selectionStartTime = Duration.zero;
   Duration selectionEndTime = Duration.zero;
-  String currentOutputPath = '';
+  String currentAudioPath = '';
+  //List to store the undo stack but its not used now but can be used in the future
+  final List<String> undoStack = [];
 
   //this function will be used to initialize the waveform
   Future<void> initializedWaveform() async {
@@ -66,6 +65,10 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   //this function will be used to initialize the audio player
   Future<void> initializeAudioPlayer(String audioPath) async {
     if (audioPath.isEmpty) {
+      SnackbarService().showSnackbar(
+        message: 'Audio path is empty',
+        duration: const Duration(seconds: 3),
+      );
       debugPrint('Error: Audio path is empty');
       return;
     }
@@ -82,25 +85,25 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       duration = audioPlayer.duration ?? Duration.zero;
 
       // If duration is zero, try using FFmpeg as fallback
-      // if (duration == Duration.zero) {
-      //   final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
-      //   final output = await session.getOutput();
+      if (duration == Duration.zero) {
+        final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
+        final output = await session.getOutput();
 
-      //   if (output != null) {
-      //     final durationRegex =
-      //         RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
-      //     final match = durationRegex.firstMatch(output);
+        if (output != null) {
+          final durationRegex =
+              RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
+          final match = durationRegex.firstMatch(output);
 
-      //     if (match != null) {
-      //       duration = Duration(
-      //         hours: int.parse(match.group(1) ?? '0'),
-      //         minutes: int.parse(match.group(2) ?? '0'),
-      //         seconds: int.parse(match.group(3) ?? '0'),
-      //         milliseconds: (int.parse(match.group(4) ?? '0') * 10),
-      //       );
-      //     }
-      //   }
-      // }
+          if (match != null) {
+            duration = Duration(
+              hours: int.parse(match.group(1) ?? '0'),
+              minutes: int.parse(match.group(2) ?? '0'),
+              seconds: int.parse(match.group(3) ?? '0'),
+              milliseconds: (int.parse(match.group(4) ?? '0') * 10),
+            );
+          }
+        }
+      }
 
       // Set up position stream listener
       audioPlayer.positionStream.listen(
@@ -161,23 +164,21 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   // this is the function that will be called when the seek button is pressed
   Future<void> trimAudio(String outputPath) async {
     final startSeconds = selectionStartTime.inMilliseconds / 1000;
-    debugPrint('Start seconds: $startSeconds');
-
     final duration =
         (selectionEndTime - selectionStartTime).inMilliseconds / 1000;
-    debugPrint('Duration: $duration');
-
+//this command take start time and duration and output path and trim the audio
     final command =
         '-i "$currentAudioPath" -ss $startSeconds -t $duration -c copy "$outputPath"';
     debugPrint('Command: $command');
+//this will execute the command
     final session = await FFmpegKit.execute(command);
     debugPrint('Session: $session');
     final returnCode = await session.getReturnCode();
     debugPrint('Return code: $returnCode');
-
     if (ReturnCode.isSuccess(returnCode)) {
       undoStack.add(currentAudioPath);
       currentAudioPath = outputPath;
+      debugPrint('Current audio path: $currentAudioPath');
       await _reloadAudio();
     }
     debugPrint('Return code: $returnCode');
@@ -192,22 +193,22 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     editMode = mode;
     isSelecting = mode != EditMode.none;
     if (!isSelecting) {
-      selectionStart = 0.0;
+      selectionStartTime = Duration.zero;
       debugPrint('Selection start: $selectionStart');
-      selectionEnd = 0.0;
-      debugPrint('Selection end: $selectionEnd');
+      selectionEndTime = Duration.zero;
+      debugPrint('Selection end: $selectionWidth');
     }
     notifyListeners();
+    debugPrint('Edit mode: $editMode');
   }
 
   Future<void> applyChanges() async {
     if (!isSelecting) return;
-
     setBusy(true);
-
     try {
+      final tempDir = await getTemporaryDirectory();
       final outputPath =
-          '$currentAudioPath/edited_${DateTime.now().millisecondsSinceEpoch}.m4a';
+          '$tempDir/edited_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
       debugPrint('Output path: $outputPath');
       switch (editMode) {
@@ -215,9 +216,9 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           await trimAudio(outputPath);
           debugPrint('Trimming audio');
           break;
-        // case EditMode.insert:
-        // await _insertAudio(outputPath);
-        // break;
+        case EditMode.insert:
+          // await insertAudio(outputPath);
+          break;
         default:
           return;
       }
@@ -250,15 +251,9 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   //this formatDuration function will be used to format the duration of the audio
   String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
-    debugPrint('twoDigits: $twoDigits(n)');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
-    debugPrint('twoDigitMinutes: $twoDigitMinutes');
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    debugPrint('twoDigitSeconds: $twoDigitSeconds');
-    String twoDigitMilisecods =
-        twoDigits(duration.inMilliseconds.remainder(60));
-    debugPrint('Duration here: $duration');
-    return "${duration.inHours > 0 ? '${duration.inHours}:' : ''}$twoDigitMinutes:$twoDigitSeconds:$twoDigitMilisecods";
+    return "${duration.inHours > 0 ? '${duration.inHours}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
   }
 
   @override

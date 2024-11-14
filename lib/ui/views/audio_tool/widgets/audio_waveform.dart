@@ -32,11 +32,11 @@ class AudioWaveformWidget extends StatelessWidget {
                     height: double.infinity,
                     color: Colors.grey.withOpacity(0.05),
                   ),
+                  //division of the waveform
                   if (playerController != null)
                     AudioFileWaveforms(
                       size: Size(double.infinity, 300.h),
                       playerController: playerController!,
-                      enableSeekGesture: true,
                       waveformType: WaveformType.long,
                       playerWaveStyle: PlayerWaveStyle(
                         fixedWaveColor: Colors.blue.withOpacity(0.5),
@@ -50,6 +50,7 @@ class AudioWaveformWidget extends StatelessWidget {
                         scaleFactor: 1000,
                       ),
                     ),
+                  //waveform controller gesture detector
                 ],
               ),
             ),

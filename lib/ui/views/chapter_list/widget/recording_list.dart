@@ -41,7 +41,7 @@ class RecordingList extends StatelessWidget {
                   (
                 padding: EdgeInsets.all(10.0.r),
                 child: Container(
-                  height: isActive ? 190.h : 90.h, // set height when active
+                  height: isActive ? 200.r : 100.r,
                   decoration: recordingListDecoration(isActive), // decoration
                   child: Column // column of container
                       (
