@@ -199,27 +199,50 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
+  void endSelection(double position) {
+    if (isSelecting) {
+      if (selectionStartTime > selectionEndTime) {
+        final temp = selectionStartTime;
+        selectionStartTime = selectionEndTime;
+        selectionEndTime = temp;
+      }
+      notifyListeners();
+    }
+  }
+
   // this is the function that will be called when the seek button is pressed
   Future<void> trimAudio(String outputPath) async {
+    if (selectionStartTime >= selectionEndTime) {
+      SnackbarService().showSnackbar(
+        message: 'Invalid selection range',
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
     final startSeconds = selectionStartTime.inMilliseconds / 1000;
     final duration =
         (selectionEndTime - selectionStartTime).inMilliseconds / 1000;
 //this command take start time and duration and output path and trim the audio
     final command =
         '-i "$currentAudioPath" -ss $startSeconds -t $duration -c copy "$outputPath"';
-    debugPrint('Command: $command');
 //this will execute the command
-    final session = await FFmpegKit.execute(command);
-    debugPrint('Session: $session');
-    final returnCode = await session.getReturnCode();
-    debugPrint('Return code: $returnCode');
-    if (ReturnCode.isSuccess(returnCode)) {
-      undoStack.add(currentAudioPath);
-      currentAudioPath = outputPath;
-      debugPrint('Current audio path: $currentAudioPath');
-      await _reloadAudio();
+    try {
+      final session = await FFmpegKit.execute(command);
+      final returnCode = await session.getReturnCode();
+      if (ReturnCode.isSuccess(returnCode)) {
+        undoStack.add(currentAudioPath);
+        currentAudioPath = outputPath;
+        await _reloadAudio();
+        setEditMode(EditMode.none);
+      } else {
+        final logs = await session.getAllLogs();
+        debugPrint('Error trimming audio: $logs');
+        throw Exception('Error trimming audio');
+      }
+    } catch (e) {
+      debugPrint('Error in trimAudio: $e');
     }
-    debugPrint('Return code: $returnCode');
   }
 
   Future<void> _reloadAudio() async {
