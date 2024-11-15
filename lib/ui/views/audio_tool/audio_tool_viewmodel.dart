@@ -1,11 +1,11 @@
 import 'dart:io';
-
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -17,91 +17,85 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   final String bookTitle;
   final String? audioPath;
   PlayerController? playerController;
-  @override
-  Future<void> initialise() async {
-    await initializedWaveform();
-    await initializeAudioPlayer(audioPath!);
-    audioPlayer.positionStream.listen((pos) {
-      position = pos;
-      if (isDragging) {
-        waveformPosition = pos.inMilliseconds / duration.inMilliseconds;
-        playerController?.seekTo(pos.inMilliseconds);
-      }
-      notifyListeners();
-    });
-  }
 
-  //Initialize the audio player
+  // Audio state
   final AudioPlayer audioPlayer = AudioPlayer();
-  //bool to check if the audio is playing or not
-  bool isPlaying = false, isloading = true;
-  //Duration of the audio and the current position of the audio
+  bool isPlaying = false;
+  bool isloading = true;
   Duration duration = Duration.zero;
-  //Duration of the audio and the current position of the audio
   Duration position = Duration.zero;
-  //String to store the current audio path
+  String currentAudioPath = '';
 
-  //waveform state
+  // Waveform state
   double waveformPosition = 0.0;
   bool isDragging = false;
 
-  //Editing state
+  // Edit state
   EditMode editMode = EditMode.none;
   bool isSelecting = false;
   double selectionStart = 0.0;
   double selectionWidth = 0.0;
   Duration selectionStartTime = Duration.zero;
   Duration selectionEndTime = Duration.zero;
-  String currentAudioPath = '';
-  //List to store the undo stack but its not used now but can be used in the future
   final List<String> undoStack = [];
 
-  //this function will be used to initialize the waveform
+  @override
+  Future<void> initialise() async {
+    if (audioPath != null) {
+      await initializeAudioPlayer(audioPath!);
+      await initializedWaveform();
+      audioPlayer.positionStream.listen((pos) {
+        position = pos;
+        if (!isDragging) {
+          waveformPosition = pos.inMilliseconds / duration.inMilliseconds;
+          playerController?.seekTo(pos.inMilliseconds);
+        }
+        notifyListeners();
+      });
+    }
+  }
+
   Future<void> initializedWaveform() async {
     try {
-      // Initialize the player controller
       playerController = PlayerController();
       await playerController?.preparePlayer(
         path: audioPath!,
         shouldExtractWaveform: true,
-        noOfSamples: 100,
+        noOfSamples: 200,
         volume: 1.0,
       );
+
       playerController?.onCurrentDurationChanged.listen((duration) {
         if (!isDragging) {
           position = Duration(milliseconds: duration);
           notifyListeners();
         }
       });
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error in initializedWaveform: $e');
     }
   }
 
-  //this function will be used to initialize the audio player
   Future<void> initializeAudioPlayer(String audioPath) async {
     if (audioPath.isEmpty) {
       SnackbarService().showSnackbar(
         message: 'Audio path is empty',
         duration: const Duration(seconds: 3),
       );
-      debugPrint('Error: Audio path is empty');
       return;
     }
+
     currentAudioPath = audioPath;
     undoStack.add(audioPath);
     setBusy(true);
     isloading = true;
 
     try {
-      // First try to set up the audio player
       await audioPlayer.setFilePath(audioPath);
-
-      // Get duration directly from the audio player
       duration = audioPlayer.duration ?? Duration.zero;
 
-      // If duration is zero, try using FFmpeg as fallback
       if (duration == Duration.zero) {
         final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
         final output = await session.getOutput();
@@ -122,24 +116,12 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         }
       }
 
-      // Set up position stream listener
-      audioPlayer.positionStream.listen(
-        (pos) {
-          position = pos;
-          notifyListeners();
-        },
-        onError: (error) {
-          debugPrint('Position stream error: $error');
-        },
-      );
-      // Set up player state stream listener
       audioPlayer.playerStateStream.listen(
         (state) {
           isPlaying = state.playing;
           if (state.processingState == ProcessingState.completed) {
             isPlaying = false;
-            position =
-                duration; // Explicitly set position to duration when completed
+            position = duration;
             notifyListeners();
           }
           notifyListeners();
@@ -158,13 +140,11 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
-  // this is the function that will be called when the play button is pressed
   Future<void> playPause() async {
     try {
       if (audioPlayer.playerState.playing) {
         await audioPlayer.pause();
       } else {
-        // Check if we're at or near the end
         if (position >= duration ||
             duration - position < const Duration(milliseconds: 300)) {
           await audioPlayer.seek(Duration.zero);
@@ -179,12 +159,14 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   }
 
   void startSelection(double position) {
-    if (editMode == EditMode.none) {
+    if (editMode != EditMode.none) {
       isSelecting = true;
       selectionStart = position;
-      selectionStartTime =
-          Duration(milliseconds: (position * duration.inMilliseconds).round());
-      debugPrint('Selection start: $selectionStartTime');
+      debugPrint('Selection start: $selectionStart');
+      selectionStartTime = Duration(
+        milliseconds: (position * duration.inMilliseconds).round(),
+      );
+      notifyListeners();
     }
   }
 
@@ -199,7 +181,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
-  void endSelection(double position) {
+  void endSelection() {
     if (isSelecting) {
       if (selectionStartTime > selectionEndTime) {
         final temp = selectionStartTime;
@@ -210,7 +192,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
-  // this is the function that will be called when the seek button is pressed
   Future<void> trimAudio(String outputPath) async {
     if (selectionStartTime >= selectionEndTime) {
       SnackbarService().showSnackbar(
@@ -221,27 +202,34 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
 
     final startSeconds = selectionStartTime.inMilliseconds / 1000;
+    debugPrint('Start seconds: $startSeconds');
     final duration =
         (selectionEndTime - selectionStartTime).inMilliseconds / 1000;
-//this command take start time and duration and output path and trim the audio
+    debugPrint('Duration: $duration');
+
     final command =
         '-i "$currentAudioPath" -ss $startSeconds -t $duration -c copy "$outputPath"';
-//this will execute the command
+
     try {
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
+
       if (ReturnCode.isSuccess(returnCode)) {
         undoStack.add(currentAudioPath);
         currentAudioPath = outputPath;
         await _reloadAudio();
         setEditMode(EditMode.none);
       } else {
-        final logs = await session.getAllLogs();
-        debugPrint('Error trimming audio: $logs');
-        throw Exception('Error trimming audio');
+        final logs = await session.getLogs();
+        debugPrint('FFmpeg error logs: $logs');
+        throw Exception('Failed to trim audio');
       }
     } catch (e) {
-      debugPrint('Error in trimAudio: $e');
+      debugPrint('Error trimming audio: $e');
+      SnackbarService().showSnackbar(
+        message: 'Failed to trim audio: ${e.toString()}',
+        duration: const Duration(seconds: 3),
+      );
     }
   }
 
@@ -250,34 +238,50 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     await initializeAudioPlayer(currentAudioPath);
   }
 
+  Future<void> seek(double seconds) async {
+    if (seconds >= 0 && seconds <= duration.inSeconds) {
+      try {
+        await audioPlayer.seek(Duration(seconds: seconds.toInt()));
+        position = Duration(seconds: seconds.toInt());
+        if (seconds >= duration.inSeconds) {
+          isPlaying = false;
+          notifyListeners();
+        }
+      } catch (e) {
+        debugPrint('Error in seek: $e');
+      }
+    }
+  }
+
   void setEditMode(EditMode mode) {
     editMode = mode;
     isSelecting = mode != EditMode.none;
     if (!isSelecting) {
       selectionStartTime = Duration.zero;
-      debugPrint('Selection start here: $selectionStart');
+      debugPrint('Selection start time: $selectionStartTime');
       selectionEndTime = Duration.zero;
-      debugPrint('Selection end here: $selectionWidth');
+      debugPrint('Selection end time: $selectionEndTime');
+      selectionStart = 0.0;
+
+      selectionWidth = 0.0;
     }
     notifyListeners();
-    debugPrint('Edit mode: $editMode');
   }
 
   Future<void> applyChanges() async {
     if (!isSelecting) return;
     setBusy(true);
     try {
-      final currentPath = audioPath;
+      final directory = await getApplicationDocumentsDirectory();
       final outputPath =
-          '$currentPath/edited_${DateTime.now().millisecondsSinceEpoch}.m4a';
-      debugPrint('Output path: $outputPath');
+          '${directory.path}/edited_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
       switch (editMode) {
         case EditMode.trim:
           await trimAudio(outputPath);
-          debugPrint('Trimming audio');
           break;
         case EditMode.insert:
-          // await insertAudio(outputPath);
+          // Implement insert functionality if needed
           break;
         default:
           return;
@@ -289,26 +293,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
-  // this is the function that will be called when the seek button is pressed
-  Future<void> seek(double seconds) async {
-    if (seconds >= 0 && seconds <= duration.inSeconds) {
-      try {
-        await audioPlayer.seek(Duration(seconds: seconds.toInt()));
-        debugPrint('Seeking to $seconds');
-        position = Duration(seconds: seconds.toInt());
-        debugPrint('Position: $position');
-        // If we're at the end and seeking, make sure play button shows
-        if (seconds >= duration.inSeconds) {
-          isPlaying = false;
-          notifyListeners();
-        }
-      } catch (e) {
-        debugPrint('Error in seek: $e');
-      }
-    }
-  }
-
-//this function will be used to delete the audio
   Future<void> deleteAudio() async {
     try {
       await audioPlayer.stop();
@@ -318,10 +302,8 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     } catch (e) {
       debugPrint('Error deleting audio: $e');
     }
-    debugPrint('Audio deleted');
   }
 
-  //this formatDuration function will be used to format the duration of the audio
   String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
@@ -332,9 +314,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   @override
   void dispose() {
     audioPlayer.dispose();
-    debugPrint('Audio player disposed');
     playerController?.dispose();
-    debugPrint('Player controller disposed');
     super.dispose();
   }
 }

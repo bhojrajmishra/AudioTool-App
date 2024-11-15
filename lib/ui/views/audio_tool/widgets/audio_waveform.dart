@@ -8,20 +8,20 @@ class AudioWaveformWidget extends StatelessWidget {
   final bool isSelecting;
   final double selectionStart;
   final double selectionWidth;
-  final void Function(double) onselectionStart;
-  final void Function(double) onselectionUpdate;
-  final void Function(double) onselectionEnd;
+  final Function(double) onSelectionStart;
+  final Function(double) onSelectionUpdate;
+  final Function() onSelectionEnd;
 
   const AudioWaveformWidget({
     super.key,
     required this.playerController,
     required this.isLoading,
     this.isSelecting = false,
-    this.selectionStart = 0.0,
-    this.selectionWidth = 0.0,
-    required this.onselectionStart,
-    required this.onselectionUpdate,
-    required this.onselectionEnd,
+    this.selectionStart = 0,
+    this.selectionWidth = 0,
+    required this.onSelectionStart,
+    required this.onSelectionUpdate,
+    required this.onSelectionEnd,
   });
 
   @override
@@ -37,59 +37,60 @@ class AudioWaveformWidget extends StatelessWidget {
           ? const Center(child: CircularProgressIndicator())
           : ClipRRect(
               borderRadius: BorderRadius.circular(12.r),
-              child: Stack(
-                children: [
-                  Container(
-                    width: double.infinity,
-                    height: double.infinity,
-                    color: Colors.grey.withOpacity(0.05),
-                  ),
-                  //division of the waveform
-                  if (playerController != null)
-                    GestureDetector(
-                      onHorizontalDragStart: (details) {
-                        final postition = details.localPosition.dx;
-                        onselectionStart(postition);
-                        debugPrint('onHorizontalDragStart : $postition');
-                      },
-                      onHorizontalDragUpdate: (details) {
-                        final postition = details.localPosition.dx;
-                        onselectionUpdate(postition);
-                        debugPrint('onHorizontalDragUpdate : $postition');
-                      },
-                      onHorizontalDragEnd: (details) {
-                        final postition = details.localPosition.dx;
-                        onselectionEnd(postition);
-                        debugPrint('onHorizontalDragEnd : $postition');
-                      },
-                      child: AudioFileWaveforms(
-                        size: Size(double.infinity, 300.h),
-                        playerController: playerController!,
-                        waveformType: WaveformType.long,
-                        playerWaveStyle: PlayerWaveStyle(
-                          fixedWaveColor: Colors.blue.withOpacity(0.5),
-                          liveWaveColor: Colors.green.withOpacity(0.5),
-                          spacing: 5,
-                          showTop: true,
-                          showBottom: true,
-                          showSeekLine: true,
-                          seekLineColor: Colors.red,
-                          waveCap: StrokeCap.round,
-                          scaleFactor: 1000,
-                        ),
-                      ),
-                    ),
-                  //waveform controller gesture detector
-                  if (isSelecting)
-                    Positioned(
-                      left: selectionStart,
-                      width: selectionWidth,
-                      child: Container(
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Stack(
+                    children: [
+                      Container(
+                        width: double.infinity,
                         height: double.infinity,
-                        color: Colors.blue.withOpacity(0.5),
+                        color: Colors.grey.withOpacity(0.05),
                       ),
-                    ),
-                ],
+                      if (playerController != null)
+                        GestureDetector(
+                          onHorizontalDragStart: (details) {
+                            final position =
+                                details.localPosition.dx / constraints.maxWidth;
+                            onSelectionStart(position);
+                            debugPrint('onHorizontalDragStart');
+                          },
+                          onHorizontalDragUpdate: (details) {
+                            final position =
+                                details.localPosition.dx / constraints.maxWidth;
+                            onSelectionUpdate(position.clamp(0.0, 1.0));
+                            debugPrint('onHorizontalDragUpdate');
+                          },
+                          onHorizontalDragEnd: (_) => onSelectionEnd(),
+                          child: AudioFileWaveforms(
+                            size: Size(double.infinity, 300.h),
+                            playerController: playerController!,
+                            waveformType: WaveformType.long,
+                            playerWaveStyle: PlayerWaveStyle(
+                              fixedWaveColor: Colors.blue.withOpacity(0.5),
+                              liveWaveColor: Colors.green,
+                              spacing: 5,
+                              showTop: true,
+                              showBottom: true,
+                              seekLineColor: Colors.red,
+                              showSeekLine: true,
+                              waveCap: StrokeCap.round,
+                              scaleFactor: 1000,
+                            ),
+                          ),
+                        ),
+                      if (isSelecting)
+                        Positioned(
+                          left: selectionStart * constraints.maxWidth,
+                          width: selectionWidth * constraints.maxWidth,
+                          top: 0,
+                          bottom: 0,
+                          child: Container(
+                            color: Colors.blue.withOpacity(0.3),
+                          ),
+                        ),
+                    ],
+                  );
+                },
               ),
             ),
     );

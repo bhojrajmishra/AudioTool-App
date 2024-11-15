@@ -14,6 +14,7 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
     required this.bookTitle,
     required this.audioPath,
   });
+
   final String bookTitle;
   final String? audioPath;
 
@@ -24,95 +25,87 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
     Widget? child,
   ) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(bookTitle),
-        ),
-        body: SingleChildScrollView(
-          child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(children: [
-                //show seekbar position
-                Text(
-                  viewModel.formatDuration(viewModel.position),
-                  style: const TextStyle(fontSize: 20),
+      appBar: AppBar(
+        title: Text(bookTitle),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              Text(
+                viewModel.formatDuration(viewModel.position),
+                style: const TextStyle(fontSize: 20),
+              ),
+              AudioWaveformWidget(
+                playerController: viewModel.playerController,
+                isLoading: viewModel.isloading,
+                isSelecting: viewModel.isSelecting,
+                selectionStart: viewModel.selectionStart,
+                selectionWidth: viewModel.selectionWidth,
+                onSelectionStart: viewModel.startSelection,
+                onSelectionUpdate: viewModel.updateSelection,
+                onSelectionEnd: viewModel.endSelection,
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(viewModel.formatDuration(viewModel.position)),
+                    Text(viewModel.formatDuration(viewModel.duration)),
+                  ],
                 ),
-                // Audio Waveform Widget
-                AudioWaveformWidget(
-                  playerController: viewModel.playerController,
-                  isLoading: viewModel.isloading,
-                  isSelecting: viewModel.isSelecting,
-                  selectionStart: viewModel.selectionStart,
-                  selectionWidth: viewModel.selectionWidth,
-                  onselectionStart: viewModel.onselectionStart,
-                  onselectionUpdate: viewModel.onselectionUpdate,
-                  onselectionEnd: viewModel.onselectionEnd,
-                ),
-                const SizedBox(height: 20),
-                // Time and duration
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(viewModel.formatDuration(viewModel.position)),
-                      Text(viewModel.formatDuration(viewModel.duration)),
-                    ],
+              ),
+              ProgressBar(viewModel: viewModel),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  EditButton(
+                    icon: Icons.content_cut,
+                    label: 'Trim',
+                    isActive: viewModel.editMode == EditMode.trim,
+                    onPressed: () => viewModel.setEditMode(EditMode.trim),
                   ),
-                ),
-
-                // Progress bar
-                ProgressBar(viewModel: viewModel),
-                const SizedBox(height: 20),
-                // Playback controls
+                  PlayPushButton(viewModel: viewModel),
+                  EditButton(
+                    icon: Icons.playlist_add,
+                    label: 'Insert',
+                    isActive: viewModel.editMode == EditMode.insert,
+                    onPressed: () => viewModel.setEditMode(EditMode.insert),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20.h),
+              if (viewModel.isSelecting)
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    EditButton(
-                      icon: Icons.content_cut,
-                      label: 'Trim',
-                      isActive: viewModel.editMode == EditMode.trim,
-                      onPressed: () {
-                        viewModel.setEditMode(EditMode.trim);
-                        debugPrint('Trim');
-                      },
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.check),
+                      label: const Text('Apply'),
+                      onPressed: viewModel.applyChanges,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                      ),
                     ),
-                    PlayPushButton(viewModel: viewModel),
-                    EditButton(
-                      icon: Icons.playlist_add,
-                      label: 'Insert',
-                      isActive: viewModel.editMode == EditMode.insert,
-                      onPressed: () {
-                        viewModel.setEditMode(EditMode.insert);
-                        debugPrint('Insert');
-                      },
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.close),
+                      label: const Text('Cancel'),
+                      onPressed: () => viewModel.setEditMode(EditMode.none),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                      ),
                     ),
                   ],
-                ),
-                SizedBox(height: 20.h),
-                if (viewModel.isSelecting)
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.check),
-                        label: const Text('Apply'),
-                        onPressed: viewModel.applyChanges,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                        ),
-                      ),
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.close),
-                        label: const Text('Cancel'),
-                        onPressed: () => viewModel.setEditMode(EditMode.none),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.black,
-                        ),
-                      ),
-                    ],
-                  )
-              ])),
-        ));
+                )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
