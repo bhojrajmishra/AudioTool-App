@@ -40,6 +40,12 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                 AudioWaveformWidget(
                   playerController: viewModel.playerController,
                   isLoading: viewModel.isloading,
+                  isSelecting: viewModel.isSelecting,
+                  selectionStart: viewModel.selectionStart,
+                  selectionWidth: viewModel.selectionWidth,
+                  onselectionStart: viewModel.onselectionStart,
+                  onselectionUpdate: viewModel.onselectionUpdate,
+                  onselectionEnd: viewModel.onselectionEnd,
                 ),
                 const SizedBox(height: 20),
                 // Time and duration

@@ -6,7 +6,6 @@ import 'package:ffmpeg_kit_flutter/return_code.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -19,11 +18,17 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   final String? audioPath;
   PlayerController? playerController;
   @override
-  void initialise() {
-    if (audioPath != null) {
-      initializeAudioPlayer(audioPath!);
-      initializedWaveform();
-    }
+  Future<void> initialise() async {
+    await initializedWaveform();
+    await initializeAudioPlayer(audioPath!);
+    audioPlayer.positionStream.listen((pos) {
+      position = pos;
+      if (isDragging) {
+        waveformPosition = pos.inMilliseconds / duration.inMilliseconds;
+        playerController?.seekTo(pos.inMilliseconds);
+      }
+      notifyListeners();
+    });
   }
 
   //Initialize the audio player
@@ -35,6 +40,10 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   //Duration of the audio and the current position of the audio
   Duration position = Duration.zero;
   //String to store the current audio path
+
+  //waveform state
+  double waveformPosition = 0.0;
+  bool isDragging = false;
 
   //Editing state
   EditMode editMode = EditMode.none;
@@ -58,6 +67,12 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         noOfSamples: 100,
         volume: 1.0,
       );
+      playerController?.onCurrentDurationChanged.listen((duration) {
+        if (!isDragging) {
+          position = Duration(milliseconds: duration);
+          notifyListeners();
+        }
+      });
       notifyListeners();
     } catch (e) {
       debugPrint('Error in initializedWaveform: $e');
@@ -160,6 +175,27 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       }
     } catch (e) {
       debugPrint('Error in playPause: $e');
+    }
+  }
+
+  void startSelection(double position) {
+    if (editMode == EditMode.none) {
+      isSelecting = true;
+      selectionStart = position;
+      selectionStartTime =
+          Duration(milliseconds: (position * duration.inMilliseconds).round());
+      debugPrint('Selection start: $selectionStartTime');
+    }
+  }
+
+  void updateSelection(double position) {
+    if (isSelecting) {
+      selectionWidth = position - selectionStart;
+      selectionEndTime = Duration(
+        milliseconds: (position * duration.inMilliseconds).round(),
+      );
+      debugPrint('Selection end: $selectionEndTime');
+      notifyListeners();
     }
   }
 

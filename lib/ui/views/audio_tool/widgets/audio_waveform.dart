@@ -8,6 +8,9 @@ class AudioWaveformWidget extends StatelessWidget {
   final bool isSelecting;
   final double selectionStart;
   final double selectionWidth;
+  final void Function(double) onselectionStart;
+  final void Function(double) onselectionUpdate;
+  final void Function(double) onselectionEnd;
 
   const AudioWaveformWidget({
     super.key,
@@ -16,6 +19,9 @@ class AudioWaveformWidget extends StatelessWidget {
     this.isSelecting = false,
     this.selectionStart = 0.0,
     this.selectionWidth = 0.0,
+    required this.onselectionStart,
+    required this.onselectionUpdate,
+    required this.onselectionEnd,
   });
 
   @override
