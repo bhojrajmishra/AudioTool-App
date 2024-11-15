@@ -5,11 +5,17 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class AudioWaveformWidget extends StatelessWidget {
   final PlayerController? playerController;
   final bool isLoading;
+  final bool isSelecting;
+  final double selectionStart;
+  final double selectionWidth;
 
   const AudioWaveformWidget({
     super.key,
     required this.playerController,
     required this.isLoading,
+    this.isSelecting = false,
+    this.selectionStart = 0.0,
+    this.selectionWidth = 0.0,
   });
 
   @override
@@ -34,23 +40,49 @@ class AudioWaveformWidget extends StatelessWidget {
                   ),
                   //division of the waveform
                   if (playerController != null)
-                    AudioFileWaveforms(
-                      size: Size(double.infinity, 300.h),
-                      playerController: playerController!,
-                      waveformType: WaveformType.long,
-                      playerWaveStyle: PlayerWaveStyle(
-                        fixedWaveColor: Colors.blue.withOpacity(0.5),
-                        liveWaveColor: Colors.green,
-                        spacing: 5,
-                        showTop: true,
-                        showBottom: true,
-                        seekLineColor: Colors.red,
-                        showSeekLine: true,
-                        waveCap: StrokeCap.round,
-                        scaleFactor: 1000,
+                    GestureDetector(
+                      onHorizontalDragStart: (details) {
+                        final postition = details.localPosition.dx;
+                        onselectionStart(postition);
+                        debugPrint('onHorizontalDragStart : $postition');
+                      },
+                      onHorizontalDragUpdate: (details) {
+                        final postition = details.localPosition.dx;
+                        onselectionUpdate(postition);
+                        debugPrint('onHorizontalDragUpdate : $postition');
+                      },
+                      onHorizontalDragEnd: (details) {
+                        final postition = details.localPosition.dx;
+                        onselectionEnd(postition);
+                        debugPrint('onHorizontalDragEnd : $postition');
+                      },
+                      child: AudioFileWaveforms(
+                        size: Size(double.infinity, 300.h),
+                        playerController: playerController!,
+                        waveformType: WaveformType.long,
+                        playerWaveStyle: PlayerWaveStyle(
+                          fixedWaveColor: Colors.blue.withOpacity(0.5),
+                          liveWaveColor: Colors.green.withOpacity(0.5),
+                          spacing: 5,
+                          showTop: true,
+                          showBottom: true,
+                          showSeekLine: true,
+                          seekLineColor: Colors.red,
+                          waveCap: StrokeCap.round,
+                          scaleFactor: 1000,
+                        ),
                       ),
                     ),
                   //waveform controller gesture detector
+                  if (isSelecting)
+                    Positioned(
+                      left: selectionStart,
+                      width: selectionWidth,
+                      child: Container(
+                        height: double.infinity,
+                        color: Colors.blue.withOpacity(0.5),
+                      ),
+                    ),
                 ],
               ),
             ),

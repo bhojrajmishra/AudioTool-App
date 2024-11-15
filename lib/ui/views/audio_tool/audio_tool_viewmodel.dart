@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
@@ -194,9 +196,9 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     isSelecting = mode != EditMode.none;
     if (!isSelecting) {
       selectionStartTime = Duration.zero;
-      debugPrint('Selection start: $selectionStart');
+      debugPrint('Selection start here: $selectionStart');
       selectionEndTime = Duration.zero;
-      debugPrint('Selection end: $selectionWidth');
+      debugPrint('Selection end here: $selectionWidth');
     }
     notifyListeners();
     debugPrint('Edit mode: $editMode');
@@ -206,10 +208,9 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     if (!isSelecting) return;
     setBusy(true);
     try {
-      final tempDir = await getTemporaryDirectory();
+      final currentPath = audioPath;
       final outputPath =
-          '$tempDir/edited_${DateTime.now().millisecondsSinceEpoch}.m4a';
-
+          '$currentPath/edited_${DateTime.now().millisecondsSinceEpoch}.m4a';
       debugPrint('Output path: $outputPath');
       switch (editMode) {
         case EditMode.trim:
@@ -246,6 +247,19 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         debugPrint('Error in seek: $e');
       }
     }
+  }
+
+//this function will be used to delete the audio
+  Future<void> deleteAudio() async {
+    try {
+      await audioPlayer.stop();
+      await audioPlayer.dispose();
+      await File(currentAudioPath).delete();
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error deleting audio: $e');
+    }
+    debugPrint('Audio deleted');
   }
 
   //this formatDuration function will be used to format the duration of the audio
