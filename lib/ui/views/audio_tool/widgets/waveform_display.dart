@@ -1,5 +1,5 @@
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:audiobook_record/ui/views/audio_tool/widgets/selection_overlay.dart';
+import 'package:audiobook_record/ui/views/audio_tool/widgets/audio_selction_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 

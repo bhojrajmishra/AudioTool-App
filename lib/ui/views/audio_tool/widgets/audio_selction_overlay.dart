@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class SelectionOverlay extends StatelessWidget {
+class AudioSelectionOverlay extends StatelessWidget {
   final double selectionStart;
   final double selectionWidth;
   final BoxConstraints constraints;
 
-  const SelectionOverlay({
+  const AudioSelectionOverlay({
     super.key,
     required this.selectionStart,
     required this.selectionWidth,

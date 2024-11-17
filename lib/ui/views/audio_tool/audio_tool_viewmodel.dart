@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 import 'package:path/path.dart' as path;
@@ -19,7 +20,10 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   final String bookTitle;
   final String? audioPath;
   PlayerController? playerController;
-
+  //audiorecorder instance
+  final AudioRecorder audioRecorder = AudioRecorder();
+  bool isRecording = false;
+  String? tempRecordingPath;
   // Audio state
   final AudioPlayer audioPlayer = AudioPlayer();
   bool isPlaying = false;
@@ -140,6 +144,39 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       notifyListeners();
     }
   }
+
+//start the recording funciton
+  Future<void> startRecording() async {
+    if (!isSelecting || editMode != EditMode.insert) return;
+
+    final tempDir = await getTemporaryDirectory();
+    tempRecordingPath =
+        '${tempDir.path}/temp_insert_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+    try {
+      if (await audioRecorder.hasPermission()) {
+        await audioRecorder.start(
+          const RecordConfig(
+            numChannels: 2,
+            sampleRate: 44100,
+            bitRate: 128000,
+            noiseSuppress: true,
+          ),
+          path: tempRecordingPath!,
+        );
+        isRecording = true;
+        notifyListeners();
+      }
+    } catch (e) {
+      debugPrint('Error starting recording: $e');
+      SnackbarService().showSnackbar(
+        message: 'Failed to start recording',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
+
+//stop the recording function
 
   Future<void> playPause() async {
     try {
