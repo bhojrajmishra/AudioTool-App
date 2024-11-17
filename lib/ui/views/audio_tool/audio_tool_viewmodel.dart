@@ -177,6 +177,25 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   }
 
 //stop the recording function
+  Future<void> stopRecording() async {
+    if (!isRecording) return;
+
+    try {
+      final String? filePath = await audioRecorder.stop();
+      isRecording = false;
+      notifyListeners();
+
+      if (filePath != null && tempRecordingPath != null) {
+        await insertAudioAtSelection(tempRecordingPath!);
+      }
+    } catch (e) {
+      debugPrint('Error stopping recording: $e');
+      SnackbarService().showSnackbar(
+        message: 'Failed to stop recording',
+        duration: const Duration(seconds: 2),
+      );
+    }
+  }
 
   Future<void> playPause() async {
     try {
