@@ -197,6 +197,81 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
+  Future<void> insertAudioAtSelection(String insertPath) async {
+    if (!isSelecting || selectionStartTime >= selectionEndTime) return;
+
+    final tempDir = await getTemporaryDirectory();
+    final tempOutputPath =
+        '${tempDir.path}/temp_output_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+    try {
+      setBusy(true);
+
+      // Extract the part before the insertion point
+      final beforeCommand =
+          '-i "$currentAudioPath" -t ${selectionStartTime.inMilliseconds / 1000} -c copy "${tempDir.path}/before.m4a"';
+
+      // Extract the part after the insertion point
+      final afterCommand =
+          '-i "$currentAudioPath" -ss ${selectionEndTime.inMilliseconds / 1000} -c copy "${tempDir.path}/after.m4a"';
+
+      // Execute extraction commands
+      await FFmpegKit.execute(beforeCommand);
+      await FFmpegKit.execute(afterCommand);
+
+      // Concatenate all parts with proper audio parameters
+      final concatCommand = '''
+        -i "${tempDir.path}/before.m4a" -i "$insertPath" -i "${tempDir.path}/after.m4a" 
+        -filter_complex "[0:a][1:a][2:a]concat=n=3:v=0:a=1[out]" 
+        -map "[out]" -ar 44100 -ac 2 -b:a 128k "$tempOutputPath"
+      '''
+          .replaceAll('\n', ' ');
+
+      final session = await FFmpegKit.execute(concatCommand);
+      final returnCode = await session.getReturnCode();
+
+      if (ReturnCode.isSuccess(returnCode)) {
+        // Stop playback and clean up
+        await audioPlayer.stop();
+        await playerController?.stopPlayer();
+
+        // Replace original file
+        final originalFile = File(currentAudioPath);
+        if (await originalFile.exists()) {
+          await originalFile.delete();
+        }
+
+        await File(tempOutputPath).copy(currentAudioPath);
+
+        // Clean up temp files
+        await File("${tempDir.path}/before.m4a").delete();
+        await File("${tempDir.path}/after.m4a").delete();
+        await File(tempOutputPath).delete();
+        if (tempRecordingPath != null) {
+          await File(tempRecordingPath!).delete();
+        }
+
+        // Reload audio
+        await _reloadAudio();
+        setEditMode(EditMode.none);
+
+        SnackbarService().showSnackbar(
+          message: 'Audio inserted successfully',
+          duration: const Duration(seconds: 2),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error inserting audio: $e');
+      SnackbarService().showSnackbar(
+        message: 'Failed to insert audio: ${e.toString()}',
+        duration: const Duration(seconds: 3),
+      );
+    } finally {
+      setBusy(false);
+      tempRecordingPath = null;
+    }
+  }
+
   Future<void> playPause() async {
     try {
       if (audioPlayer.playerState.playing) {
@@ -453,6 +528,9 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           await trimAudio(currentAudioPath);
           break;
         case EditMode.insert:
+          if (tempRecordingPath == null) {
+            await startRecording();
+          }
           break;
         default:
           return;

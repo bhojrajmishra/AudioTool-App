@@ -72,7 +72,16 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                     isActive: viewModel.editMode == EditMode.trim,
                     onPressed: () => viewModel.setEditMode(EditMode.trim),
                   ),
-                  PlayPushButton(viewModel: viewModel),
+                  if (viewModel.editMode == EditMode.insert &&
+                      viewModel.isSelecting)
+                    RecordAudio(
+                      isRecording: viewModel.isRecording,
+                      onTap: viewModel.isRecording
+                          ? viewModel.stopRecording
+                          : viewModel.startRecording,
+                    )
+                  else
+                    PlayPushButton(viewModel: viewModel),
                   EditButton(
                     icon: Icons.playlist_add,
                     label: 'Insert',
