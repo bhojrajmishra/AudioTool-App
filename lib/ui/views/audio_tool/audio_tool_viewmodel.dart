@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
@@ -20,10 +19,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   final String bookTitle;
   final String? audioPath;
   PlayerController? playerController;
-  //audiorecorder instance
-  final AudioRecorder audioRecorder = AudioRecorder();
-  bool isRecording = false;
-  String? tempRecordingPath;
+
   // Audio state
   final AudioPlayer audioPlayer = AudioPlayer();
   bool isPlaying = false;
@@ -31,6 +27,11 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
   String currentAudioPath = '';
+
+// Recorder state
+  final AudioRecorder audioRecorder = AudioRecorder();
+  bool isRecording = false;
+  String? tempRecordingPath;
   // Waveform state
   double waveformPosition = 0.0;
   bool isDragging = false;
@@ -60,99 +61,13 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
-  Future<void> initializedWaveform() async {
-    try {
-      playerController = PlayerController();
-      await playerController?.preparePlayer(
-        path: audioPath!,
-        shouldExtractWaveform: true,
-        noOfSamples: 200,
-        volume: 1.0,
-      );
-
-      playerController?.onCurrentDurationChanged.listen((duration) {
-        if (!isDragging) {
-          position = Duration(milliseconds: duration);
-          notifyListeners();
-        }
-      });
-
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error in initializedWaveform: $e');
-    }
-  }
-
-  Future<void> initializeAudioPlayer(String audioPath) async {
-    if (audioPath.isEmpty) {
-      SnackbarService().showSnackbar(
-        message: 'Audio path is empty',
-        duration: const Duration(seconds: 3),
-      );
-      return;
-    }
-
-    currentAudioPath = audioPath;
-    undoStack.add(audioPath);
-    setBusy(true);
-    isloading = true;
-
-    try {
-      await audioPlayer.setFilePath(audioPath);
-      duration = audioPlayer.duration ?? Duration.zero;
-
-      if (duration == Duration.zero) {
-        final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
-        final output = await session.getOutput();
-
-        if (output != null) {
-          final durationRegex =
-              RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
-          final match = durationRegex.firstMatch(output);
-
-          if (match != null) {
-            duration = Duration(
-              hours: int.parse(match.group(1) ?? '0'),
-              minutes: int.parse(match.group(2) ?? '0'),
-              seconds: int.parse(match.group(3) ?? '0'),
-              milliseconds: (int.parse(match.group(4) ?? '0') * 10),
-            );
-          }
-        }
-      }
-
-      audioPlayer.playerStateStream.listen(
-        (state) {
-          isPlaying = state.playing;
-          if (state.processingState == ProcessingState.completed) {
-            isPlaying = false;
-            position = duration;
-            notifyListeners();
-          }
-          notifyListeners();
-        },
-      );
-    } catch (e) {
-      debugPrint('Error initializing audio player: $e');
-      SnackbarService().showSnackbar(
-        message: 'Error initializing audio player: ${e.toString()}',
-        duration: const Duration(seconds: 3),
-      );
-    } finally {
-      isloading = false;
-      setBusy(false);
-      notifyListeners();
-    }
-  }
-
-//start the recording funciton
   Future<void> startRecording() async {
     if (!isSelecting || editMode != EditMode.insert) return;
 
     final tempDir = await getTemporaryDirectory();
     tempRecordingPath =
         '${tempDir.path}/temp_insert_${DateTime.now().millisecondsSinceEpoch}.m4a';
-
+    debugPrint('Recording path: $tempRecordingPath');
     try {
       if (await audioRecorder.hasPermission()) {
         await audioRecorder.start(
@@ -176,7 +91,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
-//stop the recording function
   Future<void> stopRecording() async {
     if (!isRecording) return;
 
@@ -198,6 +112,11 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   }
 
   Future<void> insertAudioAtSelection(String insertPath) async {
+    debugPrint('Inserting audio at selection...');
+    debugPrint('Selection start time: ${selectionStartTime.inSeconds}s');
+    debugPrint('Selection end time: ${selectionEndTime.inSeconds}s');
+    debugPrint('Total duration: ${duration.inSeconds}s');
+    debugPrint('Insert path: $insertPath');
     if (!isSelecting || selectionStartTime >= selectionEndTime) return;
 
     final tempDir = await getTemporaryDirectory();
@@ -272,6 +191,92 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
+  Future<void> initializedWaveform() async {
+    try {
+      playerController = PlayerController();
+      await playerController?.preparePlayer(
+        path: audioPath!,
+        shouldExtractWaveform: true,
+        noOfSamples: 200,
+        volume: 1.0,
+      );
+
+      playerController?.onCurrentDurationChanged.listen((duration) {
+        if (!isDragging) {
+          position = Duration(milliseconds: duration);
+          notifyListeners();
+        }
+      });
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error in initializedWaveform: $e');
+    }
+  }
+
+  Future<void> initializeAudioPlayer(String audioPath) async {
+    if (audioPath.isEmpty) {
+      SnackbarService().showSnackbar(
+        message: 'Audio path is empty',
+        duration: const Duration(seconds: 3),
+      );
+      return;
+    }
+
+    currentAudioPath = audioPath;
+    undoStack.add(audioPath);
+    setBusy(true);
+    isloading = true;
+
+    try {
+      await audioPlayer.setFilePath(audioPath);
+      duration = audioPlayer.duration ?? Duration.zero;
+      //this is not working right now
+      if (duration == Duration.zero) {
+        final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
+        final output = await session.getOutput();
+
+        if (output != null) {
+          final durationRegex =
+              RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
+          final match = durationRegex.firstMatch(output);
+
+          if (match != null) {
+            duration = Duration(
+              hours: int.parse(match.group(1) ?? '0'),
+              minutes: int.parse(match.group(2) ?? '0'),
+              seconds: int.parse(match.group(3) ?? '0'),
+              milliseconds: (int.parse(match.group(4) ?? '0') * 10),
+            );
+          }
+        }
+      }
+
+      //
+      audioPlayer.playerStateStream.listen(
+        (state) {
+          isPlaying = state.playing;
+          if (state.processingState == ProcessingState.completed) {
+            isPlaying = false;
+            position = duration;
+            notifyListeners();
+          }
+          notifyListeners();
+        },
+      );
+    } catch (e) {
+      debugPrint('Error initializing audio player: $e');
+      SnackbarService().showSnackbar(
+        message: 'Error initializing audio player: ${e.toString()}',
+        duration: const Duration(seconds: 3),
+      );
+    } finally {
+      isloading = false;
+      setBusy(false);
+      notifyListeners();
+    }
+  }
+
   Future<void> playPause() async {
     try {
       if (audioPlayer.playerState.playing) {
@@ -327,15 +332,17 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         }
         selectionWidth = newWidth;
       }
-
       // Update selection times
       int startMs = (selectionStart * duration.inMilliseconds).round();
+      debugPrint('StartMs: $startMs');
       int endMs =
           ((selectionStart + selectionWidth) * duration.inMilliseconds).round();
+      debugPrint('EndMs: $endMs');
 
       selectionStartTime = Duration(milliseconds: startMs);
+      debugPrint('Selection start time: $selectionStartTime');
       selectionEndTime = Duration(milliseconds: endMs);
-
+      debugPrint('Selection end time: $selectionEndTime');
       debugPrint(
           'Selection times - Start: ${selectionStartTime.inSeconds}s, End: ${selectionEndTime.inSeconds}s');
       notifyListeners();
@@ -473,6 +480,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       );
     } finally {
       // Clean up temp file if it exists
+
       try {
         final tempFile = File(tempOutputPath);
         if (await tempFile.exists()) {
@@ -529,7 +537,12 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           break;
         case EditMode.insert:
           if (tempRecordingPath == null) {
-            await startRecording();
+            SnackbarService().showSnackbar(
+              message: 'No recording to insert',
+              duration: const Duration(seconds: 2),
+            );
+          } else {
+            await insertAudioAtSelection(tempRecordingPath!);
           }
           break;
         default:
@@ -588,6 +601,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   void dispose() {
     audioPlayer.dispose();
     playerController?.dispose();
+    audioRecorder.dispose();
     super.dispose();
   }
 }

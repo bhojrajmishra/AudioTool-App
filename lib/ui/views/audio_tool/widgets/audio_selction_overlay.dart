@@ -21,7 +21,7 @@ class AudioSelectionOverlay extends StatelessWidget {
       bottom: 0,
       child: Stack(
         children: [
-          Container(color: Colors.red.withOpacity(0.3)),
+          Container(color: Colors.black.withOpacity(0.3)),
           _buildSelectionHandle(left: true),
           _buildSelectionHandle(left: false),
         ],

@@ -53,7 +53,6 @@ class WaveformDisplay extends StatelessWidget {
         if (playerController != null) _buildWaveformGesture(constraints),
         if (isSelecting)
           AudioSelectionOverlay(
-            // Updated widget name
             selectionStart: selectionStart,
             selectionWidth: selectionWidth,
             constraints: constraints,
@@ -103,11 +102,13 @@ class WaveformDisplay extends StatelessWidget {
   void _handleDragStart(DragStartDetails details, BoxConstraints constraints) {
     final position = details.localPosition.dx / constraints.maxWidth;
     onSelectionStart(position.clamp(0.0, 1.0));
+    debugPrint('Start: $position');
   }
 
   void _handleDragUpdate(
       DragUpdateDetails details, BoxConstraints constraints) {
     final position = details.localPosition.dx / constraints.maxWidth;
     onSelectionUpdate(position.clamp(0.0, 1.0));
+    debugPrint('Update: $position');
   }
 }
