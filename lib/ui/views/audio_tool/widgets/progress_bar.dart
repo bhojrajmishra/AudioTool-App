@@ -10,7 +10,7 @@ class ProgressBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return SliderTheme(
         data: SliderThemeData(
-          trackHeight: 10.h,
+          trackHeight: 1.5.h,
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
           overlayShape: const RoundSliderOverlayShape(overlayRadius: 16.0),
           activeTrackColor: Colors.blue,
@@ -19,12 +19,12 @@ class ProgressBar extends StatelessWidget {
           overlayColor: Colors.blue.withOpacity(0.3),
         ),
         child: Slider(
-          divisions: 15,
           value: viewModel.position.inSeconds
               .toDouble()
               .clamp(0, viewModel.duration.inSeconds.toDouble()),
           max: viewModel.duration.inSeconds.toDouble(),
           onChanged: viewModel.seek,
+          secondaryActiveColor: Colors.red,
         ));
   }
 }

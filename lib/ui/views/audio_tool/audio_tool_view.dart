@@ -2,6 +2,7 @@ import 'package:audiobook_record/ui/views/audio_tool/widgets/audio_waveform.dart
 import 'package:audiobook_record/ui/views/audio_tool/widgets/edit_button.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/play_push_button.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/progress_bar.dart';
+import 'package:audiobook_record/ui/views/audio_tool/widgets/record_audio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:stacked/stacked.dart';
@@ -39,6 +40,7 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
               ),
               AudioWaveformWidget(
                 playerController: viewModel.playerController,
+                duration: viewModel.duration,
                 isLoading: viewModel.isloading,
                 isSelecting: viewModel.isSelecting,
                 selectionStart: viewModel.selectionStart,
@@ -46,6 +48,7 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                 onSelectionStart: viewModel.startSelection,
                 onSelectionUpdate: viewModel.updateSelection,
                 onSelectionEnd: viewModel.endSelection,
+                // onManualTimeSet: viewModel.setManualTimeRange,
               ),
               const SizedBox(height: 20),
               Padding(

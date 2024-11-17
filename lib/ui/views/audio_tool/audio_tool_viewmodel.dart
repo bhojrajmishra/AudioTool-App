@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
 import 'package:ffmpeg_kit_flutter/return_code.dart';
@@ -8,6 +9,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+import 'package:path/path.dart' as path;
 
 enum EditMode { none, trim, insert }
 
@@ -25,7 +27,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   Duration duration = Duration.zero;
   Duration position = Duration.zero;
   String currentAudioPath = '';
-
   // Waveform state
   double waveformPosition = 0.0;
   bool isDragging = false;
@@ -161,68 +162,177 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   void startSelection(double position) {
     if (editMode != EditMode.none) {
       isSelecting = true;
-      selectionStart = position;
+      selectionStart = position.clamp(0.0, 1.0);
+      selectionWidth = 0; // Reset width when starting new selection
       debugPrint('Selection start: $selectionStart');
       selectionStartTime = Duration(
-        milliseconds: (position * duration.inMilliseconds).round(),
+        milliseconds: (selectionStart * duration.inMilliseconds).round(),
       );
+      // Seek to selection start position
+      seek(selectionStartTime.inSeconds.toDouble());
       notifyListeners();
     }
   }
 
   void updateSelection(double position) {
     if (isSelecting) {
-      selectionWidth = position - selectionStart;
-      selectionEndTime = Duration(
-        milliseconds: (position * duration.inMilliseconds).round(),
-      );
-      debugPrint('Selection end: $selectionEndTime');
+      double clampedPosition = position.clamp(0.0, 1.0);
+
+      // Calculate the new width
+      double newWidth = clampedPosition - selectionStart;
+
+      // If dragging backwards
+      if (newWidth < 0) {
+        // Ensure minimum selection width of 0.01 (1% of total duration)
+        if (newWidth.abs() < 0.01) {
+          newWidth = -0.01;
+        }
+        selectionStart = clampedPosition;
+        selectionWidth = -newWidth;
+      } else {
+        // Ensure minimum selection width of 0.01 (1% of total duration)
+        if (newWidth < 0.01) {
+          newWidth = 0.01;
+        }
+        selectionWidth = newWidth;
+      }
+
+      // Update selection times
+      int startMs = (selectionStart * duration.inMilliseconds).round();
+      int endMs =
+          ((selectionStart + selectionWidth) * duration.inMilliseconds).round();
+
+      selectionStartTime = Duration(milliseconds: startMs);
+      selectionEndTime = Duration(milliseconds: endMs);
+
+      debugPrint(
+          'Selection times - Start: ${selectionStartTime.inSeconds}s, End: ${selectionEndTime.inSeconds}s');
       notifyListeners();
     }
   }
 
   void endSelection() {
     if (isSelecting) {
-      if (selectionStartTime > selectionEndTime) {
+      if (selectionWidth < 0) {
+        // Swap start and end times if selection was made backwards
         final temp = selectionStartTime;
         selectionStartTime = selectionEndTime;
         selectionEndTime = temp;
+
+        // Update visual selection
+        selectionStart = selectionStart;
+        selectionWidth = selectionWidth.abs();
       }
+
+      // Ensure minimum selection duration of 100ms
+      if (selectionEndTime.inMilliseconds - selectionStartTime.inMilliseconds <
+          100) {
+        selectionEndTime =
+            selectionStartTime + const Duration(milliseconds: 100);
+        selectionWidth = (selectionEndTime.inMilliseconds -
+                selectionStartTime.inMilliseconds) /
+            duration.inMilliseconds;
+      }
+
+      debugPrint(
+          'Final selection - Start: ${selectionStartTime.inSeconds}s, End: ${selectionEndTime.inSeconds}s');
       notifyListeners();
     }
   }
 
   Future<void> trimAudio(String outputPath) async {
+    debugPrint('Starting trim operation...');
+    debugPrint('Selection start time: ${selectionStartTime.inSeconds}s');
+    debugPrint('Selection end time: ${selectionEndTime.inSeconds}s');
+    debugPrint('Total duration: ${duration.inSeconds}s');
+    debugPrint('Original audio path: $currentAudioPath');
+
     if (selectionStartTime >= selectionEndTime) {
+      debugPrint('Invalid selection: Start time >= End time');
       SnackbarService().showSnackbar(
-        message: 'Invalid selection range',
+        message: 'Invalid selection range: Start must be before end',
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    if (selectionStartTime < Duration.zero || selectionEndTime > duration) {
+      debugPrint('Invalid selection: Outside of audio bounds');
+      SnackbarService().showSnackbar(
+        message: 'Invalid selection range: Selection outside audio bounds',
         duration: const Duration(seconds: 2),
       );
       return;
     }
 
     final startSeconds = selectionStartTime.inMilliseconds / 1000;
-    debugPrint('Start seconds: $startSeconds');
-    final duration =
+    final durationSeconds =
         (selectionEndTime - selectionStartTime).inMilliseconds / 1000;
-    debugPrint('Duration: $duration');
 
+    // Create a temporary file with proper extension
+    final originalExt = path.extension(currentAudioPath);
+    final tempDir = await getTemporaryDirectory();
+    final tempFileName =
+        'temp_trim_${DateTime.now().millisecondsSinceEpoch}$originalExt';
+    final tempOutputPath = path.join(tempDir.path, tempFileName);
+
+    debugPrint('Temp output path: $tempOutputPath');
+
+    // Ensure proper file extension and quotes for paths
     final command =
-        '-i "$currentAudioPath" -ss $startSeconds -t $duration -c copy "$outputPath"';
+        '-i "$currentAudioPath" -ss $startSeconds -t $durationSeconds -c copy "$tempOutputPath"';
+    debugPrint('FFmpeg command: $command');
 
     try {
+      setBusy(true);
+
+      // Execute trim command
       final session = await FFmpegKit.execute(command);
       final returnCode = await session.getReturnCode();
+      final logs = await session.getLogs();
+
+      debugPrint('FFmpeg logs:');
+      for (final log in logs) {
+        debugPrint(log.getMessage());
+      }
 
       if (ReturnCode.isSuccess(returnCode)) {
-        undoStack.add(currentAudioPath);
-        currentAudioPath = outputPath;
-        await _reloadAudio();
-        setEditMode(EditMode.none);
+        debugPrint('Trim successful, replacing original file');
+
+        // Stop playback and release the file
+        await audioPlayer.stop();
+        await playerController?.stopPlayer();
+
+        try {
+          // Delete the original file
+          final originalFile = File(currentAudioPath);
+          if (await originalFile.exists()) {
+            await originalFile.delete();
+            debugPrint('Original file deleted successfully');
+          }
+
+          // Move temp file to original location
+          final tempFile = File(tempOutputPath);
+          await tempFile.copy(currentAudioPath);
+          await tempFile.delete(); // Clean up temp file after copying
+          debugPrint('Audio file replaced successfully');
+
+          // Reload the audio with the same path
+          await _reloadAudio();
+          setEditMode(EditMode.none);
+
+          SnackbarService().showSnackbar(
+            message: 'Audio trimmed successfully',
+            duration: const Duration(seconds: 2),
+          );
+        } catch (e) {
+          debugPrint('Error handling files: $e');
+          throw Exception('Failed to replace original file: $e');
+        }
       } else {
-        final logs = await session.getLogs();
-        debugPrint('FFmpeg error logs: $logs');
-        throw Exception('Failed to trim audio');
+        debugPrint('FFmpeg failed with return code: ${returnCode?.getValue()}');
+        throw Exception(
+            'Failed to trim audio: Return code ${returnCode?.getValue()}');
       }
     } catch (e) {
       debugPrint('Error trimming audio: $e');
@@ -230,6 +340,19 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         message: 'Failed to trim audio: ${e.toString()}',
         duration: const Duration(seconds: 3),
       );
+    } finally {
+      // Clean up temp file if it exists
+      try {
+        final tempFile = File(tempOutputPath);
+        if (await tempFile.exists()) {
+          await tempFile.delete();
+          debugPrint('Temp file cleaned up');
+        }
+      } catch (e) {
+        debugPrint('Error cleaning up temp file: $e');
+      }
+
+      setBusy(false);
     }
   }
 
@@ -258,11 +381,8 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     isSelecting = mode != EditMode.none;
     if (!isSelecting) {
       selectionStartTime = Duration.zero;
-      debugPrint('Selection start time: $selectionStartTime');
       selectionEndTime = Duration.zero;
-      debugPrint('Selection end time: $selectionEndTime');
       selectionStart = 0.0;
-
       selectionWidth = 0.0;
     }
     notifyListeners();
@@ -272,35 +392,23 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     if (!isSelecting) return;
     setBusy(true);
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final outputPath =
-          '${directory.path}/edited_${DateTime.now().millisecondsSinceEpoch}.m4a';
-
       switch (editMode) {
         case EditMode.trim:
-          await trimAudio(outputPath);
+          await trimAudio(currentAudioPath);
           break;
         case EditMode.insert:
-          // Implement insert functionality if needed
           break;
         default:
           return;
       }
     } catch (e) {
       debugPrint('Error applying changes: $e');
+      SnackbarService().showSnackbar(
+        message: 'Failed to apply changes: ${e.toString()}',
+        duration: const Duration(seconds: 3),
+      );
     } finally {
       setBusy(false);
-    }
-  }
-
-  Future<void> deleteAudio() async {
-    try {
-      await audioPlayer.stop();
-      await audioPlayer.dispose();
-      await File(currentAudioPath).delete();
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error deleting audio: $e');
     }
   }
 
