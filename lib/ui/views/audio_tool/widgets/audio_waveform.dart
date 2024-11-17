@@ -12,7 +12,7 @@ class AudioWaveformWidget extends StatelessWidget {
   final Function(double) onSelectionStart;
   final Function(double) onSelectionUpdate;
   final Function() onSelectionEnd;
-  // final Function(Duration, Duration) onManualTimeSet;
+  final Function(Duration, Duration) onManualTimeSet;
 
   const AudioWaveformWidget({
     super.key,
@@ -25,7 +25,7 @@ class AudioWaveformWidget extends StatelessWidget {
     required this.onSelectionStart,
     required this.onSelectionUpdate,
     required this.onSelectionEnd,
-    // required this.onManualTimeSet,
+    required this.onManualTimeSet,
   });
 
   @override

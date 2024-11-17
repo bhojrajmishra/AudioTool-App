@@ -419,6 +419,37 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     return "${duration.inHours > 0 ? '${duration.inHours}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
   }
 
+  void setManualTimeRange(Duration startTime, Duration endTime) {
+    if (!isSelecting || editMode == EditMode.none) return;
+
+    // Validate time range
+    if (startTime >= endTime ||
+        startTime < Duration.zero ||
+        endTime > duration) {
+      SnackbarService().showSnackbar(
+        message: 'Invalid time range',
+        duration: const Duration(seconds: 2),
+      );
+      return;
+    }
+
+    // Update selection times
+    selectionStartTime = startTime;
+    selectionEndTime = endTime;
+
+    // Update visual selection
+    selectionStart = startTime.inMilliseconds / duration.inMilliseconds;
+    selectionWidth = (endTime.inMilliseconds - startTime.inMilliseconds) /
+        duration.inMilliseconds;
+
+    debugPrint(
+        'Manual selection set - Start: ${startTime.inSeconds}s, End: ${endTime.inSeconds}s');
+    debugPrint(
+        'Selection visuals - Start: $selectionStart, Width: $selectionWidth');
+
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     audioPlayer.dispose();
