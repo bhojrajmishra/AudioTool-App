@@ -28,6 +28,13 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
     return Scaffold(
       appBar: AppBar(
         title: Text(bookTitle),
+        actions: [
+          //icon to delete the audio
+          IconButton(
+            icon: const Icon(Icons.delete),
+            onPressed: viewModel.deleteAudio,
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(

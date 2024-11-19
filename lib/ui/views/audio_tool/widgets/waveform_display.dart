@@ -50,13 +50,14 @@ class WaveformDisplay extends StatelessWidget {
     return Stack(
       children: [
         _buildBackground(),
-        if (playerController != null) _buildWaveformGesture(constraints),
         if (isSelecting)
           AudioSelectionOverlay(
             selectionStart: selectionStart,
             selectionWidth: selectionWidth,
             constraints: constraints,
           ),
+        _buildAudioWaveform(),
+        _buildWaveformGesture(constraints),
       ],
     );
   }
@@ -76,7 +77,6 @@ class WaveformDisplay extends StatelessWidget {
       onHorizontalDragUpdate: (details) =>
           _handleDragUpdate(details, constraints),
       onHorizontalDragEnd: (_) => onSelectionEnd(),
-      child: _buildAudioWaveform(),
     );
   }
 
@@ -84,10 +84,12 @@ class WaveformDisplay extends StatelessWidget {
     return AudioFileWaveforms(
       size: Size(double.infinity, 300.h),
       playerController: playerController!,
+      enableSeekGesture: true,
+      continuousWaveform: true,
       waveformType: WaveformType.long,
       playerWaveStyle: const PlayerWaveStyle(
         fixedWaveColor: Colors.blue,
-        liveWaveColor: Colors.blue,
+        liveWaveColor: Colors.red,
         spacing: 5,
         showTop: true,
         showBottom: true,

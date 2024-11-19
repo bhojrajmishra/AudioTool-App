@@ -9,22 +9,23 @@ class ProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliderTheme(
-        data: SliderThemeData(
-          trackHeight: 1.5.h,
-          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
-          overlayShape: const RoundSliderOverlayShape(overlayRadius: 16.0),
-          activeTrackColor: Colors.blue,
-          inactiveTrackColor: Colors.grey.withOpacity(0.5),
-          thumbColor: Colors.blue,
-          overlayColor: Colors.blue.withOpacity(0.3),
-        ),
-        child: Slider(
-          value: viewModel.position.inSeconds
-              .toDouble()
-              .clamp(0, viewModel.duration.inSeconds.toDouble()),
-          max: viewModel.duration.inSeconds.toDouble(),
-          onChanged: viewModel.seek,
-          secondaryActiveColor: Colors.red,
-        ));
+      data: SliderThemeData(
+        trackHeight: 1.5.h,
+        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8.0),
+        overlayShape: const RoundSliderOverlayShape(overlayRadius: 16.0),
+        activeTrackColor: Colors.blue,
+        inactiveTrackColor: Colors.grey.withOpacity(0.5),
+        thumbColor: Colors.blue,
+        overlayColor: Colors.blue.withOpacity(0.3),
+      ),
+      child: Slider(
+        value: viewModel.position.inSeconds
+            .toDouble()
+            .clamp(0, viewModel.duration.inSeconds.toDouble()),
+        max: viewModel.duration.inSeconds.toDouble(),
+        onChanged: viewModel.seek,
+        secondaryActiveColor: Colors.red,
+      ),
+    );
   }
 }
