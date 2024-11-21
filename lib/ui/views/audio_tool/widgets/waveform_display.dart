@@ -12,7 +12,8 @@ class WaveformDisplay extends StatelessWidget {
   final Function(double) onSelectionStart;
   final Function(double) onSelectionUpdate;
   final Function() onSelectionEnd;
-
+  final double audioDuration;
+  final String Function(Duration) formatDuration;
   const WaveformDisplay({
     super.key,
     required this.playerController,
@@ -23,26 +24,32 @@ class WaveformDisplay extends StatelessWidget {
     required this.onSelectionStart,
     required this.onSelectionUpdate,
     required this.onSelectionEnd,
+    required this.audioDuration,
+    required this.formatDuration,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 200,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12.r),
-      ),
-      child: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(12.r),
-              child: LayoutBuilder(
-                builder: _buildWaveformContent,
-                //add timeline of the audio in the
-              ),
-            ),
+    return Column(
+      children: [
+        _buildTimeline(),
+        Container(
+          height: 200,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.grey.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(12.r),
+                  child: LayoutBuilder(
+                    builder: _buildWaveformContent,
+                  ),
+                ),
+        ),
+      ],
     );
   }
 
@@ -81,18 +88,39 @@ class WaveformDisplay extends StatelessWidget {
     );
   }
 
+  Widget _buildTimeline() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 10.h),
+      child: Row(
+        //show the postional timeline according to the audiowaveform
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: List.generate(
+          5,
+          (index) {
+            final position = index / 4;
+            return Text(formatDuration(
+              Duration(milliseconds: (position * audioDuration).toInt()),
+            ));
+          },
+        ),
+      ),
+    );
+  }
+
   Widget _buildAudioWaveform() {
     return AudioFileWaveforms(
       size: Size(double.infinity, 300.h),
       playerController: playerController!,
+      enableSeekGesture: true,
+      continuousWaveform: true,
       waveformType: WaveformType.long,
       playerWaveStyle: const PlayerWaveStyle(
         fixedWaveColor: Colors.blue,
-        liveWaveColor: Colors.blue,
+        liveWaveColor: Colors.red,
         spacing: 5,
         showTop: true,
         showBottom: true,
-        seekLineColor: Colors.white,
+        seekLineColor: Colors.red,
         showSeekLine: true,
         waveCap: StrokeCap.round,
         scaleFactor: 1000,

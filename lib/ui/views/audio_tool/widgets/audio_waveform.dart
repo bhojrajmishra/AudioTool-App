@@ -47,6 +47,8 @@ class AudioWaveformWidget extends StatelessWidget {
           onSelectionStart: onSelectionStart,
           onSelectionUpdate: onSelectionUpdate,
           onSelectionEnd: onSelectionEnd,
+          audioDuration: duration.inSeconds.toDouble(),
+          formatDuration: (duration) => duration.toString().split('.').first,
         ),
       ],
     );

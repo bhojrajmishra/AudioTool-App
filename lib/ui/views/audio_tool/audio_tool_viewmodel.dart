@@ -586,7 +586,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
 
           await _reloadAudio();
           setEditMode(EditMode.none);
-
           // Show success message with time frame information
           _snackbarService.showSnackbar(
             message: 'Audio trimmed successfully\n'
