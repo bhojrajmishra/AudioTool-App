@@ -24,7 +24,6 @@ class ProgressBar extends StatelessWidget {
             .clamp(0, viewModel.duration.inSeconds.toDouble()),
         max: viewModel.duration.inSeconds.toDouble(),
         onChanged: viewModel.seek,
-        secondaryActiveColor: Colors.red,
       ),
     );
   }

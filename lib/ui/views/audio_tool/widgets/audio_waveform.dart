@@ -10,6 +10,8 @@ class AudioWaveformWidget extends StatelessWidget {
   final double selectionStart;
   final double selectionWidth;
   final Duration duration;
+  final Duration audioDuration;
+  final String Function(Duration) formatDuration;
   final Function(double) onSelectionStart;
   final Function(double) onSelectionUpdate;
   final Function() onSelectionEnd;
@@ -27,6 +29,8 @@ class AudioWaveformWidget extends StatelessWidget {
     required this.onSelectionUpdate,
     required this.onSelectionEnd,
     required this.onManualTimeSet,
+    required this.formatDuration,
+    required this.audioDuration,
   });
 
   @override
@@ -47,8 +51,8 @@ class AudioWaveformWidget extends StatelessWidget {
           onSelectionStart: onSelectionStart,
           onSelectionUpdate: onSelectionUpdate,
           onSelectionEnd: onSelectionEnd,
-          audioDuration: duration.inSeconds.toDouble(),
-          formatDuration: (duration) => duration.toString().split('.').first,
+          formatDuration: formatDuration,
+          audioDuration: duration,
         ),
       ],
     );

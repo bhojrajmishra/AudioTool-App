@@ -12,7 +12,7 @@ class WaveformDisplay extends StatelessWidget {
   final Function(double) onSelectionStart;
   final Function(double) onSelectionUpdate;
   final Function() onSelectionEnd;
-  final double audioDuration;
+  final Duration audioDuration;
   final String Function(Duration) formatDuration;
   const WaveformDisplay({
     super.key,
@@ -32,7 +32,7 @@ class WaveformDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildTimeline(),
+        _buildRuler(),
         Container(
           height: 200,
           width: double.infinity,
@@ -64,8 +64,10 @@ class WaveformDisplay extends StatelessWidget {
             selectionWidth: selectionWidth,
             constraints: constraints,
           ),
-        _buildWaveformGesture(constraints),
+        //here gesture detector is not properly working as expected which should be first build and then the waveform
+
         _buildAudioWaveform(),
+        _buildWaveformGesture(constraints),
       ],
     );
   }
@@ -75,35 +77,6 @@ class WaveformDisplay extends StatelessWidget {
       width: double.infinity,
       height: double.infinity,
       color: Colors.grey.withOpacity(0.05),
-    );
-  }
-
-  Widget _buildWaveformGesture(BoxConstraints constraints) {
-    return GestureDetector(
-      onHorizontalDragStart: (details) =>
-          _handleDragStart(details, constraints),
-      onHorizontalDragUpdate: (details) =>
-          _handleDragUpdate(details, constraints),
-      onHorizontalDragEnd: (_) => onSelectionEnd(),
-    );
-  }
-
-  Widget _buildTimeline() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 10.h),
-      child: Row(
-        //show the postional timeline according to the audiowaveform
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: List.generate(
-          5,
-          (index) {
-            final position = index / 4;
-            return Text(formatDuration(
-              Duration(milliseconds: (position * audioDuration).toInt()),
-            ));
-          },
-        ),
-      ),
     );
   }
 
@@ -124,6 +97,49 @@ class WaveformDisplay extends StatelessWidget {
         showSeekLine: true,
         waveCap: StrokeCap.round,
         scaleFactor: 1000,
+      ),
+    );
+  }
+
+  Widget _buildWaveformGesture(BoxConstraints constraints) {
+    return GestureDetector(
+      onHorizontalDragStart: (details) =>
+          _handleDragStart(details, constraints),
+      onHorizontalDragUpdate: (details) =>
+          _handleDragUpdate(details, constraints),
+      onHorizontalDragEnd: (_) => onSelectionEnd(),
+    );
+  }
+
+  //ruler for the waveform count and show in label according to the width of the waveform
+  Widget _buildRuler() {
+    return Positioned(
+      top: 0,
+      left: 0,
+      right: 0,
+      child: Row(
+        children: List.generate(
+          10,
+          (index) {
+            final position = index / 10;
+            return Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  formatDuration(
+                    Duration(
+                      seconds: (position * audioDuration.inSeconds).toInt(),
+                    ),
+                  ),
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

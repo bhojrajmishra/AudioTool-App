@@ -183,6 +183,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   }
 
   Future<void> insertAudioAtSelection(String insertPath) async {
+    //At first check if the selection is valid or not
     if (!isSelecting || selectionStartTime >= selectionEndTime) {
       _snackbarService.showSnackbar(
         message: 'Invalid selection for insertion',
@@ -192,6 +193,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       return;
     }
 
+    // Check if the insert audio file exists
     final tempDir = await getTemporaryDirectory();
     final tempOutputPath =
         '${tempDir.path}/temp_output_${DateTime.now().millisecondsSinceEpoch}.m4a';
@@ -201,41 +203,50 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     try {
       setBusy(true);
 
-      // Ensure clean temp files
+      // Delete temp files if they exist
       for (final path in [tempOutputPath, beforePath, afterPath]) {
+        // Delete file if it exists
         final file = File(path);
+        // Check if the file exists
         if (await file.exists()) {
+          // Delete the file
           await file.delete();
         }
       }
 
       // Get the duration of the insert audio
       final insertDuration = await _getAudioDuration(insertPath);
+      // Get the duration of the selection
       final selectionDuration = selectionEndTime - selectionStartTime;
 
       // Calculate the end time for after segment based on insert duration
       final afterStartTime = selectionStartTime + insertDuration;
 
-      // Extract parts with precise timing
+      // This beforecommand is used to extract the audio before the selection
       final beforeCommand =
           '-i "$currentAudioPath" -t ${selectionStartTime.inMilliseconds / 1000} -c copy "$beforePath"';
+      //this aftercommand is used to extract the audio after the selection
       final afterCommand =
           '-i "$currentAudioPath" -ss ${afterStartTime.inMilliseconds / 1000} -c copy "$afterPath"';
 
-      // Execute extractions
+      //this beforeSession is used to execute the before command
       final beforeSession = await FFmpegKit.execute(beforeCommand);
+
+      //Now check if the return code is success or not
       if (!ReturnCode.isSuccess(await beforeSession.getReturnCode())) {
         throw Exception('Failed to extract before segment');
       }
-
+      //this afterSession is used to execute the after command
       final afterSession = await FFmpegKit.execute(afterCommand);
       if (!ReturnCode.isSuccess(await afterSession.getReturnCode())) {
         throw Exception('Failed to extract after segment');
       }
 
-      // Create a file list for concatenation
+      //this is used to create a list of files to concatenate using concat demuxer in ffmpeg kit
       final listFile = File('${tempDir.path}/list.txt');
+      //this is used to write the list of files to the list.txt file
       await listFile.writeAsString(
+        //this is the list of files to concatenate
         "file '$beforePath'\nfile '$insertPath'\nfile '$afterPath'",
       );
 
@@ -247,9 +258,11 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     '''
           .replaceAll('\n', ' ');
 
+      //this concatsession is used to execute the concat command
       final concatSession = await FFmpegKit.execute(concatCommand);
+      //this is used to check if the return code is success or not
       final returnCode = await concatSession.getReturnCode();
-
+      //if the return code is success then stop the playback and clean up
       if (ReturnCode.isSuccess(returnCode)) {
         // Stop playback and clean up
         await audioPlayer.stop();
@@ -352,7 +365,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           notifyListeners();
         }
       });
-
       notifyListeners();
     } catch (e) {
       debugPrint('Error in initializedWaveform: $e');
@@ -377,25 +389,25 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       await audioPlayer.setFilePath(audioPath);
       duration = audioPlayer.duration ?? Duration.zero;
       //this is not working right now
-      if (duration == Duration.zero) {
-        final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
-        final output = await session.getOutput();
+      // if (duration == Duration.zero) {
+      //   final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
+      //   final output = await session.getOutput();
 
-        if (output != null) {
-          final durationRegex =
-              RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
-          final match = durationRegex.firstMatch(output);
+      //   if (output != null) {
+      //     final durationRegex =
+      //         RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
+      //     final match = durationRegex.firstMatch(output);
 
-          if (match != null) {
-            duration = Duration(
-              hours: int.parse(match.group(1) ?? '0'),
-              minutes: int.parse(match.group(2) ?? '0'),
-              seconds: int.parse(match.group(3) ?? '0'),
-              milliseconds: (int.parse(match.group(4) ?? '0') * 10),
-            );
-          }
-        }
-      }
+      //     if (match != null) {
+      //       duration = Duration(
+      //         hours: int.parse(match.group(1) ?? '0'),
+      //         minutes: int.parse(match.group(2) ?? '0'),
+      //         seconds: int.parse(match.group(3) ?? '0'),
+      //         milliseconds: (int.parse(match.group(4) ?? '0') * 10),
+      //       );
+      //     }
+      //   }
+      // }
 
       //
       audioPlayer.playerStateStream.listen(
@@ -669,14 +681,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           await trimAudio(currentAudioPath);
           break;
         case EditMode.insert:
-          if (tempRecordingPath == null) {
-            SnackbarService().showSnackbar(
-              message: 'No recording to insert',
-              duration: const Duration(seconds: 2),
-            );
-          } else {
-            await insertAudioAtSelection(tempRecordingPath!);
-          }
+          await insertAudioAtSelection(tempRecordingPath!);
           break;
         default:
           return;
