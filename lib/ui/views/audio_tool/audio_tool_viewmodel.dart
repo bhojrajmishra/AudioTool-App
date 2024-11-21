@@ -16,7 +16,6 @@ enum EditMode { none, trim, insert }
 
 class AudioToolViewModel extends BaseViewModel with Initialisable {
   AudioToolViewModel({required this.bookTitle, required this.audioPath});
-
   final String bookTitle;
   final String? audioPath;
   PlayerController? playerController;
@@ -131,7 +130,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       if (filePath != null && tempRecordingPath != null) {
         // Only proceed with insertion if recording was successful
         if (await File(tempRecordingPath!).exists()) {
-          final recordingDuration = await _getAudioDuration(tempRecordingPath!);
+          final recordingDuration = await getAudioDuration(tempRecordingPath!);
 
           if (recordingDuration > _maxAllowedRecordingDuration) {
             // Trim the recording to match selection duration
@@ -215,7 +214,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       }
 
       // Get the duration of the insert audio
-      final insertDuration = await _getAudioDuration(insertPath);
+      final insertDuration = await getAudioDuration(insertPath);
       // Get the duration of the selection
       final selectionDuration = selectionEndTime - selectionStartTime;
 
@@ -327,7 +326,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
-  Future<Duration> _getAudioDuration(String audioPath) async {
+  Future<Duration> getAudioDuration(String audioPath) async {
     final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
     final output = await session.getOutput();
 
@@ -715,7 +714,10 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
     String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
-    return "${duration.inHours > 0 ? '${duration.inHours}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
+    String twoDigitMilliseconds =
+        twoDigits(duration.inMilliseconds.remainder(100));
+
+    return "${duration.inHours > 0 ? '${duration.inHours}:' : ''}$twoDigitMinutes:$twoDigitSeconds.$twoDigitMilliseconds";
   }
 
 //set manual time range

@@ -65,7 +65,6 @@ class WaveformDisplay extends StatelessWidget {
             constraints: constraints,
           ),
         //here gesture detector is not properly working as expected which should be first build and then the waveform
-
         _buildAudioWaveform(),
         _buildWaveformGesture(constraints),
       ],
@@ -128,8 +127,7 @@ class WaveformDisplay extends StatelessWidget {
                 child: Text(
                   formatDuration(
                     Duration(
-                      seconds: (position * audioDuration.inSeconds).toInt(),
-                    ),
+                        seconds: (audioDuration.inSeconds * position).toInt()),
                   ),
                   style: TextStyle(
                     color: Colors.grey,

@@ -19,11 +19,12 @@ class ProgressBar extends StatelessWidget {
         overlayColor: Colors.blue.withOpacity(0.3),
       ),
       child: Slider(
-        value: viewModel.position.inSeconds
-            .toDouble()
-            .clamp(0, viewModel.duration.inSeconds.toDouble()),
-        max: viewModel.duration.inSeconds.toDouble(),
-        onChanged: viewModel.seek,
+        value: viewModel.position.inMilliseconds.toDouble(),
+        min: 0,
+        max: viewModel.duration.inMilliseconds.toDouble(),
+        onChanged: (value) {
+          viewModel.seek(value);
+        },
       ),
     );
   }
