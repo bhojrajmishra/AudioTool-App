@@ -32,6 +32,7 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
           //icon to delete the audio
           IconButton(
             icon: const Icon(Icons.delete),
+            color: Colors.red,
             onPressed: viewModel.deleteAudio,
           ),
         ],

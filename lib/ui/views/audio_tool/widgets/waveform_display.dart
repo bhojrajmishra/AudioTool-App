@@ -40,6 +40,7 @@ class WaveformDisplay extends StatelessWidget {
               borderRadius: BorderRadius.circular(12.r),
               child: LayoutBuilder(
                 builder: _buildWaveformContent,
+                //add timeline of the audio in the
               ),
             ),
     );
@@ -56,8 +57,8 @@ class WaveformDisplay extends StatelessWidget {
             selectionWidth: selectionWidth,
             constraints: constraints,
           ),
-        _buildAudioWaveform(),
         _buildWaveformGesture(constraints),
+        _buildAudioWaveform(),
       ],
     );
   }
@@ -84,16 +85,14 @@ class WaveformDisplay extends StatelessWidget {
     return AudioFileWaveforms(
       size: Size(double.infinity, 300.h),
       playerController: playerController!,
-      enableSeekGesture: true,
-      continuousWaveform: true,
       waveformType: WaveformType.long,
       playerWaveStyle: const PlayerWaveStyle(
         fixedWaveColor: Colors.blue,
-        liveWaveColor: Colors.red,
+        liveWaveColor: Colors.blue,
         spacing: 5,
         showTop: true,
         showBottom: true,
-        seekLineColor: Colors.red,
+        seekLineColor: Colors.white,
         showSeekLine: true,
         waveCap: StrokeCap.round,
         scaleFactor: 1000,

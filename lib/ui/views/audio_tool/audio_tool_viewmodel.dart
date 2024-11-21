@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:ffmpeg_kit_flutter/ffmpeg_kit.dart';
@@ -46,6 +47,9 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   Duration selectionStartTime = Duration.zero;
   Duration selectionEndTime = Duration.zero;
   final List<String> undoStack = [];
+  Timer? _recordingTimer;
+  Duration _currentRecordingDuration = Duration.zero;
+  Duration _maxAllowedRecordingDuration = Duration.zero;
 
   @override
   Future<void> initialise() async {
@@ -66,10 +70,14 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   Future<void> startRecording() async {
     if (!isSelecting || editMode != EditMode.insert) return;
 
+    // Calculate maximum allowed recording duration
+    _maxAllowedRecordingDuration = selectionEndTime - selectionStartTime;
+
     final tempDir = await getTemporaryDirectory();
     tempRecordingPath =
         '${tempDir.path}/temp_insert_${DateTime.now().millisecondsSinceEpoch}.m4a';
     debugPrint('Recording path: $tempRecordingPath');
+
     try {
       if (await audioRecorder.hasPermission()) {
         await audioRecorder.start(
@@ -81,12 +89,28 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           ),
           path: tempRecordingPath!,
         );
+
         isRecording = true;
+        _currentRecordingDuration = Duration.zero;
+
+        // Start timer to track recording duration
+        _recordingTimer =
+            Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+          _currentRecordingDuration += const Duration(milliseconds: 100);
+
+          // Check if recording duration exceeds selection range
+          if (_currentRecordingDuration >= _maxAllowedRecordingDuration) {
+            timer.cancel();
+            await stopRecording();
+          }
+          notifyListeners();
+        });
+
         notifyListeners();
       }
     } catch (e) {
       debugPrint('Error starting recording: $e');
-      SnackbarService().showSnackbar(
+      _snackbarService.showSnackbar(
         message: 'Failed to start recording',
         duration: const Duration(seconds: 2),
       );
@@ -97,19 +121,64 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     if (!isRecording) return;
 
     try {
+      _recordingTimer?.cancel();
+      _recordingTimer = null;
+
       final String? filePath = await audioRecorder.stop();
       isRecording = false;
       notifyListeners();
 
       if (filePath != null && tempRecordingPath != null) {
-        await insertAudioAtSelection(tempRecordingPath!);
+        // Only proceed with insertion if recording was successful
+        if (await File(tempRecordingPath!).exists()) {
+          final recordingDuration = await _getAudioDuration(tempRecordingPath!);
+
+          if (recordingDuration > _maxAllowedRecordingDuration) {
+            // Trim the recording to match selection duration
+            await _trimRecordingToFit(
+                tempRecordingPath!, _maxAllowedRecordingDuration);
+          }
+
+          await insertAudioAtSelection(tempRecordingPath!);
+        } else {
+          _snackbarService.showSnackbar(
+            message: 'Recording file not found',
+            duration: const Duration(seconds: 2),
+          );
+        }
       }
     } catch (e) {
       debugPrint('Error stopping recording: $e');
-      SnackbarService().showSnackbar(
+      _snackbarService.showSnackbar(
         message: 'Failed to stop recording',
         duration: const Duration(seconds: 2),
       );
+    }
+  }
+
+  Future<void> _trimRecordingToFit(
+      String recordingPath, Duration targetDuration) async {
+    final tempDir = await getTemporaryDirectory();
+    final trimmedPath =
+        '${tempDir.path}/trimmed_recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
+
+    try {
+      final command =
+          '-i "$recordingPath" -t ${targetDuration.inMilliseconds / 1000} -c copy "$trimmedPath"';
+
+      final session = await FFmpegKit.execute(command);
+      final returnCode = await session.getReturnCode();
+
+      if (ReturnCode.isSuccess(returnCode)) {
+        // Replace original recording with trimmed version
+        await File(trimmedPath).copy(recordingPath);
+        await File(trimmedPath).delete();
+      } else {
+        throw Exception('Failed to trim recording');
+      }
+    } catch (e) {
+      debugPrint('Error trimming recording: $e');
+      throw Exception('Failed to trim recording: $e');
     }
   }
 
@@ -140,11 +209,18 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         }
       }
 
+      // Get the duration of the insert audio
+      final insertDuration = await _getAudioDuration(insertPath);
+      final selectionDuration = selectionEndTime - selectionStartTime;
+
+      // Calculate the end time for after segment based on insert duration
+      final afterStartTime = selectionStartTime + insertDuration;
+
       // Extract parts with precise timing
       final beforeCommand =
           '-i "$currentAudioPath" -t ${selectionStartTime.inMilliseconds / 1000} -c copy "$beforePath"';
       final afterCommand =
-          '-i "$currentAudioPath" -ss ${selectionEndTime.inMilliseconds / 1000} -c copy "$afterPath"';
+          '-i "$currentAudioPath" -ss ${afterStartTime.inMilliseconds / 1000} -c copy "$afterPath"';
 
       // Execute extractions
       final beforeSession = await FFmpegKit.execute(beforeCommand);
@@ -165,14 +241,13 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
 
       // Concatenate using concat demuxer
       final concatCommand = '''
-        -f concat -safe 0 -i "${tempDir.path}/list.txt" 
-        -c copy 
-        "$tempOutputPath"
-      '''
+      -f concat -safe 0 -i "${tempDir.path}/list.txt" 
+      -c copy 
+      "$tempOutputPath"
+    '''
           .replaceAll('\n', ' ');
 
       final concatSession = await FFmpegKit.execute(concatCommand);
-
       final returnCode = await concatSession.getReturnCode();
 
       if (ReturnCode.isSuccess(returnCode)) {
@@ -212,10 +287,19 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         // Reload audio
         await _reloadAudio();
         setEditMode(EditMode.none);
-        _snackbarService.showSnackbar(
-          message: 'Audio inserted successfully',
-          duration: const Duration(seconds: 2),
-        );
+
+        // Show appropriate message based on insert duration
+        if (insertDuration > selectionDuration) {
+          _snackbarService.showSnackbar(
+            message: 'Audio inserted successfully (longer than selection)',
+            duration: const Duration(seconds: 2),
+          );
+        } else {
+          _snackbarService.showSnackbar(
+            message: 'Audio inserted successfully',
+            duration: const Duration(seconds: 2),
+          );
+        }
       } else {
         throw Exception('Failed to concatenate audio segments');
       }
@@ -228,6 +312,28 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     } finally {
       setBusy(false);
     }
+  }
+
+  Future<Duration> _getAudioDuration(String audioPath) async {
+    final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
+    final output = await session.getOutput();
+
+    if (output != null) {
+      final durationRegex =
+          RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
+      final match = durationRegex.firstMatch(output);
+
+      if (match != null) {
+        return Duration(
+          hours: int.parse(match.group(1) ?? '0'),
+          minutes: int.parse(match.group(2) ?? '0'),
+          seconds: int.parse(match.group(3) ?? '0'),
+          milliseconds: (int.parse(match.group(4) ?? '0') * 10),
+        );
+      }
+    }
+
+    throw Exception('Could not determine audio duration');
   }
 
 //initialize waveform
@@ -418,129 +524,114 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   }
 
   Future<void> trimAudio(String outputPath) async {
-    debugPrint('Starting trim operation...');
-    debugPrint('Selection start time: ${selectionStartTime.inSeconds}s');
-    debugPrint('Selection end time: ${selectionEndTime.inSeconds}s');
-    debugPrint('Total duration: ${duration.inSeconds}s');
-    debugPrint('Original audio path: $currentAudioPath');
-
-    if (selectionStartTime >= selectionEndTime) {
-      debugPrint('Invalid selection: Start time >= End time');
-      SnackbarService().showSnackbar(
-        message: 'Invalid selection range: Start must be before end',
-        duration: const Duration(seconds: 2),
-      );
-      return;
-    }
-
-    if (selectionStartTime < Duration.zero || selectionEndTime > duration) {
-      debugPrint('Invalid selection: Outside of audio bounds');
-      SnackbarService().showSnackbar(
-        message: 'Invalid selection range: Out of audio bounds',
-        duration: const Duration(seconds: 2),
-      );
-      return;
-    }
-
-    final startSeconds = selectionStartTime.inMilliseconds / 1000;
-    debugPrint('Start seconds: $startSeconds');
-    final durationSeconds =
-        (selectionEndTime - selectionStartTime).inMilliseconds / 1000;
-    debugPrint('Duration seconds: $durationSeconds');
-
-    // Create a temporary file with proper extension
-    final originalExt = path.extension(currentAudioPath);
-    debugPrint('Original extension: $originalExt');
-    final tempDir = await getTemporaryDirectory();
-    debugPrint('Temp dir: ${tempDir.path}');
-    final tempFileName =
-        'temp_trim_${DateTime.now().millisecondsSinceEpoch}$originalExt';
-    debugPrint('Temp file name: $tempFileName');
-    final tempOutputPath = path.join(tempDir.path, tempFileName);
-    debugPrint('Temp output path: $tempOutputPath');
-    // Ensure proper file extension and quotes for paths
-    final command =
-        '-i "$currentAudioPath" -ss $startSeconds -t $durationSeconds -c copy "$tempOutputPath"';
-    debugPrint('FFmpeg command: $command');
-
     try {
-      setBusy(true);
-      // Execute trim command
-      final session = await FFmpegKit.execute(command);
-      debugPrint('FFmpeg session started : ${session.getSessionId()}');
-      final returnCode = await session.getReturnCode();
-      debugPrint('FFmpeg return code: ${returnCode?.getValue()}');
-      final logs = await session.getLogs();
-      debugPrint('FFmpeg logs:');
-      for (final log in logs) {
-        debugPrint(log.getMessage());
+      if (selectionStartTime >= selectionEndTime) {
+        _snackbarService.showSnackbar(
+          message: 'Invalid selection: Start must be before end',
+          duration: const Duration(seconds: 2),
+        );
+        return;
       }
 
+      if (selectionStartTime < Duration.zero || selectionEndTime > duration) {
+        _snackbarService.showSnackbar(
+          message: 'Invalid selection: Out of audio bounds',
+          duration: const Duration(seconds: 2),
+        );
+        return;
+      }
+
+      // Store time frame information before trim
+      final trimStartStr = formatDuration(selectionStartTime);
+      final trimEndStr = formatDuration(selectionEndTime);
+      final trimDurationStr =
+          formatDuration(selectionEndTime - selectionStartTime);
+
+      final tempDir = await getTemporaryDirectory();
+      final tempOutputPath = path.join(tempDir.path,
+          'temp_trim_${DateTime.now().millisecondsSinceEpoch}.m4a');
+      final tempBackupPath = path.join(
+          tempDir.path, 'backup_${DateTime.now().millisecondsSinceEpoch}.m4a');
+
+      final startSeconds = selectionStartTime.inMilliseconds / 1000;
+      final durationSeconds =
+          (selectionEndTime - selectionStartTime).inMilliseconds / 1000;
+
+      final command =
+          '-i "$currentAudioPath" -ss $startSeconds -t $durationSeconds '
+          '-c:a aac -b:a 128k "$tempOutputPath"';
+
+      setBusy(true);
+
+      final session = await FFmpegKit.execute(command);
+      final returnCode = await session.getReturnCode();
+
       if (ReturnCode.isSuccess(returnCode)) {
-        debugPrint('Trim successful, replacing original file');
-        // Stop playback and release the file
         await audioPlayer.stop();
         await playerController?.stopPlayer();
 
         try {
-          // Delete the original file
-          final originalFile = File(currentAudioPath);
-          debugPrint('Original file path: $currentAudioPath');
-          // Ensure the original file exists before deleting
-          if (await originalFile.exists()) {
-            await originalFile.delete();
-            debugPrint('Original file deleted successfully');
+          await File(currentAudioPath).copy(tempBackupPath);
+
+          final trimmedFile = File(tempOutputPath);
+          if (!await trimmedFile.exists() || await trimmedFile.length() == 0) {
+            throw Exception('Trimmed file is invalid or empty');
           }
 
-          // Move temp file to original location
-          final tempFile = File(tempOutputPath);
-          await tempFile.copy(currentAudioPath);
-          await tempFile.delete();
-          // Clean up temp file after copying
-          debugPrint('Audio file replaced successfully');
+          await trimmedFile.copy(currentAudioPath);
 
-          // Reload the audio with the same path
+          if (await trimmedFile.exists()) await trimmedFile.delete();
+          final backupFile = File(tempBackupPath);
+          if (await backupFile.exists()) await backupFile.delete();
+
           await _reloadAudio();
           setEditMode(EditMode.none);
 
-          SnackbarService().showSnackbar(
-            message: 'Audio trimmed successfully',
-            duration: const Duration(seconds: 2),
+          // Show success message with time frame information
+          _snackbarService.showSnackbar(
+            message: 'Audio trimmed successfully\n'
+                'From: $trimStartStr\n'
+                'To: $trimEndStr\n'
+                'Duration: $trimDurationStr',
+            duration: const Duration(seconds: 4),
           );
         } catch (e) {
-          debugPrint('Error handling files: $e');
-          throw Exception('Failed to replace original file: $e');
+          final backupFile = File(tempBackupPath);
+          if (await backupFile.exists()) {
+            await backupFile.copy(currentAudioPath);
+            await backupFile.delete();
+          }
+          throw Exception('Failed to replace audio file: $e');
         }
       } else {
-        debugPrint('FFmpeg failed with return code: ${returnCode?.getValue()}');
-        throw Exception(
-            'Failed to trim audio: Return code ${returnCode?.getValue()}');
+        final logs = await session.getLogs();
+        throw Exception('FFmpeg failed: ${logs.join("\n")}');
       }
     } catch (e) {
-      debugPrint('Error trimming audio: $e');
-      SnackbarService().showSnackbar(
-        message: 'Failed to trim audio: ${e.toString()}',
-        duration: const Duration(seconds: 3),
+      _snackbarService.showSnackbar(
+        message: 'Failed to trim audio: $e',
+        duration: const Duration(seconds: 2),
       );
+      debugPrint('Error trimming audio: $e');
     } finally {
-      // Clean up temp file if it exists
-      try {
-        final tempFile = File(tempOutputPath);
-        if (await tempFile.exists()) {
-          await tempFile.delete();
-          debugPrint('Temp file cleaned up');
-        }
-      } catch (e) {
-        debugPrint('Error cleaning up temp file: $e');
-      }
       setBusy(false);
     }
   }
 
   Future<void> _reloadAudio() async {
-    await audioPlayer.stop();
-    await initializeAudioPlayer(currentAudioPath);
-    await initializedWaveform();
+    try {
+      await audioPlayer.stop();
+      await playerController?.stopPlayer();
+
+      await initializeAudioPlayer(currentAudioPath);
+      await initializedWaveform();
+    } catch (e) {
+      debugPrint('Error reloading audio: $e');
+      _snackbarService.showSnackbar(
+        message: 'Error reloading audio: $e',
+        duration: const Duration(seconds: 2),
+      );
+    }
   }
 
   Future<void> seek(double seconds) async {
