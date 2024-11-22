@@ -130,7 +130,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       if (filePath != null && tempRecordingPath != null) {
         // Only proceed with insertion if recording was successful
         if (await File(tempRecordingPath!).exists()) {
-          final recordingDuration = await getAudioDuration(tempRecordingPath!);
+          final recordingDuration = await _getAudioDuration(tempRecordingPath!);
 
           if (recordingDuration > _maxAllowedRecordingDuration) {
             // Trim the recording to match selection duration
@@ -214,7 +214,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       }
 
       // Get the duration of the insert audio
-      final insertDuration = await getAudioDuration(insertPath);
+      final insertDuration = await _getAudioDuration(insertPath);
       // Get the duration of the selection
       final selectionDuration = selectionEndTime - selectionStartTime;
 
@@ -326,7 +326,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
-  Future<Duration> getAudioDuration(String audioPath) async {
+  Future<Duration> _getAudioDuration(String audioPath) async {
     final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
     final output = await session.getOutput();
 

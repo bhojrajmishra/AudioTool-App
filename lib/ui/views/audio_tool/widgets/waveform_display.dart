@@ -2,6 +2,7 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/audio_selction_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:ruler_slider/ruler_slider.dart';
 
 class WaveformDisplay extends StatelessWidget {
   final PlayerController? playerController;
@@ -14,6 +15,7 @@ class WaveformDisplay extends StatelessWidget {
   final Function() onSelectionEnd;
   final Duration audioDuration;
   final String Function(Duration) formatDuration;
+
   const WaveformDisplay({
     super.key,
     required this.playerController,
@@ -34,7 +36,7 @@ class WaveformDisplay extends StatelessWidget {
       children: [
         _buildRuler(),
         Container(
-          height: 200,
+          height: 200.h,
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.grey.withOpacity(0.1),
@@ -58,15 +60,14 @@ class WaveformDisplay extends StatelessWidget {
     return Stack(
       children: [
         _buildBackground(),
+        _buildAudioWaveform(),
         if (isSelecting)
           AudioSelectionOverlay(
             selectionStart: selectionStart,
             selectionWidth: selectionWidth,
             constraints: constraints,
           ),
-        //here gesture detector is not properly working as expected which should be first build and then the waveform
-        _buildAudioWaveform(),
-        _buildWaveformGesture(constraints),
+        if (isSelecting) _buildWaveformGesture(constraints),
       ],
     );
   }
@@ -83,7 +84,7 @@ class WaveformDisplay extends StatelessWidget {
     return AudioFileWaveforms(
       size: Size(double.infinity, 300.h),
       playerController: playerController!,
-      enableSeekGesture: true,
+      enableSeekGesture: !isSelecting, // Disable seek gesture when selecting
       continuousWaveform: true,
       waveformType: WaveformType.long,
       playerWaveStyle: const PlayerWaveStyle(
@@ -101,43 +102,53 @@ class WaveformDisplay extends StatelessWidget {
   }
 
   Widget _buildWaveformGesture(BoxConstraints constraints) {
-    return GestureDetector(
-      onHorizontalDragStart: (details) =>
-          _handleDragStart(details, constraints),
-      onHorizontalDragUpdate: (details) =>
-          _handleDragUpdate(details, constraints),
-      onHorizontalDragEnd: (_) => onSelectionEnd(),
+    return Positioned.fill(
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onHorizontalDragStart: (details) {
+          // Disable the waveform's seek gesture when selection starts
+          // playerController?.pauseAllGestures();
+          _handleDragStart(details, constraints);
+        },
+        onHorizontalDragUpdate: (details) =>
+            _handleDragUpdate(details, constraints),
+        onHorizontalDragEnd: (details) {
+          // Re-enable the waveform's seek gesture when selection ends
+          // playerController?.resumeAllGestures();
+          onSelectionEnd();
+        },
+        child: Container(
+          color: Colors.transparent,
+        ),
+      ),
     );
   }
 
-  //ruler for the waveform count and show in label according to the width of the waveform
   Widget _buildRuler() {
-    return Positioned(
-      top: 0,
-      left: 0,
-      right: 0,
-      child: Row(
-        children: List.generate(
-          10,
-          (index) {
-            final position = index / 10;
-            return Expanded(
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  formatDuration(
-                    Duration(
-                        seconds: (audioDuration.inSeconds * position).toInt()),
+    return Row(
+      children: List.generate(
+        10,
+        (index) {
+          final position = index / 10;
+          return Expanded(
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                //only show two digi of the seconds not miliseconds
+                formatDuration(
+                  Duration(
+                    milliseconds:
+                        (audioDuration.inMilliseconds * position).toInt(),
                   ),
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 12.sp,
-                  ),
+                ).split('.')[0],
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 12.sp,
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

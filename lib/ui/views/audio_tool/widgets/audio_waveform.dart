@@ -35,26 +35,17 @@ class AudioWaveformWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        if (isSelecting)
-          AudioTimeInput(
-            duration: duration,
-            onManualTimeSet: onManualTimeSet,
-          ),
-        WaveformDisplay(
-          playerController: playerController,
-          isLoading: isLoading,
-          isSelecting: isSelecting,
-          selectionStart: selectionStart,
-          selectionWidth: selectionWidth,
-          onSelectionStart: onSelectionStart,
-          onSelectionUpdate: onSelectionUpdate,
-          onSelectionEnd: onSelectionEnd,
-          formatDuration: formatDuration,
-          audioDuration: duration,
-        ),
-      ],
+    return WaveformDisplay(
+      playerController: playerController,
+      isLoading: isLoading,
+      isSelecting: isSelecting,
+      selectionStart: selectionStart,
+      selectionWidth: selectionWidth,
+      onSelectionStart: onSelectionStart,
+      onSelectionUpdate: onSelectionUpdate,
+      onSelectionEnd: onSelectionEnd,
+      audioDuration: audioDuration,
+      formatDuration: formatDuration,
     );
   }
 }
