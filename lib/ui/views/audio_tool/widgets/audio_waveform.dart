@@ -1,5 +1,4 @@
 import 'package:audio_waveforms/audio_waveforms.dart';
-import 'package:audiobook_record/ui/views/audio_tool/widgets/audio_input_time.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/waveform_display.dart';
 import 'package:flutter/material.dart';
 
@@ -15,7 +14,6 @@ class AudioWaveformWidget extends StatelessWidget {
   final Function(double) onSelectionStart;
   final Function(double) onSelectionUpdate;
   final Function() onSelectionEnd;
-  final Function(Duration, Duration) onManualTimeSet;
 
   const AudioWaveformWidget({
     super.key,
@@ -28,7 +26,6 @@ class AudioWaveformWidget extends StatelessWidget {
     required this.onSelectionStart,
     required this.onSelectionUpdate,
     required this.onSelectionEnd,
-    required this.onManualTimeSet,
     required this.formatDuration,
     required this.audioDuration,
   });

@@ -56,7 +56,6 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                 onSelectionStart: viewModel.startSelection,
                 onSelectionUpdate: viewModel.updateSelection,
                 onSelectionEnd: viewModel.endSelection,
-                onManualTimeSet: viewModel.setManualTimeRange,
                 formatDuration: viewModel.formatDuration,
                 audioDuration: viewModel.duration,
               ),

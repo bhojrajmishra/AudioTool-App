@@ -2,7 +2,6 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:audiobook_record/ui/views/audio_tool/widgets/audio_selction_overlay.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:ruler_slider/ruler_slider.dart';
 
 class WaveformDisplay extends StatelessWidget {
   final PlayerController? playerController;
@@ -90,13 +89,13 @@ class WaveformDisplay extends StatelessWidget {
       playerWaveStyle: const PlayerWaveStyle(
         fixedWaveColor: Colors.blue,
         liveWaveColor: Colors.red,
-        spacing: 5,
+        spacing: 4,
         showTop: true,
         showBottom: true,
         seekLineColor: Colors.red,
         showSeekLine: true,
         waveCap: StrokeCap.round,
-        scaleFactor: 1000,
+        scaleFactor: 500,
       ),
     );
   }
