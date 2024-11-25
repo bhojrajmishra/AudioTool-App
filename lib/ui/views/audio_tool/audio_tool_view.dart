@@ -112,6 +112,17 @@ class AudioToolView extends StackedView<AudioToolViewModel> {
                         backgroundColor: Colors.black,
                       ),
                     ),
+                    //preview button after user record sound
+                    IconButton(
+                      icon: Icon(
+                        viewModel.isPreviewPlaying
+                            ? Icons.stop
+                            : Icons.play_arrow,
+                        color: Colors.black,
+                      ),
+                      iconSize: 30.sp,
+                      onPressed: viewModel.togglePreview,
+                    ),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.close),
                       label: const Text('Cancel'),
