@@ -84,7 +84,6 @@ class WaveformDisplay extends StatelessWidget {
       size: Size(double.infinity, 300.h),
       playerController: playerController!,
       enableSeekGesture: !isSelecting, // Disable seek gesture when selecting
-      continuousWaveform: true,
       waveformType: WaveformType.long,
       playerWaveStyle: const PlayerWaveStyle(
         fixedWaveColor: Colors.blue,
@@ -133,7 +132,6 @@ class WaveformDisplay extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                //only show two digi of the seconds not miliseconds
                 formatDuration(
                   Duration(
                     milliseconds:

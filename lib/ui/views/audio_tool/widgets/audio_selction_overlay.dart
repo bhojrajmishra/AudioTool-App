@@ -1,5 +1,18 @@
 import 'package:flutter/material.dart';
 
+/// Builds the audio selection overlay widget.
+///
+/// This widget is used to display a visual representation of the audio selection.
+/// It is a [Positioned] widget that is positioned relative to the
+/// [AudioWaveformWidget] in the widget tree.
+///
+/// The [selectionStart] and [selectionWidth] parameters define the portion of
+/// the audio that is currently selected. The [constraints] parameter is used to
+/// determine the size of the selection overlay.
+///
+/// The widget is composed of a [Container] with a black background and two
+/// [Positioned] widgets that represent the selection handles. The selection
+/// handles are used to adjust the selection by dragging them left or right.
 class AudioSelectionOverlay extends StatelessWidget {
   final double selectionStart;
   final double selectionWidth;
@@ -12,6 +25,7 @@ class AudioSelectionOverlay extends StatelessWidget {
     required this.constraints,
   });
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Positioned(

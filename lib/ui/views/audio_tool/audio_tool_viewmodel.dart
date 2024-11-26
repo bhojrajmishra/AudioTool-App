@@ -118,6 +118,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       }
     } catch (e) {
       debugPrint('Error starting recording: $e');
+      _snackbarService.closeSnackbar();
       _snackbarService.showSnackbar(
         message: 'Failed to start recording',
         duration: const Duration(seconds: 2),
@@ -146,8 +147,9 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           }
 
           // Instead of inserting immediately, prepare preview
-          await preparePreview(tempRecordingPath!);
+          // await preparePreview(tempRecordingPath!);
         } else {
+          _snackbarService.closeSnackbar();
           _snackbarService.showSnackbar(
             message: 'Recording file not found',
             duration: const Duration(seconds: 2),
@@ -156,6 +158,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       }
     } catch (e) {
       debugPrint('Error stopping recording: $e');
+      _snackbarService.closeSnackbar();
       _snackbarService.showSnackbar(
         message: 'Failed to stop recording',
         duration: const Duration(seconds: 2),
@@ -163,78 +166,79 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
-  Future<void> preparePreview(String recordingPath) async {
-    try {
-      final tempDir = await getTemporaryDirectory();
-      previewPath =
-          '${tempDir.path}/preview_${DateTime.now().millisecondsSinceEpoch}.m4a';
+  // Future<void> preparePreview(String recordingPath) async {
+  //   try {
+  //     final tempDir = await getTemporaryDirectory();
+  //     previewPath =
+  //         '${tempDir.path}/preview_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
-      // Create preview by combining segments
-      final beforePath = '${tempDir.path}/preview_before.m4a';
-      final afterPath = '${tempDir.path}/preview_after.m4a';
+  //     // Create preview by combining segments
+  //     final beforePath = '${tempDir.path}/preview_before.m4a';
+  //     final afterPath = '${tempDir.path}/preview_after.m4a';
 
-      // Extract before segment
-      final beforeCommand =
-          '-i "$currentAudioPath" -t ${selectionStartTime.inMilliseconds / 1000} -c copy "$beforePath"';
+  //     // Extract before segment
+  //     final beforeCommand =
+  //         '-i "$currentAudioPath" -t ${selectionStartTime.inMilliseconds / 1000} -c copy "$beforePath"';
 
-      final beforeSession = await FFmpegKit.execute(beforeCommand);
-      if (!ReturnCode.isSuccess(await beforeSession.getReturnCode())) {
-        throw Exception('Failed to extract before segment for preview');
-      }
+  //     final beforeSession = await FFmpegKit.execute(beforeCommand);
+  //     if (!ReturnCode.isSuccess(await beforeSession.getReturnCode())) {
+  //       throw Exception('Failed to extract before segment for preview');
+  //     }
 
-      // Extract after segment
-      final afterStartTime =
-          selectionStartTime + await _getAudioDuration(recordingPath);
-      final afterCommand =
-          '-i "$currentAudioPath" -ss ${afterStartTime.inMilliseconds / 1000} -c copy "$afterPath"';
+  //     // Extract after segment
+  //     final afterStartTime =
+  //         selectionStartTime + await _getAudioDuration(recordingPath);
+  //     final afterCommand =
+  //         '-i "$currentAudioPath" -ss ${afterStartTime.inMilliseconds / 1000} -c copy "$afterPath"';
 
-      final afterSession = await FFmpegKit.execute(afterCommand);
-      if (!ReturnCode.isSuccess(await afterSession.getReturnCode())) {
-        throw Exception('Failed to extract after segment for preview');
-      }
+  //     final afterSession = await FFmpegKit.execute(afterCommand);
+  //     if (!ReturnCode.isSuccess(await afterSession.getReturnCode())) {
+  //       throw Exception('Failed to extract after segment for preview');
+  //     }
 
-      // Create concatenation list
-      final listFile = File('${tempDir.path}/preview_list.txt');
-      await listFile.writeAsString(
-        "file '$beforePath'\nfile '$recordingPath'\nfile '$afterPath'",
-      );
+  //     // Create concatenation list
+  //     final listFile = File('${tempDir.path}/preview_list.txt');
+  //     await listFile.writeAsString(
+  //       "file '$beforePath'\nfile '$recordingPath'\nfile '$afterPath'",
+  //     );
 
-      // Concatenate segments
-      final concatCommand =
-          '-f concat -safe 0 -i "${listFile.path}" -c copy "$previewPath"';
+  //     // Concatenate segments
+  //     final concatCommand =
+  //         '-f concat -safe 0 -i "${listFile.path}" -c copy "$previewPath"';
 
-      final concatSession = await FFmpegKit.execute(concatCommand);
-      if (!ReturnCode.isSuccess(await concatSession.getReturnCode())) {
-        throw Exception('Failed to create preview');
-      }
+  //     final concatSession = await FFmpegKit.execute(concatCommand);
+  //     if (!ReturnCode.isSuccess(await concatSession.getReturnCode())) {
+  //       throw Exception('Failed to create preview');
+  //     }
 
-      // Initialize preview player
-      await previewPlayer.setFilePath(previewPath!);
-      previewDuration = previewPlayer.duration ?? Duration.zero;
-      isPreviewReady = true;
+  //     // Initialize preview player
+  //     await previewPlayer.setFilePath(previewPath!);
+  //     previewDuration = previewPlayer.duration ?? Duration.zero;
+  //     isPreviewReady = true;
 
-      // Clean up temporary files
-      for (final path in [beforePath, afterPath, listFile.path]) {
-        final file = File(path);
-        if (await file.exists()) {
-          await file.delete();
-        }
-      }
+  //     // Clean up temporary files
+  //     for (final path in [beforePath, afterPath, listFile.path]) {
+  //       final file = File(path);
+  //       if (await file.exists()) {
+  //         await file.delete();
+  //       }
+  //     }
 
-      notifyListeners();
-
-      _snackbarService.showSnackbar(
-        message: 'Preview ready. Press play to listen.',
-        duration: const Duration(seconds: 2),
-      );
-    } catch (e) {
-      debugPrint('Error preparing preview: $e');
-      _snackbarService.showSnackbar(
-        message: 'Failed to prepare preview: $e',
-        duration: const Duration(seconds: 2),
-      );
-    }
-  }
+  //     notifyListeners();
+  //     _snackbarService.closeSnackbar();
+  //     _snackbarService.showSnackbar(
+  //       message: 'Preview ready. Press play to listen.',
+  //       duration: const Duration(seconds: 2),
+  //     );
+  //   } catch (e) {
+  //     debugPrint('Error preparing preview: $e');
+  //     _snackbarService.closeSnackbar();
+  //     _snackbarService.showSnackbar(
+  //       message: 'Failed to prepare preview: $e',
+  //       duration: const Duration(seconds: 2),
+  //     );
+  //   }
+  // }
 
   Future<void> togglePreview() async {
     if (!isPreviewReady) return;
@@ -250,6 +254,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       notifyListeners();
     } catch (e) {
       debugPrint('Error toggling preview: $e');
+      _snackbarService.closeSnackbar();
       _snackbarService.showSnackbar(
         message: 'Failed to play preview',
         duration: const Duration(seconds: 2),
@@ -286,6 +291,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   Future<void> insertAudioAtSelection(String insertPath) async {
     //At first check if the selection is valid or not
     if (!isSelecting || selectionStartTime >= selectionEndTime) {
+      _snackbarService.closeSnackbar();
       _snackbarService.showSnackbar(
         message: 'Invalid selection for insertion',
         duration: const Duration(seconds: 2),
@@ -404,11 +410,13 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
 
         // Show appropriate message based on insert duration
         if (insertDuration > selectionDuration) {
+          _snackbarService.closeSnackbar();
           _snackbarService.showSnackbar(
             message: 'Audio inserted successfully (longer than selection)',
             duration: const Duration(seconds: 2),
           );
         } else {
+          _snackbarService.closeSnackbar();
           _snackbarService.showSnackbar(
             message: 'Audio inserted successfully',
             duration: const Duration(seconds: 2),
@@ -419,6 +427,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       }
     } catch (e) {
       debugPrint('Error inserting audio: $e');
+      _snackbarService.closeSnackbar();
       _snackbarService.showSnackbar(
         message: 'Failed to insert audio: ${e.toString()}',
         duration: const Duration(seconds: 3),
@@ -474,9 +483,10 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
 
   Future<void> initializeAudioPlayer(String audioPath) async {
     if (audioPath.isEmpty) {
-      SnackbarService().showSnackbar(
-        message: 'Audio path is empty',
-        duration: const Duration(seconds: 3),
+      _snackbarService.closeSnackbar();
+      _snackbarService.showSnackbar(
+        message: 'No audio file found',
+        duration: const Duration(seconds: 2),
       );
       return;
     }
@@ -524,9 +534,10 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       );
     } catch (e) {
       debugPrint('Error initializing audio player: $e');
-      SnackbarService().showSnackbar(
-        message: 'Error initializing audio player: ${e.toString()}',
-        duration: const Duration(seconds: 3),
+      _snackbarService.closeSnackbar();
+      _snackbarService.showSnackbar(
+        message: 'Failed to load audio: $e',
+        duration: const Duration(seconds: 2),
       );
     } finally {
       isloading = false;
@@ -540,6 +551,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       if (audioPlayer.playerState.playing) {
         await audioPlayer.pause();
       } else {
+        //this is used to check if the position is greater than the duration or the duration minus the position is less than 300 milliseconds
         if (position >= duration ||
             duration - position < const Duration(milliseconds: 300)) {
           await audioPlayer.seek(Duration.zero);
@@ -645,6 +657,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       await initializedWaveform();
     } catch (e) {
       debugPrint('Error reloading audio: $e');
+      _snackbarService.closeSnackbar();
       _snackbarService.showSnackbar(
         message: 'Error reloading audio: $e',
         duration: const Duration(seconds: 2),
@@ -655,14 +668,15 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
   Future<void> trimAudio(String outputPath) async {
     try {
       if (selectionStartTime >= selectionEndTime) {
+        _snackbarService.closeSnackbar();
         _snackbarService.showSnackbar(
           message: 'Invalid selection: Start must be before end',
           duration: const Duration(seconds: 2),
         );
         return;
       }
-
       if (selectionStartTime < Duration.zero || selectionEndTime > duration) {
+        _snackbarService.closeSnackbar();
         _snackbarService.showSnackbar(
           message: 'Invalid selection: Out of audio bounds',
           duration: const Duration(seconds: 2),
@@ -670,19 +684,20 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         return;
       }
 
-      // Store time frame information before trim
+      //here we are formatting the duration of the selection start time and the selection end time and the duration of the selection end time minus the selection start time
       final trimStartStr = formatDuration(selectionStartTime);
       final trimEndStr = formatDuration(selectionEndTime);
       final trimDurationStr =
           formatDuration(selectionEndTime - selectionStartTime);
 
+      //here we are creating a temporary directory for the output path and tempOutputPath for the temporary output path and tempBackupPath for the temporary backup path this temp is used to store the temporary files that are created during the trimming process this is necessary in trimming the aduio inorder to avoid any data loss or corruption of the original audio file
       final tempDir = await getTemporaryDirectory();
       final tempOutputPath = path.join(tempDir.path,
           'temp_trim_${DateTime.now().millisecondsSinceEpoch}.m4a');
       final tempBackupPath = path.join(
           tempDir.path, 'backup_${DateTime.now().millisecondsSinceEpoch}.m4a');
 
-      // Create two segments: before and after selection
+      //here beforePath is used to store the path of the audio file before the selection and afterPath is used to store the path of the audio file after the selection it is used to store the audio file after the selection
       final beforePath = path.join(
           tempDir.path, 'before_${DateTime.now().millisecondsSinceEpoch}.m4a');
       final afterPath = path.join(
@@ -700,7 +715,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         }
       }
 
-      // Extract after selection
+      // here if statement is used to check if the selection end time is less than the duration of the audio file
       if (selectionEndTime < duration) {
         final afterCommand =
             '-i "$currentAudioPath" -ss ${selectionEndTime.inMicroseconds / 1000000} -c copy "$afterPath"';
@@ -710,7 +725,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         }
       }
 
-      // Create concatenation list
+      // Create a list of files to concatenate using concat demuxer in FFmpeg
       final listFile = File('${tempDir.path}/list.txt');
       String listContent = '';
 
@@ -720,13 +735,14 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       if (await File(afterPath).exists()) {
         listContent += "file '$afterPath'\n";
       }
-
+      // Write the list of files to the list file
       await listFile.writeAsString(listContent);
 
-      // Concatenate segments
+      //this concatcommand have -f means concat demuxer  -safe 0 means to allow unsafe file names and -i is used to specify the input file -c copy is used to copy the codecs
       final concatCommand =
           '-f concat -safe 0 -i "${listFile.path}" -c copy "$tempOutputPath"';
 
+      //here session is used to execute the concat command and return the return code
       final session = await FFmpegKit.execute(concatCommand);
       final returnCode = await session.getReturnCode();
 
@@ -742,10 +758,8 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           if (!await trimmedFile.exists() || await trimmedFile.length() == 0) {
             throw Exception('Trimmed file is invalid or empty');
           }
-
           // Replace original file
           await trimmedFile.copy(currentAudioPath);
-
           // Cleanup temporary files
           for (final filePath in [
             tempOutputPath,
@@ -761,7 +775,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
 
           await _reloadAudio();
           setEditMode(EditMode.none);
-
+          _snackbarService.closeSnackbar();
           _snackbarService.showSnackbar(
             message: 'Audio trimmed successfully\n'
                 'From: $trimStartStr\n'
@@ -783,6 +797,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
         throw Exception('FFmpeg failed: ${logs.join("\n")}');
       }
     } catch (e) {
+      _snackbarService.closeSnackbar();
       _snackbarService.showSnackbar(
         message: 'Failed to trim audio: $e',
         duration: const Duration(seconds: 2),
@@ -793,6 +808,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     }
   }
 
+//it is used in progress bar
   Future<void> seek(double seconds) async {
     if (seconds >= 0 && seconds <= duration.inSeconds) {
       try {
@@ -844,6 +860,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       await cleanupPreview();
     } catch (e) {
       debugPrint('Error applying changes: $e');
+      _snackbarService.closeSnackbar();
       _snackbarService.showSnackbar(
         message: 'Failed to apply changes: ${e.toString()}',
         duration: const Duration(seconds: 3),
@@ -864,7 +881,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
           await previewFile.delete();
         }
       }
-
       isPreviewReady = false;
       isPreviewPlaying = false;
       previewPath = null;
@@ -884,6 +900,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
       await file.delete();
     }
     navigationService.back();
+    _snackbarService.closeSnackbar();
     _snackbarService.showSnackbar(
       message: 'Audio deleted successfully',
       duration: const Duration(seconds: 2),
@@ -898,33 +915,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
 
     return "${duration.inHours > 0 ? '${duration.inHours}:' : ''}$twoDigitMinutes:$twoDigitSeconds";
   }
-
-//set manual time range
-  // void setManualTimeRange(Duration startTime, Duration endTime) {
-  //   if (!isSelecting || editMode == EditMode.none) return;
-  //   // Validate time range
-  //   if (startTime >= endTime ||
-  //       startTime < Duration.zero ||
-  //       endTime > duration) {
-  //     _snackbarService.showSnackbar(
-  //       message: 'Invalid time range',
-  //       duration: const Duration(seconds: 2),
-  //     );
-  //     return;
-  //   }
-  //   // Update selection times
-  //   selectionStartTime = startTime;
-  //   selectionEndTime = endTime;
-  //   // Update visual selection
-  //   selectionStart = startTime.inMilliseconds / duration.inMilliseconds;
-  //   selectionWidth = (endTime.inMilliseconds - startTime.inMilliseconds) /
-  //       duration.inMilliseconds;
-  //   debugPrint(
-  //       'Manual selection set - Start: ${startTime.inSeconds}s, End: ${endTime.inSeconds}s');
-  //   debugPrint(
-  //       'Selection visuals - Start: $selectionStart, Width: $selectionWidth');
-  //   notifyListeners();
-  // }
 
   @override
   void dispose() {
