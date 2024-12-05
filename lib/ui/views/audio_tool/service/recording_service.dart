@@ -4,72 +4,80 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 
 class RecordingService {
-  final AudioRecorder audioRecorder = AudioRecorder();
-  bool isRecording = false;
-  String? tempRecordingPath;
+  final AudioRecorder _audioRecorder = AudioRecorder();
   Timer? _recordingTimer;
   Duration _currentRecordingDuration = Duration.zero;
+  bool _isRecording = false;
 
-  Future<String?> startRecording(Duration maxAllowedDuration,
-      {RecordConfig? config}) async {
+  bool get isRecording => _isRecording;
+
+  Future<String?> startRecording({
+    Duration? maxDuration,
+    void Function(Duration)? onProgress,
+    void Function()? onMaxDurationReached,
+  }) async {
     final tempDir = await getTemporaryDirectory();
-    tempRecordingPath =
-        '${tempDir.path}/temp_insert_${DateTime.now().millisecondsSinceEpoch}.m4a';
+    final tempRecordingPath =
+        '${tempDir.path}/temp_recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
 
     try {
-      if (await audioRecorder.hasPermission()) {
-        await audioRecorder.start(
-          config ??
-              const RecordConfig(
-                numChannels: 2,
-                sampleRate: 44100,
-                bitRate: 128000,
-                noiseSuppress: true,
-              ),
-          path: tempRecordingPath!,
+      if (await _audioRecorder.hasPermission()) {
+        await _audioRecorder.start(
+          const RecordConfig(
+            numChannels: 2,
+            sampleRate: 44100,
+            bitRate: 128000,
+            noiseSuppress: true,
+          ),
+          path: tempRecordingPath,
         );
 
-        isRecording = true;
+        _isRecording = true;
         _currentRecordingDuration = Duration.zero;
 
+        // Start timer to track recording duration
         _recordingTimer =
-            Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+            Timer.periodic(const Duration(milliseconds: 100), (timer) {
           _currentRecordingDuration += const Duration(milliseconds: 100);
+          onProgress?.call(_currentRecordingDuration);
 
-          if (_currentRecordingDuration >= maxAllowedDuration) {
+          // Check if recording duration exceeds max duration
+          if (maxDuration != null && _currentRecordingDuration >= maxDuration) {
             timer.cancel();
-            await stopRecording();
+            stopRecording().then((_) {
+              onMaxDurationReached?.call();
+            });
           }
         });
 
         return tempRecordingPath;
       }
-      return null;
     } catch (e) {
       debugPrint('Error starting recording: $e');
-      rethrow;
     }
+
+    return null;
   }
 
   Future<String?> stopRecording() async {
-    if (!isRecording) return null;
+    if (!_isRecording) return null;
 
     try {
       _recordingTimer?.cancel();
       _recordingTimer = null;
 
-      final String? filePath = await audioRecorder.stop();
-      isRecording = false;
+      final String? filePath = await _audioRecorder.stop();
+      _isRecording = false;
 
       return filePath;
     } catch (e) {
       debugPrint('Error stopping recording: $e');
-      rethrow;
+      return null;
     }
   }
 
   void dispose() {
     _recordingTimer?.cancel();
-    audioRecorder.dispose();
+    _audioRecorder.dispose();
   }
 }

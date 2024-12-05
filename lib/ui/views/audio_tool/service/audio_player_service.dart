@@ -1,82 +1,77 @@
-// import 'dart:async';
-// import 'package:flutter/foundation.dart';
-// import 'package:just_audio/just_audio.dart';
-// import 'package:audio_waveforms/audio_waveforms.dart';
+import 'dart:async';
+import 'package:just_audio/just_audio.dart';
+import 'package:audio_waveforms/audio_waveforms.dart';
 
-// class AudioPlayerService {
-//   final AudioPlayer audioPlayer = AudioPlayer();
-//   PlayerController? playerController;
-//   bool isPlaying = false;
-//   Duration duration = Duration.zero;
-//   Duration position = Duration.zero;
+class AudioPlayerService {
+  final AudioPlayer _audioPlayer = AudioPlayer();
+  PlayerController? _playerController;
+  bool _isPlaying = false;
+  Duration _duration = Duration.zero;
+  Duration _position = Duration.zero;
 
-//   Future<void> initializeAudioPlayer(String audioPath) async {
-//     try {
-//       await audioPlayer.setFilePath(audioPath);
-//       duration = audioPlayer.duration ?? Duration.zero;
+  AudioPlayer get player => _audioPlayer;
+  PlayerController? get playerController => _playerController;
+  bool get isPlaying => _isPlaying;
+  Duration get duration => _duration;
+  Duration get position => _position;
 
-//       audioPlayer.playerStateStream.listen(
-//         (state) {
-//           isPlaying = state.playing;
-//           if (state.processingState == ProcessingState.completed) {
-//             isPlaying = false;
-//             position = duration;
-//           }
-//         },
-//       );
-//     } catch (e) {
-//       debugPrint('Error initializing audio player: $e');
-//       rethrow;
-//     }
-//   }
+  Future<void> initializeAudio(String audioPath) async {
+    try {
+      await _audioPlayer.setFilePath(audioPath);
+      _duration = _audioPlayer.duration ?? Duration.zero;
 
-//   Future<void> initializeWaveform(String audioPath) async {
-//     try {
-//       playerController = PlayerController();
-//       await playerController?.preparePlayer(
-//         path: audioPath,
-//         shouldExtractWaveform: true,
-//         noOfSamples: 200,
-//         volume: 1.0,
-//       );
-//     } catch (e) {
-//       debugPrint('Error initializing waveform: $e');
-//       rethrow;
-//     }
-//   }
+      _audioPlayer.playerStateStream.listen((state) {
+        _isPlaying = state.playing;
+        if (state.processingState == ProcessingState.completed) {
+          _isPlaying = false;
+          _position = _duration;
+        }
+      });
+    } catch (e) {
+      throw Exception('Failed to initialize audio: $e');
+    }
+  }
 
-//   Future<void> playPause() async {
-//     try {
-//       if (audioPlayer.playerState.playing) {
-//         await audioPlayer.pause();
-//       } else {
-//         if (position >= duration ||
-//             duration - position < const Duration(milliseconds: 300)) {
-//           await audioPlayer.seek(Duration.zero);
-//           position = Duration.zero;
-//         }
-//         await audioPlayer.play();
-//       }
-//     } catch (e) {
-//       debugPrint('Error in playPause: $e');
-//       rethrow;
-//     }
-//   }
+  Future<void> initializeWaveform(String audioPath) async {
+    try {
+      _playerController = PlayerController();
+      await _playerController?.preparePlayer(
+        path: audioPath,
+        shouldExtractWaveform: true,
+        noOfSamples: 200,
+        volume: 1.0,
+      );
 
-//   Future<void> seek(double seconds, Duration totalDuration) async {
-//     if (seconds >= 0 && seconds <= totalDuration.inSeconds) {
-//       try {
-//         await audioPlayer.seek(Duration(seconds: seconds.toInt()));
-//         position = Duration(seconds: seconds.toInt());
-//       } catch (e) {
-//         debugPrint('Error in seek: $e');
-//         rethrow;
-//       }
-//     }
-//   }
+      _playerController?.onCurrentDurationChanged.listen((duration) {
+        _position = Duration(milliseconds: duration);
+      });
+    } catch (e) {
+      throw Exception('Failed to initialize waveform: $e');
+    }
+  }
 
-//   void dispose() {
-//     audioPlayer.dispose();
-//     playerController?.dispose();
-//   }
-// }
+  Future<void> playPause() async {
+    if (_audioPlayer.playerState.playing) {
+      await _audioPlayer.pause();
+    } else {
+      if (_position >= _duration ||
+          _duration - _position < const Duration(milliseconds: 300)) {
+        await _audioPlayer.seek(Duration.zero);
+        _position = Duration.zero;
+      }
+      await _audioPlayer.play();
+    }
+  }
+
+  Future<void> seek(double seconds) async {
+    if (seconds >= 0 && seconds <= _duration.inSeconds) {
+      await _audioPlayer.seek(Duration(seconds: seconds.toInt()));
+      _position = Duration(seconds: seconds.toInt());
+    }
+  }
+
+  void dispose() {
+    _audioPlayer.dispose();
+    _playerController?.dispose();
+  }
+}

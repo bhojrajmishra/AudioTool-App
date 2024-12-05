@@ -499,28 +499,7 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     try {
       await audioPlayer.setFilePath(audioPath);
       duration = audioPlayer.duration ?? Duration.zero;
-      //this is not working right now
-      // if (duration == Duration.zero) {
-      //   final session = await FFmpegKit.execute('-i "$audioPath" 2>&1');
-      //   final output = await session.getOutput();
 
-      //   if (output != null) {
-      //     final durationRegex =
-      //         RegExp(r'Duration: (\d{2}):(\d{2}):(\d{2})\.(\d{2})');
-      //     final match = durationRegex.firstMatch(output);
-
-      //     if (match != null) {
-      //       duration = Duration(
-      //         hours: int.parse(match.group(1) ?? '0'),
-      //         minutes: int.parse(match.group(2) ?? '0'),
-      //         seconds: int.parse(match.group(3) ?? '0'),
-      //         milliseconds: (int.parse(match.group(4) ?? '0') * 10),
-      //       );
-      //     }
-      //   }
-      // }
-
-      //
       audioPlayer.playerStateStream.listen(
         (state) {
           isPlaying = state.playing;
@@ -652,7 +631,6 @@ class AudioToolViewModel extends BaseViewModel with Initialisable {
     try {
       await audioPlayer.stop();
       await playerController?.stopPlayer();
-
       await initializeAudioPlayer(currentAudioPath);
       await initializedWaveform();
     } catch (e) {
